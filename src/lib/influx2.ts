@@ -1,8 +1,8 @@
-import { IBar } from './bar'
+import { IBar } from './grademark'
+import { INFLUX2_ORG, INFLUX2_URL, INFLUX2_TOKEN } from '../config'
 
 // eslint-disable-next-line camelcase
 const { InfluxDB, Point, DEFAULT_WriteOptions, fluxDuration } = require('@influxdata/influxdb-client')
-const { INFLUX2_ORG, INFLUX2_URL, INFLUX2_TOKEN } = require('../config/influx2')
 const { createOhlcvFlux, createOhlcvWithBbFlux, createOhlcvWithStochFlux } = require('./flux')
 const flushBatchSize = DEFAULT_WriteOptions.batchSize
 const writeOptions = {
@@ -15,7 +15,7 @@ const writeOptions = {
     retryJitter: 1000
 }
 
-export class Influx2 {
+class Influx2 {
     private client: any
     private org: string
     private timestampsPoint: string
@@ -28,9 +28,9 @@ export class Influx2 {
         this.writeOptions = { ...writeOptions, ...options }
     }
 
-    async writeData (symbol: string, item: IBar) {
-        const writeApi = this.client.getWriteApi(this.org, 'trades', this.timestampsPoint, this.writeOptions)
-        const point = new Point(symbol)
+    async addData (bucket: string, measurement: string, symbol: string, item: IBar) {
+        const writeApi = this.client.getWriteApi(this.org, bucket, this.timestampsPoint, this.writeOptions)
+        const point = new Point(measurement)
             .tag('symbol', symbol)
             // .timestamp(new Date(item.timestamp))
             // .floatField('price', item.price)
@@ -135,4 +135,8 @@ export class Influx2 {
                 }
             })
     }
+}
+
+export {
+    Influx2
 }

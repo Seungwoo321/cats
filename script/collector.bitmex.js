@@ -4,7 +4,6 @@ const { Influx2 } = require('../dist/lib/influx2')
 const ccxt = require('ccxt')
 const prompts = require('prompts')
 const cliProgress = require('cli-progress')
-// eslint-disable-next-line no-unused-expressions
 const colors = require('ansi-colors')
 
 const toDate = new Date()

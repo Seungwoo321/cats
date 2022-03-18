@@ -1,3 +1,15 @@
+import { Exchange } from 'ccxt'
+import { EXCHANGE_ID, EXCHANGE_API_KEY, EXCHANGE_SECRET_KEY } from '../config'
+
+const ccxt = require('ccxt')
+const ExchangeClass = ccxt[EXCHANGE_ID]
+
+export const exchange: Exchange = new ExchangeClass({
+    apiKey: EXCHANGE_API_KEY,
+    secret: EXCHANGE_SECRET_KEY,
+    nonce () { return this.milliseconds() }
+})
+
 export type Position = {
     'info': {}, // json response returned from the exchange as is
     'id': string, // string, position id to reference the position, similar to an order id
