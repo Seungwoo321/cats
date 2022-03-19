@@ -4,12 +4,12 @@ const BitMEXClient = require('bitmex-realtime-api')
 const dataForge = require('data-forge')
 const { Influx2 } = require('../src/lib/influx2')
 const trade = require('../src/lib/trade/bitmex')
-const strategy = require('./strategy')
+const strategy = require('../strategy')
 const args = process.argv.slice()
 args.shift()
 args.shift()
 
-; (function start () {
+; (function bot () {
     const symbol = args[0]
     const timeframe = args[1]
     const strategyName = args[2]
