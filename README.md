@@ -1,4 +1,4 @@
-# Crypto automated trading system
+# Crypto Automated Trading System (CATS)
 
 Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/Grademark/grademark/blob/master/src/lib/backtest.ts)
 
