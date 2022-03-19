@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { MARIADB_HOST, MARIADB_DATABASE, MARIADB_USERNAME, MARIADB_PASSWORD } from '../config'
+import { MARIADB_HOST, MARIADB_DATABASE, MARIADB_USERNAME, MARIADB_PASSWORD, EXCHANGE_ID } from '../config'
 
 const sequelize = new Sequelize(MARIADB_DATABASE, MARIADB_USERNAME, MARIADB_PASSWORD, {
     host: MARIADB_HOST,
@@ -74,10 +74,12 @@ OpenPosition.init({
     }
 }, {
     sequelize: sequelize,
-    schema: 'bitmex',
+    schema: EXCHANGE_ID,
     modelName: 'open_position',
     underscored: true
 })
+OpenPosition.sync()
+
 class PositionStatus extends Model { }
 PositionStatus.init({
     symbol: {
@@ -94,10 +96,11 @@ PositionStatus.init({
     }
 }, {
     sequelize: sequelize,
-    schema: 'bitmex',
+    schema: EXCHANGE_ID,
     modelName: 'position_status',
     underscored: true
 })
+PositionStatus.sync()
 
 export {
     sequelize,

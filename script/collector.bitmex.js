@@ -1,6 +1,6 @@
 'use strict'
-require('../dist/config/env')
-const { Influx2 } = require('../dist/lib/influx2')
+require('../src/config')
+const { Influx2 } = require('../src/lib/influx2')
 const ccxt = require('ccxt')
 const prompts = require('prompts')
 const cliProgress = require('cli-progress')
