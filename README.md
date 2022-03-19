@@ -54,7 +54,7 @@ Step 5. Write strategy
 
 ## Getting Started
 
-[run apollo server]((https://github.com/Seungwoo321/crypto-automated-trading-system#run-apollo-server)) then [run bot]((https://github.com/Seungwoo321/crypto-automated-trading-system#run-bot))
+[run apollo server](https://github.com/Seungwoo321/crypto-automated-trading-system#run-apollo-server) then [run bot](https://github.com/Seungwoo321/crypto-automated-trading-system#run-bot)
 
 ## Usage
 
