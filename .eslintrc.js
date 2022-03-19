@@ -26,5 +26,11 @@ module.exports = {
             { argsIgnorePattern: '^_' }
         ]
     },
-    ignorePatterns: ['test', 'dist']
+    ignorePatterns: [
+        'test',
+        'dist',
+        'src/lib/**/*.js',
+        'src/lib/*.js',
+        'src/config.js'
+    ]
 }
