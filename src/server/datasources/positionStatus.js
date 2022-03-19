@@ -1,6 +1,6 @@
 const { DataSource } = require('apollo-datasource')
 
-class OpenPosition extends DataSource {
+class PositionStatus extends DataSource {
     constructor (store) {
         super()
         this.store = store
@@ -36,4 +36,4 @@ class OpenPosition extends DataSource {
     }
 }
 
-module.exports = OpenPosition
+module.exports = PositionStatus

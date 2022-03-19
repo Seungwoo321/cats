@@ -1,5 +1,4 @@
 const { DataSource } = require('apollo-datasource')
-
 class CandleAPI extends DataSource {
     constructor (store) {
         super()
@@ -12,14 +11,13 @@ class CandleAPI extends DataSource {
 
     /**
      *
-     * @param {string} bucket
-     * @param {string} measurement
      * @param {string} symbol
-     * @param {string} startRange
+     * @param {string} timeframe
      * @returns
      */
-    async getCandles (bucket, measurement, symbol, startRange) {
-        return this.store.fetchCandles(bucket, measurement, symbol, { start: startRange })
+    async getCandles ({ symbol, timeframe }) {
+        const measurement = `${symbol}_${timeframe}`
+        return this.store.fetchCandles('candles', measurement, symbol, { start: '-30d' })
     }
 }
 
