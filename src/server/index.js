@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 const { ApolloServer } = require('apollo-server')
-const typeDefs = require('./schema')
+const { typeDefs } = require('./schema')
 const resolvers = require('./resolvers')
 const { createStore } = require('./utils')
 const CandleAPI = require('./datasources/candle')

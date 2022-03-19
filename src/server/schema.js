@@ -1,6 +1,6 @@
 const { gql } = require('apollo-server')
 
-export const typeDefs = gql`
+const typeDefs = gql`
     scalar Date
 
     enum TradeDirection {
@@ -88,3 +88,6 @@ export const typeDefs = gql`
         closePosition(symbol: String): IPositionStatus
     }
 `
+module.exports = {
+    typeDefs
+}

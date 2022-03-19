@@ -1,7 +1,8 @@
 const { Influx2 } = require('../lib/influx2')
 const { sequelize, OpenPosition, PositionStatus } = require('../lib/mariadb')
 
-export const createStore = () => {
+const createStore = () => {
+    console.log(sequelize)
     return {
         mariadb: {
             sequelize,
@@ -10,4 +11,7 @@ export const createStore = () => {
         },
         influx2: new Influx2()
     }
+}
+module.exports = {
+    createStore
 }
