@@ -7,7 +7,7 @@
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "build:lib": "rm -rf dist && tsc",
+    "build:lib": "tsc",
     "collector:bitmex": "node script/collector.bitmex.js",
     "bot:bitmex": "node script/bot.bitmex.js",
     "dev:apollo-server": "nodemon src/server",
