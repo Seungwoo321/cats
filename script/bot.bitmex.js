@@ -24,7 +24,8 @@ args.shift()
     client.on('error', (error) => {
         console.error(error)
     })
-    client.addStream(symbol, 'tradeBin1h', async function (item, symbol) {
+    client.addStream(symbol.split(':')[0].replace('/', ''), 'tradeBin1h', async function (item, symbol) {
+        console.log(item)
         const measurement = `${symbol}_${timeframe}`
         try {
             const bar = {
