@@ -1,9 +1,9 @@
 
 'use strict'
-require('../src/config')
-const { trading } = require('../src/lib/trade/bitmex')
+require('../dist/config')
+const { trading } = require('../dist/lib/trade/bitmex')
 const dataForge = require('data-forge')
-const { Influx2 } = require('../src/lib/influx2')
+const { Influx2 } = require('../dist/lib/influx2')
 const strategy = require('../strategy')
 const args = process.argv.slice()
 args.shift()
