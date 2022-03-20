@@ -131,8 +131,6 @@ module.exports = {
 
 [run apollo server](https://github.com/Seungwoo321/crypto-automated-trading-system#run-apollo-server) then [run bot](https://github.com/Seungwoo321/crypto-automated-trading-system#run-bot)
 
-## Usage
-
 ### Lint
 
 ```bash
@@ -150,8 +148,6 @@ npm run test
 ```bash
 npm run serve:apollo-server
 ```
-
-## Script
 
 ### Run collecting
 
