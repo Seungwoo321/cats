@@ -21,7 +21,7 @@ const dateScalar = new GraphQLScalarType({
 module.exports = {
     Query: {
         positionStatus: async (_, { symbol }, { dataSources }) => {
-            return await dataSources.PositionStatusAPI.positionStatus({ symbol })
+            return await dataSources.positionStatusAPI.positionStatus({ symbol })
         },
         openPosition: async (_, { symbol }, { dataSources }) => {
             return await dataSources.openPositionAPI.getPosition({ symbol })
@@ -35,26 +35,26 @@ module.exports = {
             return await dataSources.openPositionAPI.updatePosition({ values: position })
         },
         openPosition: async (_, { symbol, position }, { dataSources }) => {
-            const positionStatus = await dataSources.openPositionAPI.positionStatus({ symbol })
+            const positionStatus = await dataSources.positionStatusAPI.positionStatus({ symbol })
             return positionStatus.value === 'Enter' &&
-                await dataSources.PositionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } }) &&
+                await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } }) &&
                 await dataSources.openPositionAPI.findOrCreatePosition(position)
         },
         enterPosition: async (_, { symbol, direction = 'Long', entryPrice }, { dataSources }) => {
-            const positionStatus = await dataSources.openPositionAPI.positionStatus({ symbol })
+            const positionStatus = await dataSources.positionStatusAPI.positionStatus({ symbol })
             return positionStatus.value === 'None' &&
-                await dataSources.PositionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice } })
+                await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice } })
         },
         exitPosition: async (_, { symbol }, { dataSources }) => {
-            const positionStatus = await dataSources.openPositionAPI.positionStatus({ symbol })
+            const positionStatus = await dataSources.positionStatusAPI.positionStatus({ symbol })
             return positionStatus.value === 'Position' &&
-                await dataSources.PositionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Exit' } })
+                await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Exit' } })
         },
         closePosition: async (_, { symbol }, { dataSources }) => {
-            const positionStatus = await dataSources.openPositionAPI.positionStatus({ symbol })
+            const positionStatus = await dataSources.positionStatusAPI.positionStatus({ symbol })
             return (positionStatus.value === 'Position' || positionStatus.value === 'Exit') &&
                 await dataSources.openPositionAPI.closePostion({ symbol }) &&
-                await dataSources.PositionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None' } })
+                await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', conditionalEntryPrice: null } })
         }
     },
     Date: dateScalar

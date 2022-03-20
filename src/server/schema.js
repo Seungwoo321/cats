@@ -4,8 +4,8 @@ const typeDefs = gql`
     scalar Date
 
     enum TradeDirection {
-        Long
-        Short
+        long
+        short
     }
     enum Status {
         None

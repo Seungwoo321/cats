@@ -15,7 +15,7 @@ const store = createStore()
 const dataSources = () => ({
     candleAPI: new CandleAPI(store.influx2),
     openPositionAPI: new OpenPositionAPI(store.mariadb.OpenPosition),
-    PositionStatusAPI: new PositionStatusAPI(store.mariadb.PositionStatus)
+    positionStatusAPI: new PositionStatusAPI(store.mariadb.PositionStatus)
 })
 
 // the function that sets up the global context for each resolver, using the req
