@@ -10,11 +10,12 @@ class OpenPosition extends Model { }
 OpenPosition.init({
     symbol: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        primaryKey: true
     },
     direction: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
     entryTime: {
         type: DataTypes.DATE,
@@ -30,11 +31,11 @@ OpenPosition.init({
     },
     profit: {
         type: DataTypes.DECIMAL,
-        allowNull: false
+        allowNull: true
     },
     profitPct: {
         type: DataTypes.DOUBLE,
-        allowNull: false
+        allowNull: true
     },
     holdingPeriod: {
         type: DataTypes.INTEGER,
@@ -46,27 +47,11 @@ OpenPosition.init({
     },
     curStopPrice: {
         type: DataTypes.DECIMAL,
-        allowNull: false
+        allowNull: true
     },
     profitTarget: {
         type: DataTypes.DOUBLE,
-        allowNull: false
-    },
-    initialUnitRisk: {
-        type: DataTypes.DECIMAL,
-        allowNull: false
-    },
-    initialRiskPct: {
-        type: DataTypes.DOUBLE,
-        allowNull: false
-    },
-    curRiskPct: {
-        type: DataTypes.DOUBLE,
-        allowNull: false
-    },
-    curRMultiple: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     amount: {
         type: DataTypes.DOUBLE,
@@ -78,21 +63,25 @@ OpenPosition.init({
     modelName: 'open_position',
     underscored: true
 })
-OpenPosition.sync()
 
 class PositionStatus extends Model { }
 PositionStatus.init({
     symbol: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true
     },
     direction: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false
     },
     conditionalEntryPrice: {
-        type: DataTypes.DECIMAL
+        type: DataTypes.DECIMAL,
+        allowNull: true
     },
     value: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false
     }
 }, {
     sequelize: sequelize,
@@ -100,7 +89,111 @@ PositionStatus.init({
     modelName: 'position_status',
     underscored: true
 })
-PositionStatus.sync()
+
+class CompletedTrade extends Model {}
+
+CompletedTrade.init({
+    symbol: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true
+    },
+    direction: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    entryTime: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    entryPrice: {
+        type: DataTypes.DECIMAL,
+        allowNull: false
+    },
+    exitTime: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    exitPrice: {
+        type: DataTypes.DECIMAL,
+        allowNull: true
+    },
+    profit: {
+        type: DataTypes.DECIMAL,
+        allowNull: true
+    },
+    profitPct: {
+        type: DataTypes.DECIMAL,
+        allowNull: true
+    },
+    holdingPeriod: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    exitReason: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    stopPrice: {
+        type: DataTypes.DECIMAL,
+        allowNull: true
+    }
+}, {
+    sequelize: sequelize,
+    schema: EXCHANGE_ID,
+    modelName: 'completed_trade',
+    underscored: true
+})
+
+class OrderHistory extends Model { }
+
+OrderHistory.init({
+    symbol: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true
+    },
+    size: {
+        type: DataTypes.DOUBLE,
+        allowNull: false
+    },
+    Filled: {
+        type: DataTypes.DOUBLE,
+        allowNull: true
+    },
+    stopPrice: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    fillPrice: {
+        type: DataTypes.DECIMAL,
+        allowNull: false
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    status: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    orderId: {
+        type: DataTypes.STRING,
+        primaryKey: true
+    },
+    time: {
+        type: DataTypes.DATE,
+        allowNull: true
+    }
+}, {
+    sequelize: sequelize,
+    schema: EXCHANGE_ID,
+    modelName: 'oter_history',
+    underscored: true
+})
+
+PositionStatus.belongsTo(OpenPosition)
+sequelize.sync()
 
 export {
     sequelize,

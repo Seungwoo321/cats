@@ -36,11 +36,11 @@ class Influx2 {
             // .floatField('price', item.price)
             // .floatField('volume', item.foreignNotional)
             .timestamp(item.time)
-            .floatField('open', item.open)
-            .floatField('high', item.high)
-            .floatField('low', item.low)
-            .floatField('close', item.close)
-            .floatField('volume', item.volume)
+            .floatField('open', Number(item.open))
+            .floatField('high', Number(item.high))
+            .floatField('low', Number(item.low))
+            .floatField('close', Number(item.close))
+            .floatField('volume', Number(item.volume))
         writeApi.writePoint(point)
         try {
             await writeApi.flush()
@@ -82,56 +82,57 @@ class Influx2 {
             .collectRows(query, (row: any, tableMeta: any) => {
                 return {
                     symbol: row[tableMeta.column('symbol').index],
-                    open: row[tableMeta.column('open').index],
-                    high: row[tableMeta.column('high').index],
-                    low: row[tableMeta.column('low').index],
-                    close: row[tableMeta.column('close').index],
-                    volume: row[tableMeta.column('volume').index],
+                    open: Number(row[tableMeta.column('open').index]),
+                    high: Number(row[tableMeta.column('high').index]),
+                    low: Number(row[tableMeta.column('low').index]),
+                    close: Number(row[tableMeta.column('close').index]),
+                    volume: Number(row[tableMeta.column('volume').index]),
                     time: row[tableMeta.column('_time').index]
                 }
             })
     }
 
     // not use
-    async fetchCandleWithBolingerBands (measurement: string, symbol: string, { start = '-1y', stop = '0d', n, std } : { start: string, stop: string, n: number, std: number }): Promise<void> {
+    async fetchCandleWithBolingerBands (bucket: string, measurement: string, symbol: string, { start = '-1y', stop = '0d', n, std } : { start: string, stop: string, n: number, std: number }): Promise<void> {
         const startRange = fluxDuration(start)
         const stopRange = fluxDuration(stop)
-        const query = createOhlcvWithBbFlux('candles', measurement, symbol, startRange, stopRange, n, std)
+        const query = createOhlcvWithBbFlux(bucket, measurement, symbol, startRange, stopRange, n, std)
         return await this.client
             .getQueryApi(this.org)
             .collectRows(query, (row: any, tableMeta: any) => {
                 return {
                     symbol: row[tableMeta.column('symbol').index],
-                    open: row[tableMeta.column('open').index],
-                    high: row[tableMeta.column('high').index],
-                    low: row[tableMeta.column('low').index],
-                    close: row[tableMeta.column('close').index],
-                    volume: row[tableMeta.column('volume').index],
-                    middle: row[tableMeta.column('middle').index],
-                    upper: row[tableMeta.column('upper').index],
-                    lower: row[tableMeta.column('lower').index],
+                    open: Number(row[tableMeta.column('open').index]),
+                    high: Number(row[tableMeta.column('high').index]),
+                    low: Number(row[tableMeta.column('low').index]),
+                    close: Number(row[tableMeta.column('close').index]),
+                    volume: Number(row[tableMeta.column('volume').index]),
+                    middle: Number(row[tableMeta.column('middle').index]),
+                    upper: Number(row[tableMeta.column('upper').index]),
+                    lower: Number(row[tableMeta.column('lower').index]),
                     time: row[tableMeta.column('_time').index]
                 }
             })
     }
 
     // not use
-    async fetchCandleWithStochastic (measurement: string, symbol: string, { start = '-1y', stop = '0d', n, m, t }: { start: string, stop: string, n: number, m: number, t: number }): Promise<void> {
+    async fetchCandleWithStochastic (bucket: string, measurement: string, symbol: string, { start = '-1y', stop = '0d', n, m, t }: { start: string, stop: string, n: number, m: number, t: number }): Promise<void> {
         const startRange = fluxDuration(start)
         const stopRange = fluxDuration(stop)
-        const query = createOhlcvWithStochFlux('candles', measurement, symbol, startRange, stopRange, n, m, t)
+        const query = createOhlcvWithStochFlux(bucket, measurement, symbol, startRange, stopRange, n, m, t)
         return await this.client
             .getQueryApi(this.org)
             .collectRows(query, (row: any, tableMeta: any) => {
                 return {
                     symbol: row[tableMeta.column('symbol').index],
-                    open: row[tableMeta.column('open').index],
-                    high: row[tableMeta.column('high').index],
-                    low: row[tableMeta.column('low').index],
-                    close: row[tableMeta.column('close').index],
-                    volume: row[tableMeta.column('volume').index],
-                    k: row[tableMeta.column('k').index],
-                    d: row[tableMeta.column('d').index]
+                    open: Number(row[tableMeta.column('open').index]),
+                    high: Number(row[tableMeta.column('high').index]),
+                    low: Number(row[tableMeta.column('low').index]),
+                    close: Number(row[tableMeta.column('close').index]),
+                    volume: Number(row[tableMeta.column('volume').index]),
+                    k: Number(row[tableMeta.column('k').index]),
+                    d: Number(row[tableMeta.column('d').index]),
+                    time: row[tableMeta.column('_time').index]
                 }
             })
     }
