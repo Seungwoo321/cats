@@ -52,6 +52,32 @@ Step 5. Write strategy
 
 [See here](https://github.com/Grademark/grademark-first-example/blob/master/index.js#L37-L53)
 
+For example, write the strategy name a as:
+
+```js
+// strategy/a.js 
+module.exports = {
+    entryRule: async (enterPostion, args) => {
+        if (/** If you want to enter a long position */) {
+            await enterPosition({ symbol: args.parameters.symbol, direction: 'long', entryPrice: args.parameters.entryPrice })
+
+        } else if (/** If you want to enter a short position */) {
+            await enterPosition({ symbol: args.parameters.symbol, direction: 'short', entryPrice: args.parameters.entryPrice })
+
+        }
+        
+    }
+}
+
+// strategy/index.js 
+const a = require('./a')
+
+module.exports = {
+    a
+}
+
+```
+
 ## Getting Started
 
 [run apollo server](https://github.com/Seungwoo321/crypto-automated-trading-system#run-apollo-server) then [run bot](https://github.com/Seungwoo321/crypto-automated-trading-system#run-bot)
@@ -88,6 +114,16 @@ npm run collector:bitmex
 
 ### Run Bot
 
+#### required 3 argumnets
+
+1. symbol; e.g `BTC/USD:BTC`, `BCH/USD:BTC`, `ETH/USD:BTC`, `LTC/USD:BTC` in bitmex
+2. timeframe;  e.g `30m`, `1h`, `4h`, `1d` using in influxData
+3. strategy name; create in strategy directory
+
 ```bash
 npm run bot:bitmex
 ```
+
+## License
+
+MIT
