@@ -24,12 +24,11 @@ async function updatePosition (position: IPosition, bar: IBar, amount: number, f
         const symbol: string = position.symbol
         await exchange.createOrder(
             symbol,
-            'limit',
+            'stopLimit',
             position.direction === TradeDirection.Long ? 'sell' : 'buy',
             amount,
             position.curStopPrice,
             {
-                type: 'stopLimit',
                 stopPrice: position.curStopPrice,
                 text: 'traling-stop',
                 execInst: 'LastPrice,Close'
@@ -80,11 +79,11 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     const positionStatus = await gqlService.getPositionStatus(symbol)
     const entryPrice = bar.open
     const positionDirection = positionStatus.direction
-    const currentPosition: Position = await exchange.fetchPositions(null, {
-        filter: {
-            symbol
-        }
-    })
+    const positions: Position[] = await exchange.fetchPositions()
+    const currentPosition: Position = positions.find(position => position.symbol === symbol.split(':')[0].replace('/', '')) || {
+        isOpen: false,
+        currentQty: '0'
+    }
     /**
      *
      * @param openPosition
@@ -99,14 +98,15 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         }
         const amount: number = availableMargin / market.info.multiplier / market.info.prevClosePrice * market.info.lotSize
         const formattedAmount: number = exchange.amountToPrecision(symbol, amount)
-        const formattedPrice: number = exchange.priceToPrecision(symbol, market.info.prevClosePrice)
+        openPosition.amount = formattedAmount
+        const formattedPrice: number = parseFloat(exchange.priceToPrecision(symbol, openPosition.entryPrice))
         // cancle all orders
         await exchange.cancelAllOrders()
-
         // create new order
         await exchange.createOrder(
             symbol,
-            'Limit', openPosition.direction === TradeDirection.Long ? 'buy' : 'sell',
+            'limit',
+            openPosition.direction === TradeDirection.Long ? 'buy' : 'sell',
             formattedAmount,
             formattedPrice,
             {
@@ -119,7 +119,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         if (openPosition.initialStopPrice) {
             await exchange.createOrder(
                 symbol,
-                'Stop',
+                'stop',
                 openPosition.direction === TradeDirection.Long ? 'sell' : 'buy',
                 formattedAmount,
                 openPosition.initialStopPrice,
@@ -135,11 +135,12 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         if (strategy.trailingStopLoss && openPosition.curStopPrice !== undefined && openPosition.initialStopPrice !== openPosition.curStopPrice) {
             await exchange.createOrder(
                 symbol,
-                'StopLimit',
+                'stopLimit',
                 openPosition.direction === TradeDirection.Long ? 'sell' : 'buy',
                 formattedAmount,
                 openPosition.curStopPrice,
                 {
+                    ordType: 'stopLimit',
                     stopPx: openPosition.curStopPrice,
                     text: 'traling-stop',
                     execInst: 'LastPrice,Close'
@@ -151,7 +152,8 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     }
     /**
      *
-     * @param openPosition
+     * @param direction
+     * @param symbol
      * @param amount
      * @param exitPrice
      * @param exitReason
@@ -160,7 +162,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     async function closePosition (direction: TradeDirection, symbol: string, amount: number, exitPrice: number, exitReason: string) {
         await exchange.createOrder(
             symbol,
-            'Limit',
+            'limit',
             direction === TradeDirection.Long ? 'sell' : 'buy',
             amount,
             exitPrice,
@@ -175,15 +177,12 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     }
     /**
      *
-     * @param symbol
-     * @param direction
-     * @param entryPrice
-     * @returns
+     * @param options
      */
     async function enterPosition (options?: IEnterPositionOptions) {
         assert(positionStatus.value === PositionStatus.None, 'Can only enter a position when not already in one.')
         if (options?.symbol && options?.direction && options?.entryPrice) {
-            await gqlService.enterPosition(symbol, options.direction, entryPrice)
+            await gqlService.enterPosition(symbol, options.direction, options.entryPrice)
         }
     }
     /**
@@ -192,6 +191,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      * @returns
      */
     async function exitPosition (symbol: string) {
+        assert(positionStatus.value === PositionStatus.Position, 'Can only exit a position when we are in a position.')
         return await gqlService.exitPosition(symbol)
     }
     /**
@@ -202,32 +202,14 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      * @param exitReason
      * @returns
      */
-    function finalizePosition (openPosition: IPosition, exitTime: Date, exitPrice: number, exitReason: string) {
-        const profit = openPosition.direction === TradeDirection.Long
-            ? exitPrice - openPosition.entryPrice
-            : openPosition.entryPrice - exitPrice
-        return {
-            direction: openPosition.direction,
-            entryTime: openPosition.entryTime,
-            entryPrice: openPosition.entryPrice,
-            exitTime: exitTime,
-            exitPrice: exitPrice,
-            profit: profit,
-            profitPct: (profit / openPosition.entryPrice) * 100,
-            holdingPeriod: openPosition.holdingPeriod,
-            exitReason: exitReason,
-            stopPrice: openPosition.initialStopPrice
-        }
-    }
 
-    switch (+positionStatus.value) {
+    switch (positionStatus.value) {
     case PositionStatus.None:
-        if (currentPosition.contracts !== 0) {
-            const direction = currentPosition.contracts > 0
+        if (currentPosition?.isOpen) {
+            const direction = +currentPosition?.currentQty > 0
                 ? TradeDirection.Long
                 : TradeDirection.Short
-            await enterPosition({ symbol, direction, entryPrice })
-            break
+            await closePosition(direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'none position')
         }
 
         await strategy.entryRule(enterPosition, {
@@ -241,17 +223,14 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         break
 
     case PositionStatus.Enter:
-        assert(positionStatus.conditionalEntryPrice === undefined, 'Expected there to be no open position initialised yet!')
-
+        assert(openPosition === null, 'Expected there to be no open position initialised yet!')
         if (positionStatus.conditionalEntryPrice !== undefined) {
             if (positionStatus.direction === TradeDirection.Long) {
                 if (bar.high < positionStatus.conditionalEntryPrice) {
-                    await gqlService.closePosition(symbol)
                     break
                 }
             } else {
                 if (bar.low > positionStatus.conditionalEntryPrice) {
-                    await gqlService.closePosition(symbol)
                     break
                 }
             }
@@ -264,25 +243,22 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             growth: 1,
             profit: 0,
             profitPct: 0,
-            holdingPeriod: 0
+            holdingPeriod: 0,
+            amount: Number(currentPosition.currentQty)
         }
 
         if (strategy.stopLoss) {
             const initialStopDistance = strategy.stopLoss({
                 entryPrice,
                 position: openPosition,
-                bar: bar,
-                parameters: {
-                    ...strategyParameters,
-                    symbol,
-                    entryPrice
-                }
+                bar,
+                parameters: strategyParameters
             })
             openPosition.initialStopPrice = openPosition.direction === TradeDirection.Long
                 ? entryPrice - initialStopDistance
                 : entryPrice + initialStopDistance
-            openPosition.curStopPrice = exchange.priceToPrecision(symbol, openPosition.initialStopPrice)
-            openPosition.initialStopPrice = exchange.priceToPrecision(symbol, openPosition.initialStopPrice)
+            openPosition.curStopPrice = parseFloat(exchange.priceToPrecision(symbol, openPosition.initialStopPrice))
+            openPosition.initialStopPrice = parseFloat(exchange.priceToPrecision(symbol, openPosition.initialStopPrice))
         }
 
         if (strategy.trailingStopLoss) {
@@ -292,6 +268,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 bar,
                 parameters: strategyParameters
             })
+
             const trailingStopPrice = openPosition.direction === TradeDirection.Long
                 ? entryPrice - trailingStopDistance
                 : entryPrice + trailingStopDistance
@@ -302,8 +279,8 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                     ? Math.max(openPosition.initialStopPrice, trailingStopPrice)
                     : Math.min(openPosition.initialStopPrice, trailingStopPrice)
             }
-            openPosition.curStopPrice = exchange.priceToPrecision(symbol, openPosition.initialStopPrice)
-            openPosition.initialStopPrice = exchange.priceToPrecision(symbol, openPosition.initialStopPrice)
+            openPosition.curStopPrice = parseFloat(exchange.priceToPrecision(symbol, openPosition.initialStopPrice))
+            openPosition.initialStopPrice = parseFloat(exchange.priceToPrecision(symbol, openPosition.initialStopPrice))
         }
 
         if (strategy.profitTarget) {
@@ -316,10 +293,10 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             openPosition.profitTarget = openPosition.direction === TradeDirection.Long
                 ? entryPrice + profitDistance
                 : entryPrice - profitDistance
-            openPosition.profitTarget = exchange.priceToPrecision(symbol, openPosition.profitTarget)
+            openPosition.profitTarget = parseFloat(exchange.priceToPrecision(symbol, openPosition.profitTarget))
         }
 
-        if (currentPosition.contracts !== 0) {
+        if (currentPosition.isOpen) {
             await gqlService.openPosition(symbol, openPosition)
             break
         }
@@ -329,38 +306,35 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         break
     case PositionStatus.Position:
         assert(openPosition !== null, 'Expected open position to already be initialised!')
-        if (currentPosition.contracts === 0) {
+
+        if (!currentPosition.isOpen) {
             await exchange.cancelAllOrders()
             await gqlService.closePosition(symbol)
             break
         }
 
-        if (openPosition?.curStopPrice) {
+        if (+currentPosition.currentQty !== 0 && openPosition?.curStopPrice) {
             if (openPosition.direction === TradeDirection.Long) {
                 if (bar.close <= openPosition.curStopPrice) {
-                    await closePosition(openPosition.direction, symbol, currentPosition.contracts, bar.close, 'stop-loss')
-                    finalizePosition(openPosition, bar.time, bar.close, 'stop-loss')
+                    await closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'stop-loss')
                     break
                 }
             } else if (openPosition.direction === TradeDirection.Short) {
                 if (bar.close >= openPosition.curStopPrice) {
-                    await closePosition(openPosition.direction, symbol, currentPosition.contracts, bar.close, 'stop-loss')
-                    finalizePosition(openPosition, bar.time, bar.close, 'stop-loss')
+                    await closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'stop-loss')
                 }
             }
         }
 
-        if (openPosition?.profitTarget) {
+        if (+currentPosition.currentQty !== 0 && openPosition?.profitTarget) {
             if (openPosition.direction === TradeDirection.Long) {
                 if (bar.high >= openPosition.profitTarget) {
-                    await closePosition(openPosition.direction, symbol, currentPosition.contracts, openPosition.profitTarget, 'profit-target')
-                    finalizePosition(openPosition, bar.time, openPosition.profitTarget, 'profit-target')
+                    await closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), openPosition.profitTarget, 'profit-target')
                     break
                 }
             } else {
                 if (bar.low <= openPosition.profitTarget) {
-                    await closePosition(openPosition.direction, symbol, currentPosition.contracts, openPosition.profitTarget, 'profit-target')
-                    finalizePosition(openPosition, bar.time, openPosition.profitTarget, 'profit-target')
+                    await closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), openPosition.profitTarget, 'profit-target')
                     break
                 }
             }
@@ -386,10 +360,11 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                     newTrailingStopOrder = true
                 }
             }
-            openPosition!.curStopPrice = exchange.priceToPrecision(symbol, openPosition!.curStopPrice)
+            openPosition!.curStopPrice = parseFloat(exchange.priceToPrecision(symbol, openPosition!.curStopPrice))
         }
-
-        await updatePosition(openPosition!, bar, currentPosition.contracts, newTrailingStopOrder)
+        if (+currentPosition.currentQty !== 0) {
+            await updatePosition(openPosition!, bar, Math.abs(+currentPosition.currentQty), newTrailingStopOrder)
+        }
 
         if (strategy.exitRule) {
             await strategy.exitRule(exitPosition, {
@@ -407,8 +382,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
     case PositionStatus.Exit:
         assert(openPosition !== null, 'Expected open position to already be initialised!')
-
-        closePosition(openPosition!.direction, symbol, currentPosition.contracts, bar.open, 'exit-rule')
+        if (+currentPosition.currentQty !== 0) {
+            closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.open, 'exit-rule')
+        }
         break
 
     default:

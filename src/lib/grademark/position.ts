@@ -60,13 +60,18 @@ export interface IPosition {
      * Profit target where exit is triggered (intrabar).
      */
     profitTarget?: number;
+
+    /**
+     * Qty
+     */
+    amount?: number
 }
 
 export enum PositionStatus {
-    None,
-    Enter,
-    Position,
-    Exit
+    None = 'None',
+    Enter = 'Enter',
+    Position = 'Position',
+    Exit = 'Exit'
 }
 
 export interface IPositionStatus {
