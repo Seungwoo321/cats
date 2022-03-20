@@ -165,12 +165,22 @@ npm run collector:bitmex
 
 #### required 3 argumnets
 
-1. symbol; e.g `BTC/USD:BTC`, `BCH/USD:BTC`, `ETH/USD:BTC`, `LTC/USD:BTC` in bitmex
-2. timeframe;  e.g `30m`, `1h`, `4h`, `1d` using in influxData
-3. strategy name; create like `a.js` in strategy directory
+1. `symbol`; e.g `BTC/USD:BTC`, `BCH/USD:BTC`, `ETH/USD:BTC`, `LTC/USD:BTC` in bitmex
+2. `timeframe`;  e.g `30m`, `1h`, `4h`, `1d` using in influxData
+3. `strategy name`; create like `a.js` in strategy directory
+
+basic format
 
 ```bash
-npm run bot:bitmex
+npm run bot:bitmex {symbol} {timeframe} {strategy name}
+```
+
+e.g
+
+```bash
+npm run bot:bitmex BTC/USD:BTC 4h a
+
+npm run bot:bitmex ETH/USD:BTC 1d b
 ```
 
 ## License
