@@ -169,13 +169,13 @@ npm run collector:bitmex
 2. `timeframe`;  e.g `30m`, `1h`, `4h`, `1d` using in influxData
 3. `strategy name`; create like `a.js` in strategy directory
 
-basic format
+#### basic format
 
 ```bash
 npm run bot:bitmex {symbol} {timeframe} {strategy name}
 ```
 
-e.g
+#### e.g
 
 ```bash
 npm run bot:bitmex BTC/USD:BTC 4h a
