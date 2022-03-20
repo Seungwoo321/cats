@@ -56,7 +56,10 @@ For example, write the strategy name a as:
 
 ```js
 // strategy/a.js 
+require('data-forge-indicators')
+
 module.exports = {
+    // required
     entryRule: async (enterPostion, args) => {
         if (/** If you want to enter a long position */) {
             await enterPosition({ symbol: args.parameters.symbol, direction: 'long', entryPrice: args.parameters.entryPrice })
@@ -65,7 +68,53 @@ module.exports = {
             await enterPosition({ symbol: args.parameters.symbol, direction: 'short', entryPrice: args.parameters.entryPrice })
 
         }
-        
+    },
+    // required
+    exitRule: async (exitPosition, args) => {
+        if (args.position.direction === 'long') {
+            if (/** If you want to exit long position */) {
+                await exitPosition(args.parameters.symbol)
+            }
+
+        } else {
+            if (/** If you want to exit short position */) {
+                await exitPosition(args.parameters.symbol)
+            }
+        }
+    },
+
+    // option
+    stopLoss: args => {
+        return args.entryPrice * (5 / 100)
+    },
+
+    // option
+    trailingStopLoss: args => {
+        return args.entryPrice * (5 / 100)
+    },
+
+    // option
+    prepIndicators: ({ inputSeries }) => {
+        if (!inputSeries.toArray().length) {
+            return inputSeries
+        }
+        // If you want to add "Moving Average"
+        const sma20 = inputSeries
+            .deflate(bar => bar.close)
+            .sma(20)
+        inputSeries = inputSeries.withSeries('sma20', movingAverage)
+            .skip(20)
+        const sma60 = inputSeries
+            .deflate(bar => bar.close)
+            .sma(60)
+        inputSeries = inputSeries.withSeries('sma60', movingAverage)
+            .skip(60)
+        const sma60 = inputSeries
+            .deflate(bar => bar.close)
+            .sma(120)
+        inputSeries = inputSeries.withSeries('sma60', movingAverage)
+            .skip(120)
+        return inputSeries
     }
 }
 
@@ -118,7 +167,7 @@ npm run collector:bitmex
 
 1. symbol; e.g `BTC/USD:BTC`, `BCH/USD:BTC`, `ETH/USD:BTC`, `LTC/USD:BTC` in bitmex
 2. timeframe;  e.g `30m`, `1h`, `4h`, `1d` using in influxData
-3. strategy name; create in strategy directory
+3. strategy name; create like `a.js` in strategy directory
 
 ```bash
 npm run bot:bitmex
