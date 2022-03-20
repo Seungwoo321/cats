@@ -9,7 +9,7 @@ Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/
 
 - InfluxDB 2.0 must be installed and [run collecting](https://github.com/Seungwoo321/crypto-automated-trading-system#run-collecting)
 - MySQL must be installed and create database.
-- Following next step.
+- Following next step:
 
 Step 1. Installation
 
@@ -23,7 +23,7 @@ Step 2. Build ts file
 npm run build:lib
 ```
 
-Step 3. Set environment. (if not exist then create .env file)
+Step 3. Set environment (if not exist then create .env file)
 
 ```bash
 # .env
@@ -48,7 +48,7 @@ EXCHANGE_API_KEY=
 EXCHANGE_SECRET_KEY=
 ```
 
-Step 5. Write strategy
+Step 4. Write strategy
 
 [See here](https://github.com/Grademark/grademark-first-example/blob/master/index.js#L37-L53)
 
