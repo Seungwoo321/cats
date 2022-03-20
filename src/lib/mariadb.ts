@@ -188,7 +188,7 @@ OrderHistory.init({
 }, {
     sequelize: sequelize,
     schema: EXCHANGE_ID,
-    modelName: 'oter_history',
+    modelName: 'order_history',
     underscored: true
 })
 
