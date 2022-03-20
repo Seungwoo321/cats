@@ -31,8 +31,7 @@ function updatePosition(position, bar, amount, flagNewTralingStop) {
         position.holdingPeriod += 1;
         if (flagNewTralingStop && typeof position.curStopPrice === 'number') {
             const symbol = position.symbol;
-            yield exchange_1.exchange.createOrder(symbol, 'limit', position.direction === grademark_1.TradeDirection.Long ? 'sell' : 'buy', amount, position.curStopPrice, {
-                type: 'stopLimit',
+            yield exchange_1.exchange.createOrder(symbol, 'stopLimit', position.direction === grademark_1.TradeDirection.Long ? 'sell' : 'buy', amount, position.curStopPrice, {
                 stopPrice: position.curStopPrice,
                 text: 'traling-stop',
                 execInst: 'LastPrice,Close'
@@ -74,14 +73,16 @@ function trading(symbol, strategy, inputSeries) {
             indicatorsSeries = inputSeries;
         }
         const bar = indicatorsSeries.last();
+        console.table([bar]);
         const positionStatus = yield gql_1.service.getPositionStatus(symbol);
+        console.log(positionStatus);
         const entryPrice = bar.open;
         const positionDirection = positionStatus.direction;
-        const currentPosition = yield exchange_1.exchange.fetchPositions(null, {
-            filter: {
-                symbol
-            }
-        });
+        const positions = yield exchange_1.exchange.fetchPositions();
+        const currentPosition = positions.find(position => position.symbol === symbol.split(':')[0].replace('/', '')) || {
+            isOpen: false,
+            currentQty: '0'
+        };
         /**
          *
          * @param openPosition
@@ -96,18 +97,21 @@ function trading(symbol, strategy, inputSeries) {
                     availableMargin += market === null || market === void 0 ? void 0 : market.maker;
                 }
                 const amount = availableMargin / market.info.multiplier / market.info.prevClosePrice * market.info.lotSize;
-                const formattedAmount = exchange_1.exchange.amountToPrecision(symbol, amount);
-                const formattedPrice = exchange_1.exchange.priceToPrecision(symbol, market.info.prevClosePrice);
+                // const formattedAmount: number = exchange.amountToPrecision(symbol, amount)
+                console.log(exchange_1.exchange.amountToPrecision(symbol, amount));
+                const formattedAmount = 1;
+                openPosition.amount = formattedAmount;
+                const formattedPrice = parseFloat(exchange_1.exchange.priceToPrecision(symbol, openPosition.entryPrice));
                 // cancle all orders
                 yield exchange_1.exchange.cancelAllOrders();
                 // create new order
-                yield exchange_1.exchange.createOrder(symbol, 'Limit', openPosition.direction === grademark_1.TradeDirection.Long ? 'buy' : 'sell', formattedAmount, formattedPrice, {
+                yield exchange_1.exchange.createOrder(symbol, 'limit', openPosition.direction === grademark_1.TradeDirection.Long ? 'buy' : 'sell', formattedAmount, formattedPrice, {
                     displayQty: 0,
                     text: 'entry-rule'
                 });
                 // if initial stop price then add stop order
                 if (openPosition.initialStopPrice) {
-                    yield exchange_1.exchange.createOrder(symbol, 'Stop', openPosition.direction === grademark_1.TradeDirection.Long ? 'sell' : 'buy', formattedAmount, openPosition.initialStopPrice, {
+                    yield exchange_1.exchange.createOrder(symbol, 'stop', openPosition.direction === grademark_1.TradeDirection.Long ? 'sell' : 'buy', formattedAmount, openPosition.initialStopPrice, {
                         stopPx: openPosition.initialStopPrice,
                         text: 'stop-loss',
                         execInst: 'LastPrice,Close'
@@ -115,7 +119,8 @@ function trading(symbol, strategy, inputSeries) {
                 }
                 // if trailing stop loss then add trailing stop order
                 if (strategy.trailingStopLoss && openPosition.curStopPrice !== undefined && openPosition.initialStopPrice !== openPosition.curStopPrice) {
-                    yield exchange_1.exchange.createOrder(symbol, 'StopLimit', openPosition.direction === grademark_1.TradeDirection.Long ? 'sell' : 'buy', formattedAmount, openPosition.curStopPrice, {
+                    yield exchange_1.exchange.createOrder(symbol, 'stopLimit', openPosition.direction === grademark_1.TradeDirection.Long ? 'sell' : 'buy', formattedAmount, openPosition.curStopPrice, {
+                        ordType: 'stopLimit',
                         stopPx: openPosition.curStopPrice,
                         text: 'traling-stop',
                         execInst: 'LastPrice,Close'
@@ -126,7 +131,8 @@ function trading(symbol, strategy, inputSeries) {
         }
         /**
          *
-         * @param openPosition
+         * @param direction
+         * @param symbol
          * @param amount
          * @param exitPrice
          * @param exitReason
@@ -134,7 +140,7 @@ function trading(symbol, strategy, inputSeries) {
          */
         function closePosition(direction, symbol, amount, exitPrice, exitReason) {
             return __awaiter(this, void 0, void 0, function* () {
-                yield exchange_1.exchange.createOrder(symbol, 'Limit', direction === grademark_1.TradeDirection.Long ? 'sell' : 'buy', amount, exitPrice, {
+                yield exchange_1.exchange.createOrder(symbol, 'limit', direction === grademark_1.TradeDirection.Long ? 'sell' : 'buy', amount, exitPrice, {
                     displayQty: 0,
                     text: exitReason,
                     execInst: 'ReduceOnly'
@@ -144,16 +150,13 @@ function trading(symbol, strategy, inputSeries) {
         }
         /**
          *
-         * @param symbol
-         * @param direction
-         * @param entryPrice
-         * @returns
+         * @param options
          */
         function enterPosition(options) {
             return __awaiter(this, void 0, void 0, function* () {
                 (0, chai_1.assert)(positionStatus.value === grademark_1.PositionStatus.None, 'Can only enter a position when not already in one.');
                 if ((options === null || options === void 0 ? void 0 : options.symbol) && (options === null || options === void 0 ? void 0 : options.direction) && (options === null || options === void 0 ? void 0 : options.entryPrice)) {
-                    yield gql_1.service.enterPosition(symbol, options.direction, entryPrice);
+                    yield gql_1.service.enterPosition(symbol, options.direction, options.entryPrice);
                 }
             });
         }
@@ -164,6 +167,7 @@ function trading(symbol, strategy, inputSeries) {
          */
         function exitPosition(symbol) {
             return __awaiter(this, void 0, void 0, function* () {
+                (0, chai_1.assert)(positionStatus.value === grademark_1.PositionStatus.Position, 'Can only exit a position when we are in a position.');
                 return yield gql_1.service.exitPosition(symbol);
             });
         }
@@ -175,31 +179,14 @@ function trading(symbol, strategy, inputSeries) {
          * @param exitReason
          * @returns
          */
-        function finalizePosition(openPosition, exitTime, exitPrice, exitReason) {
-            const profit = openPosition.direction === grademark_1.TradeDirection.Long
-                ? exitPrice - openPosition.entryPrice
-                : openPosition.entryPrice - exitPrice;
-            return {
-                direction: openPosition.direction,
-                entryTime: openPosition.entryTime,
-                entryPrice: openPosition.entryPrice,
-                exitTime: exitTime,
-                exitPrice: exitPrice,
-                profit: profit,
-                profitPct: (profit / openPosition.entryPrice) * 100,
-                holdingPeriod: openPosition.holdingPeriod,
-                exitReason: exitReason,
-                stopPrice: openPosition.initialStopPrice
-            };
-        }
-        switch (+positionStatus.value) {
+        console.log(positionStatus.value);
+        switch (positionStatus.value) {
             case grademark_1.PositionStatus.None:
-                if (currentPosition.contracts !== 0) {
-                    const direction = currentPosition.contracts > 0
+                if (currentPosition === null || currentPosition === void 0 ? void 0 : currentPosition.isOpen) {
+                    const direction = +(currentPosition === null || currentPosition === void 0 ? void 0 : currentPosition.currentQty) > 0
                         ? grademark_1.TradeDirection.Long
                         : grademark_1.TradeDirection.Short;
-                    yield enterPosition({ symbol, direction, entryPrice });
-                    break;
+                    yield closePosition(direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'none position');
                 }
                 yield strategy.entryRule(enterPosition, {
                     bar,
@@ -208,17 +195,15 @@ function trading(symbol, strategy, inputSeries) {
                 });
                 break;
             case grademark_1.PositionStatus.Enter:
-                (0, chai_1.assert)(positionStatus.conditionalEntryPrice === undefined, 'Expected there to be no open position initialised yet!');
+                (0, chai_1.assert)(openPosition === null, 'Expected there to be no open position initialised yet!');
                 if (positionStatus.conditionalEntryPrice !== undefined) {
                     if (positionStatus.direction === grademark_1.TradeDirection.Long) {
                         if (bar.high < positionStatus.conditionalEntryPrice) {
-                            yield gql_1.service.closePosition(symbol);
                             break;
                         }
                     }
                     else {
                         if (bar.low > positionStatus.conditionalEntryPrice) {
-                            yield gql_1.service.closePosition(symbol);
                             break;
                         }
                     }
@@ -231,21 +216,21 @@ function trading(symbol, strategy, inputSeries) {
                     growth: 1,
                     profit: 0,
                     profitPct: 0,
-                    holdingPeriod: 0
+                    holdingPeriod: 0,
+                    amount: Number(currentPosition.currentQty)
                 };
                 if (strategy.stopLoss) {
                     const initialStopDistance = strategy.stopLoss({
                         entryPrice,
                         position: openPosition,
-                        bar: bar,
-                        parameters: Object.assign(Object.assign({}, strategyParameters), { symbol,
-                            entryPrice })
+                        bar,
+                        parameters: strategyParameters
                     });
                     openPosition.initialStopPrice = openPosition.direction === grademark_1.TradeDirection.Long
                         ? entryPrice - initialStopDistance
                         : entryPrice + initialStopDistance;
-                    openPosition.curStopPrice = exchange_1.exchange.priceToPrecision(symbol, openPosition.initialStopPrice);
-                    openPosition.initialStopPrice = exchange_1.exchange.priceToPrecision(symbol, openPosition.initialStopPrice);
+                    openPosition.curStopPrice = parseFloat(exchange_1.exchange.priceToPrecision(symbol, openPosition.initialStopPrice));
+                    openPosition.initialStopPrice = parseFloat(exchange_1.exchange.priceToPrecision(symbol, openPosition.initialStopPrice));
                 }
                 if (strategy.trailingStopLoss) {
                     const trailingStopDistance = strategy.trailingStopLoss({
@@ -265,8 +250,8 @@ function trading(symbol, strategy, inputSeries) {
                             ? Math.max(openPosition.initialStopPrice, trailingStopPrice)
                             : Math.min(openPosition.initialStopPrice, trailingStopPrice);
                     }
-                    openPosition.curStopPrice = exchange_1.exchange.priceToPrecision(symbol, openPosition.initialStopPrice);
-                    openPosition.initialStopPrice = exchange_1.exchange.priceToPrecision(symbol, openPosition.initialStopPrice);
+                    openPosition.curStopPrice = parseFloat(exchange_1.exchange.priceToPrecision(symbol, openPosition.initialStopPrice));
+                    openPosition.initialStopPrice = parseFloat(exchange_1.exchange.priceToPrecision(symbol, openPosition.initialStopPrice));
                 }
                 if (strategy.profitTarget) {
                     const profitDistance = strategy.profitTarget({
@@ -278,9 +263,10 @@ function trading(symbol, strategy, inputSeries) {
                     openPosition.profitTarget = openPosition.direction === grademark_1.TradeDirection.Long
                         ? entryPrice + profitDistance
                         : entryPrice - profitDistance;
-                    openPosition.profitTarget = exchange_1.exchange.priceToPrecision(symbol, openPosition.profitTarget);
+                    openPosition.profitTarget = parseFloat(exchange_1.exchange.priceToPrecision(symbol, openPosition.profitTarget));
                 }
-                if (currentPosition.contracts !== 0) {
+                if (currentPosition.isOpen) {
+                    console.log(openPosition);
                     yield gql_1.service.openPosition(symbol, openPosition);
                     break;
                 }
@@ -288,38 +274,34 @@ function trading(symbol, strategy, inputSeries) {
                 break;
             case grademark_1.PositionStatus.Position:
                 (0, chai_1.assert)(openPosition !== null, 'Expected open position to already be initialised!');
-                if (currentPosition.contracts === 0) {
+                if (!currentPosition.isOpen) {
                     yield exchange_1.exchange.cancelAllOrders();
                     yield gql_1.service.closePosition(symbol);
                     break;
                 }
-                if (openPosition === null || openPosition === void 0 ? void 0 : openPosition.curStopPrice) {
+                if (+currentPosition.currentQty !== 0 && (openPosition === null || openPosition === void 0 ? void 0 : openPosition.curStopPrice)) {
                     if (openPosition.direction === grademark_1.TradeDirection.Long) {
                         if (bar.close <= openPosition.curStopPrice) {
-                            yield closePosition(openPosition.direction, symbol, currentPosition.contracts, bar.close, 'stop-loss');
-                            finalizePosition(openPosition, bar.time, bar.close, 'stop-loss');
+                            yield closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'stop-loss');
                             break;
                         }
                     }
                     else if (openPosition.direction === grademark_1.TradeDirection.Short) {
                         if (bar.close >= openPosition.curStopPrice) {
-                            yield closePosition(openPosition.direction, symbol, currentPosition.contracts, bar.close, 'stop-loss');
-                            finalizePosition(openPosition, bar.time, bar.close, 'stop-loss');
+                            yield closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'stop-loss');
                         }
                     }
                 }
-                if (openPosition === null || openPosition === void 0 ? void 0 : openPosition.profitTarget) {
+                if (+currentPosition.currentQty !== 0 && (openPosition === null || openPosition === void 0 ? void 0 : openPosition.profitTarget)) {
                     if (openPosition.direction === grademark_1.TradeDirection.Long) {
                         if (bar.high >= openPosition.profitTarget) {
-                            yield closePosition(openPosition.direction, symbol, currentPosition.contracts, openPosition.profitTarget, 'profit-target');
-                            finalizePosition(openPosition, bar.time, openPosition.profitTarget, 'profit-target');
+                            yield closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), openPosition.profitTarget, 'profit-target');
                             break;
                         }
                     }
                     else {
                         if (bar.low <= openPosition.profitTarget) {
-                            yield closePosition(openPosition.direction, symbol, currentPosition.contracts, openPosition.profitTarget, 'profit-target');
-                            finalizePosition(openPosition, bar.time, openPosition.profitTarget, 'profit-target');
+                            yield closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), openPosition.profitTarget, 'profit-target');
                             break;
                         }
                     }
@@ -345,9 +327,12 @@ function trading(symbol, strategy, inputSeries) {
                             newTrailingStopOrder = true;
                         }
                     }
-                    openPosition.curStopPrice = exchange_1.exchange.priceToPrecision(symbol, openPosition.curStopPrice);
+                    openPosition.curStopPrice = parseFloat(exchange_1.exchange.priceToPrecision(symbol, openPosition.curStopPrice));
                 }
-                yield updatePosition(openPosition, bar, currentPosition.contracts, newTrailingStopOrder);
+                if (+currentPosition.currentQty !== 0) {
+                    console.log(Math.abs(+currentPosition.currentQty));
+                    yield updatePosition(openPosition, bar, Math.abs(+currentPosition.currentQty), newTrailingStopOrder);
+                }
                 if (strategy.exitRule) {
                     yield strategy.exitRule(exitPosition, {
                         entryPrice: openPosition.entryPrice,
@@ -359,7 +344,9 @@ function trading(symbol, strategy, inputSeries) {
                 break;
             case grademark_1.PositionStatus.Exit:
                 (0, chai_1.assert)(openPosition !== null, 'Expected open position to already be initialised!');
-                closePosition(openPosition.direction, symbol, currentPosition.contracts, bar.open, 'exit-rule');
+                if (+currentPosition.currentQty !== 0) {
+                    closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), bar.open, 'exit-rule');
+                }
                 break;
             default:
                 throw new Error('Unexpected state!');
