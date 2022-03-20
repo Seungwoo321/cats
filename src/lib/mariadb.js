@@ -14,11 +14,12 @@ exports.OpenPosition = OpenPosition;
 OpenPosition.init({
     symbol: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        primaryKey: true
     },
     direction: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
     entryTime: {
         type: sequelize_1.DataTypes.DATE,
@@ -34,11 +35,11 @@ OpenPosition.init({
     },
     profit: {
         type: sequelize_1.DataTypes.DECIMAL,
-        allowNull: false
+        allowNull: true
     },
     profitPct: {
         type: sequelize_1.DataTypes.DOUBLE,
-        allowNull: false
+        allowNull: true
     },
     holdingPeriod: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -50,27 +51,11 @@ OpenPosition.init({
     },
     curStopPrice: {
         type: sequelize_1.DataTypes.DECIMAL,
-        allowNull: false
+        allowNull: true
     },
     profitTarget: {
         type: sequelize_1.DataTypes.DOUBLE,
-        allowNull: false
-    },
-    initialUnitRisk: {
-        type: sequelize_1.DataTypes.DECIMAL,
-        allowNull: false
-    },
-    initialRiskPct: {
-        type: sequelize_1.DataTypes.DOUBLE,
-        allowNull: false
-    },
-    curRiskPct: {
-        type: sequelize_1.DataTypes.DOUBLE,
-        allowNull: false
-    },
-    curRMultiple: {
-        type: sequelize_1.DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     amount: {
         type: sequelize_1.DataTypes.DOUBLE,
@@ -82,22 +67,26 @@ OpenPosition.init({
     modelName: 'open_position',
     underscored: true
 });
-OpenPosition.sync();
 class PositionStatus extends sequelize_1.Model {
 }
 exports.PositionStatus = PositionStatus;
 PositionStatus.init({
     symbol: {
-        type: sequelize_1.DataTypes.STRING
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true
     },
     direction: {
-        type: sequelize_1.DataTypes.STRING
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
     },
     conditionalEntryPrice: {
-        type: sequelize_1.DataTypes.DECIMAL
+        type: sequelize_1.DataTypes.DECIMAL,
+        allowNull: true
     },
     value: {
-        type: sequelize_1.DataTypes.STRING
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
     }
 }, {
     sequelize: sequelize,
@@ -105,4 +94,105 @@ PositionStatus.init({
     modelName: 'position_status',
     underscored: true
 });
-PositionStatus.sync();
+class CompletedTrade extends sequelize_1.Model {
+}
+CompletedTrade.init({
+    symbol: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true
+    },
+    direction: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
+    },
+    entryTime: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: false
+    },
+    entryPrice: {
+        type: sequelize_1.DataTypes.DECIMAL,
+        allowNull: false
+    },
+    exitTime: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: true
+    },
+    exitPrice: {
+        type: sequelize_1.DataTypes.DECIMAL,
+        allowNull: true
+    },
+    profit: {
+        type: sequelize_1.DataTypes.DECIMAL,
+        allowNull: true
+    },
+    profitPct: {
+        type: sequelize_1.DataTypes.DECIMAL,
+        allowNull: true
+    },
+    holdingPeriod: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false
+    },
+    exitReason: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true
+    },
+    stopPrice: {
+        type: sequelize_1.DataTypes.DECIMAL,
+        allowNull: true
+    }
+}, {
+    sequelize: sequelize,
+    schema: config_1.EXCHANGE_ID,
+    modelName: 'completed_trade',
+    underscored: true
+});
+class OrderHistory extends sequelize_1.Model {
+}
+OrderHistory.init({
+    symbol: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true
+    },
+    size: {
+        type: sequelize_1.DataTypes.DOUBLE,
+        allowNull: false
+    },
+    Filled: {
+        type: sequelize_1.DataTypes.DOUBLE,
+        allowNull: true
+    },
+    stopPrice: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true
+    },
+    fillPrice: {
+        type: sequelize_1.DataTypes.DECIMAL,
+        allowNull: false
+    },
+    type: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
+    },
+    status: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
+    },
+    orderId: {
+        type: sequelize_1.DataTypes.STRING,
+        primaryKey: true
+    },
+    time: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: true
+    }
+}, {
+    sequelize: sequelize,
+    schema: config_1.EXCHANGE_ID,
+    modelName: 'oter_history',
+    underscored: true
+});
+PositionStatus.belongsTo(OpenPosition);
+sequelize.sync();

@@ -2,23 +2,23 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createOhlcvWithStochFlux = exports.createOhlcvWithBbFlux = exports.createOhlcvFlux = void 0;
 const { flux } = require('@influxdata/influxdb-client');
-const createOhlcvFlux = (bucket, measurement, key, startRange) => {
+const createOhlcvFlux = (bucket, measurement, symbol, startRange) => {
     return flux `
         from(bucket: ${bucket})
         |> range(start: ${startRange})
-        |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${key})
+        |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${symbol})
         |> keep(columns: ["_time", "symbol", "_field", "_value"])
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
     `;
 };
 exports.createOhlcvFlux = createOhlcvFlux;
-const createOhlcvWithBbFlux = (bucket, measurement, key, startRange, stopRange, n, std) => {
+const createOhlcvWithBbFlux = (bucket, measurement, symbol, startRange, stopRange, n, std) => {
     return flux `
         import "math"
         
         ohlcv = from(bucket: ${bucket})
         |> range(start: ${startRange})
-        |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${key})
+        |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${symbol})
         |> keep(columns: ["_time", "symbol", "_field", "_value"])
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
 
@@ -52,7 +52,7 @@ const createOhlcvWithBbFlux = (bucket, measurement, key, startRange, stopRange, 
         |> range(start: ${startRange} )
         |> filter(fn: (r) =>
             r._measurement == ${measurement} and
-            r.symbol == ${key} and
+            r.symbol == ${symbol} and
             r._field == "close"
         )
         |> bolingerBand(n: ${n}, std: ${std}, start: ${startRange}, stop: ${stopRange})
@@ -68,13 +68,13 @@ const createOhlcvWithBbFlux = (bucket, measurement, key, startRange, stopRange, 
     `;
 };
 exports.createOhlcvWithBbFlux = createOhlcvWithBbFlux;
-const createOhlcvWithStochFlux = (bucket, measurement, key, startRange, stopRange, n, m, t) => {
+const createOhlcvWithStochFlux = (bucket, measurement, symbol, startRange, stopRange, n, m, t) => {
     return flux `
         import "math"
 
         ohlcv = from(bucket: ${bucket})
         |> range(start: ${startRange})
-        |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${key})
+        |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${symbol})
         |> keep(columns: ["_time", "symbol", "_field", "_value"])
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
 
@@ -125,7 +125,7 @@ const createOhlcvWithStochFlux = (bucket, measurement, key, startRange, stopRang
             |> range(start: ${startRange} )
             |> filter(fn: (r) =>
                 r._measurement == ${measurement} and
-                r.symbol == ${key} and
+                r.symbol == ${symbol} and
                 r._field != "volume"
             )
             |> Stochastic(n: ${n}, m: ${m}, t: ${t}, start: ${startRange}, stop: ${stopRange})
