@@ -24,18 +24,20 @@ args.shift()
     client.on('error', (error) => {
         console.error(error)
     })
-    client.addStream(symbol.split(':')[0].replace('/', ''), 'tradeBin1h', async function (item, symbol) {
-        console.log(item)
+    client.addStream(symbol.split, 'tradeBin1h', async function (data, symbol) {
         const measurement = `${symbol}_${timeframe}`
         try {
-            const bar = {
+            const items = data.map(item => ({
+                symbol,
                 time: item[0],
                 open: item[1],
                 high: item[2],
                 low: item[3],
                 close: item[4],
                 volume: item[5]
-            }
+            }))
+            const bar = items[0]
+            console.info(bar.symbol + ': ' + bar.timestamp)
             const db = new Influx2()
             await db.addData('candles', measurement, symbol, bar)
             const candles = await db.fetchCandles('candles', measurement, symbol, { start: '-30d' })
