@@ -24,20 +24,40 @@ args.shift()
     client.on('error', (error) => {
         console.error(error)
     })
+    /**
+     *
+     * [
+     *   {
+     *       timestamp: '2022-03-20T21:00:00.000Z',
+     *       symbol: 'BCHUSD',
+     *       open: 319.15,
+     *       high: 321.65,
+     *       low: 318.4,
+     *       close: 318.55,
+     *       trades: 113,
+     *       volume: 11882,
+     *       vwap: 319.68,
+     *       lastSize: 105,
+     *       turnover: 379842785,
+     *       homeNotional: 492.8835830491001,
+     *       foreignNotional: 157565.787177658
+     *   }
+     * ]
+     */
     client.addStream(symbol, 'tradeBin1h', async function (data, symbol) {
+        console.info(data[0].symbol + ': ' + data[0].timestamp)
         const measurement = `${symbol}_${timeframe}`
         try {
             const items = data.map(item => ({
                 symbol,
-                time: item[0],
-                open: item[1],
-                high: item[2],
-                low: item[3],
-                close: item[4],
-                volume: item[5]
+                time: new Date(item.timestamp),
+                open: item.open,
+                high: item.high,
+                low: item.low,
+                close: item.close,
+                volume: item.volume
             }))
             const bar = items[0]
-            console.info(bar.symbol + ': ' + bar.timestamp)
             const db = new Influx2()
             await db.addData('candles', measurement, symbol, bar)
             const candles = await db.fetchCandles('candles', measurement, symbol, { start: '-30d' })

@@ -76,8 +76,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         indicatorsSeries = inputSeries as IDataFrame<IndexT, IndicatorBarT>
     }
     const bar = indicatorsSeries.last()
+    console.table([bar])
     const positionStatus = await gqlService.getPositionStatus(symbol)
-    const entryPrice = bar.open
+    const entryPrice = bar.close
     const positionDirection = positionStatus.direction
     const positions: Position[] = await exchange.fetchPositions()
     const currentPosition: Position = positions.find(position => position.symbol === symbol.split(':')[0].replace('/', '')) || {
@@ -383,7 +384,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     case PositionStatus.Exit:
         assert(openPosition !== null, 'Expected open position to already be initialised!')
         if (+currentPosition.currentQty !== 0) {
-            closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.open, 'exit-rule')
+            closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
         }
         break
 
