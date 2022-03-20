@@ -165,9 +165,9 @@ npm run collector:bitmex
 
 #### required 3 argumnets
 
-1. __symbol__; e.g `BTC/USD:BTC`, `BCH/USD:BTC`, `ETH/USD:BTC`, `LTC/USD:BTC` in bitmex
-2. __timeframe__;  e.g `30m`, `1h`, `4h`, `1d` using in influxData
-3. __strategy name__; create like `a.js` in strategy directory
+1. **symbol**; e.g `BTC/USD:BTC`, `BCH/USD:BTC`, `ETH/USD:BTC`, `LTC/USD:BTC` in bitmex
+2. **timeframe**;  e.g `30m`, `1h`, `4h`, `1d` using in influxData
+3. **strategy name**; create like `a.js` in strategy directory
 
 #### basic format
 
