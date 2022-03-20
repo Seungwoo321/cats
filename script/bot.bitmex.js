@@ -24,7 +24,7 @@ args.shift()
     client.on('error', (error) => {
         console.error(error)
     })
-    client.addStream(symbol.split, 'tradeBin1h', async function (data, symbol) {
+    client.addStream(symbol, 'tradeBin1h', async function (data, symbol) {
         const measurement = `${symbol}_${timeframe}`
         try {
             const items = data.map(item => ({
