@@ -1,5 +1,5 @@
-require('../src/config/env')
-const { exchange } = require('../src/config')
+require('../src/config')
+const { exchange } = require('../src/lib/exchange')
 
 it('BCH/USD:BTC - Calculate available order amount', async () => {
     expect.assertions(2)
