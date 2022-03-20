@@ -1,5 +1,5 @@
 const { Influx2 } = require('../../dist/lib/influx2')
-const { sequelize, OpenPosition, PositionStatus } = require('../lib/mariadb')
+const { sequelize, OpenPosition, PositionStatus } = require('../../dist/lib/mariadb')
 
 const createStore = () => {
     return {
