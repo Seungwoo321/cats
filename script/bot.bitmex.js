@@ -9,7 +9,7 @@ const args = process.argv.slice()
 args.shift()
 args.shift()
 
-; (function bot () {
+; (async function bot () {
     const symbol = args[0]
     const timeframe = args[1]
     const strategyName = args[2]
