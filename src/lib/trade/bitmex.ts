@@ -98,7 +98,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             availableMargin += market?.maker
         }
         const amount: number = availableMargin / market.info.multiplier / market.info.prevClosePrice * market.info.lotSize
-        const formattedAmount: number = exchange.amountToPrecision(symbol, amount)
+        const formattedAmount: number = parseFloat(exchange.amountToPrecision(symbol, amount))
         openPosition.amount = formattedAmount
         const formattedPrice: number = parseFloat(exchange.priceToPrecision(symbol, openPosition.entryPrice))
         // cancle all orders
