@@ -44,7 +44,7 @@ args.shift()
      *   }
      * ]
      */
-    client.addStream(symbol, 'tradeBin1h', async function (data, symbol) {
+    client.addStream(symbol.split(':')[0].replace('/', ''), 'tradeBin1h', async function (data, symbol) {
         console.info(data[0].symbol + ': ' + data[0].timestamp)
         const measurement = `${symbol}_${timeframe}`
         try {
