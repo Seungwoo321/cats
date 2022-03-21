@@ -93,7 +93,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     async function createPosition (openPosition: IPosition, symbol: string) {
         const market: Market = markets[symbol]
         const balance = await exchange.fetchBalance()
-        let availableMargin: number = balance.BTC.total * 100000000 * (1 - +market.info.initMargin + +market.info.maintMargin)
+        let availableMargin: number = balance.BTC.total * 100000000 * (1 - +market.info.initMargin - +market.info.maintMargin)
         if (market.maker) {
             availableMargin += market?.maker
         }
