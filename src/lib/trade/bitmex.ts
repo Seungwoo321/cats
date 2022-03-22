@@ -1,6 +1,6 @@
-import { IStrategy, IPosition, IBar, TradeDirection, PositionStatus, IEnterPositionOptions } from '../grademark'
-import { Position, exchange } from '../exchange'
-import { service as gqlService } from '../gql'
+import { IStrategy, IPosition, IBar, TradeDirection, PositionStatus, IEnterPositionOptions } from '@/lib/grademark'
+import { Position, exchange } from '@/lib/exchange'
+import { service as gqlService } from '@/lib/gql'
 import { IDataFrame } from 'data-forge'
 import { Market } from 'ccxt'
 import { assert } from 'chai'
@@ -97,7 +97,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         if (market.maker) {
             availableMargin += market?.maker
         }
-        const amount: number = availableMargin / market.info.multiplier / market.info.prevClosePrice * market.info.lotSize
+        const amount: number = availableMargin / market.info.multiplier / openPosition.entryPrice * market.info.lotSize
         const formattedAmount: number = parseFloat(exchange.amountToPrecision(symbol, amount))
         openPosition.amount = formattedAmount
         const formattedPrice: number = parseFloat(exchange.priceToPrecision(symbol, openPosition.entryPrice))
