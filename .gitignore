@@ -112,5 +112,5 @@ strategy
 
 # build js
 src/lib/*.js
-src/lib/trade/*.js
+src/lib/**/*.js
 src/*.js
