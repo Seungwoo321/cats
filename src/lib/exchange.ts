@@ -1,5 +1,5 @@
 import { Exchange } from 'ccxt'
-import { EXCHANGE_ID, EXCHANGE_API_KEY, EXCHANGE_SECRET_KEY } from '@/config'
+import { EXCHANGE_ID, EXCHANGE_API_KEY, EXCHANGE_SECRET_KEY } from '@config'
 
 const ccxt = require('ccxt')
 const ExchangeClass = ccxt[EXCHANGE_ID]

@@ -13,9 +13,18 @@
     "dev:apollo": "nodemon src/server",
     "serve:apollo": "pm2 start src/server --name apollo-server"
   },
+  "_moduleAliases": {
+    "@lib": "src/lib",
+    "@config": "src/config.js",
+    "@strategy": "strategy",
+    "@script": "script"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Seungwoo321/cats.git"
+  },
+  "engines": {
+    "node": ">=16.14.0"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +42,7 @@
     "graphql": "^16.3.0",
     "graphql-request": "^4.0.0",
     "mariadb": "^3.0.0",
+    "module-alias": "^2.2.2",
     "prompts": "^2.4.2",
     "sequelize": "^6.17.0"
   },

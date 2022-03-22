@@ -1,10 +1,11 @@
 
 'use strict'
-require('../src/config')
+require('module-alias/register')
+require('@config')
 const dataForge = require('data-forge')
-const { Influx2 } = require('../src/lib/influx2')
-const { trading } = require('../src/lib/trade/bitmex')
-const strategy = require('../strategy')
+const { Influx2 } = require('@lib/influx2')
+const { trading } = require('@lib/trade/bitmex')
+const strategy = require('@strategy')
 const args = process.argv.slice()
 args.shift()
 args.shift()
