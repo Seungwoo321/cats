@@ -1,9 +1,9 @@
 import { IBar } from './grademark'
-import { INFLUX2_ORG, INFLUX2_URL, INFLUX2_TOKEN } from '../config'
+import { INFLUX2_ORG, INFLUX2_URL, INFLUX2_TOKEN } from '@/config'
 
 // eslint-disable-next-line camelcase
 const { InfluxDB, Point, DEFAULT_WriteOptions, fluxDuration } = require('@influxdata/influxdb-client')
-const { createOhlcvFlux, createOhlcvWithBbFlux, createOhlcvWithStochFlux } = require('./flux')
+const { createOhlcvFlux, createOhlcvWithBbFlux, createOhlcvWithStochFlux } = require('@/lib/flux')
 const flushBatchSize = DEFAULT_WriteOptions.batchSize
 const writeOptions = {
     batchSize: flushBatchSize + 1,
