@@ -7,11 +7,11 @@
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "build:lib": "tsc",
+    "build": "tsc",
     "collector:bitmex": "node script/collector.bitmex.js",
     "bot:bitmex": "node script/bot.bitmex.js",
-    "dev:apollo-server": "nodemon src/server",
-    "serve:apollo-server": "pm2 start src/server --name apollo-server"
+    "dev:apollo": "nodemon src/server",
+    "serve:apollo": "pm2 start src/server --name apollo-server"
   },
   "repository": {
     "type": "git",

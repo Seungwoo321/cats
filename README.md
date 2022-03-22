@@ -20,7 +20,7 @@ npm install
 Step 2. Build ts file
 
 ```bash
-npm run build:lib
+npm run build
 ```
 
 Step 3. Set environment (if not exist then create .env file)
@@ -146,7 +146,7 @@ npm run test
 ### Run apollo server
 
 ```bash
-npm run serve:apollo-server
+npm run serve:apollo
 ```
 
 ### Run collecting
