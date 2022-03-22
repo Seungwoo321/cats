@@ -17,7 +17,7 @@ args.shift()
 
     const client = new BitMEXClient({
         testnet: false,
-        maxTableLen: 100
+        maxTableLen: 1
     })
     client.on('initialize', () => {
         console.log('trade stream start...')
