@@ -48,7 +48,7 @@ const GET_OPEN_POSITION: string = gql`
 `
 const ENTER_POSITION: string = gql`
     mutation EnterPosition ($symbol: String, $direction: TradeDirection, $entryPrice: Float) {
-        enterPosition (symbol: $symbol, direction: $direction, conditionalEntryPrice: $entryPrice) {
+        enterPosition (symbol: $symbol, direction: $direction, entryPrice: $entryPrice) {
             symbol
             direction
             conditionalEntryPrice
@@ -161,6 +161,7 @@ export const service = {
      * @returns returns a open position when status is Enter
      */
     async enterPosition (symbol: string, direction: TradeDirection, entryPrice: number): Promise<IPosition> {
+        console.log(entryPrice)
         const { enterPosition } = await request(GRAPHQL_URL, ENTER_POSITION, { symbol, direction, entryPrice })
         return enterPosition
     },
