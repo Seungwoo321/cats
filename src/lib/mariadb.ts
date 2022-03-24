@@ -22,7 +22,7 @@ OpenPosition.init({
         allowNull: false
     },
     entryPrice: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false
     },
     growth: {
@@ -30,7 +30,7 @@ OpenPosition.init({
         allowNull: false
     },
     profit: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true
     },
     profitPct: {
@@ -42,11 +42,11 @@ OpenPosition.init({
         allowNull: false
     },
     initialStopPrice: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false
     },
     curStopPrice: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true
     },
     profitTarget: {
@@ -76,7 +76,7 @@ PositionStatus.init({
         allowNull: false
     },
     conditionalEntryPrice: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true
     },
     value: {
@@ -107,7 +107,7 @@ CompletedTrade.init({
         allowNull: false
     },
     entryPrice: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false
     },
     exitTime: {
@@ -115,15 +115,15 @@ CompletedTrade.init({
         allowNull: true
     },
     exitPrice: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true
     },
     profit: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true
     },
     profitPct: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true
     },
     holdingPeriod: {
@@ -135,7 +135,7 @@ CompletedTrade.init({
         allowNull: true
     },
     stopPrice: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true
     },
     size: {
@@ -162,19 +162,19 @@ OrderHistory.init({
         primaryKey: true
     },
     size: {
-        type: DataTypes.DOUBLE,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     Filled: {
-        type: DataTypes.DOUBLE,
-        allowNull: true
-    },
-    stopPrice: {
         type: DataTypes.STRING,
         allowNull: true
     },
+    stopPrice: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
     fillPrice: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false
     },
     type: {

@@ -384,7 +384,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     case PositionStatus.Exit:
         assert(openPosition !== null, 'Expected open position to already be initialised!')
         if (+currentPosition.currentQty !== 0) {
-            closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
+            await closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
+        } else {
+            await gqlService.closePosition(symbol)
         }
         break
 

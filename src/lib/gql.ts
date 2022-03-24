@@ -186,6 +186,7 @@ export const service = {
      * @returns returns a open position when status is Enter
      */
     async enterPosition (symbol: string, direction: TradeDirection, entryPrice: number): Promise<IPosition> {
+        console.log(entryPrice)
         const { enterPosition } = await request(GRAPHQL_URL, ENTER_POSITION, { symbol, direction, entryPrice })
         return enterPosition
     },
