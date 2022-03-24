@@ -1,6 +1,6 @@
 import { Exchange } from 'ccxt'
 import { EXCHANGE_ID, EXCHANGE_API_KEY, EXCHANGE_SECRET_KEY } from '@config'
-
+import { TradeDirection } from '@lib/grademark/strategy'
 const ccxt = require('ccxt')
 const ExchangeClass = ccxt[EXCHANGE_ID]
 
@@ -129,4 +129,20 @@ export type Position = {
     timestamp?: Date,
     lastPrice?: string
     lastValue?: string
+}
+
+export interface ITrade {
+    symbol: string
+    direction: TradeDirection
+    entryTime: Date
+    entryPrice: number
+    exitTime: Date
+    exitPrice: number
+    profit: number
+    profitPct: number
+    holdingPeriod: number
+    exitReason: string
+    stopPrice: number
+    size: number
+    orderId: string
 }

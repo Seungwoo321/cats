@@ -13,6 +13,12 @@ const typeDefs = gql`
         Position
         Exit
     }
+    enum OrderStatus {
+        New
+        PartiallyFilled
+        Filled
+        Canceled
+    }
     type IPositionStatus {
         symbol: String
         direction(direction: TradeDirection): String
@@ -74,6 +80,21 @@ const typeDefs = gql`
     type ITimestampedValue {
         time: Date
         value: String
+    }
+    type CompletedTrade {
+        symbol: String
+        direction: TradeDirection
+        entryTime: Date
+        entryPrice: Float
+        exitTime: Date
+        exitPrice: Float
+        profit: Float
+        profitPct: Float
+        holdingPeriod: Int
+        exitReason: String
+        stopPrice: Float
+        size: Float
+        orderId: String
     }
     type Query {
         positionStatus(symbol: String): IPositionStatus

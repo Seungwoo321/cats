@@ -20,6 +20,10 @@ const dateScalar = new GraphQLScalarType({
 
 module.exports = {
     Query: {
+        // To do
+        completedTrade: async (_, { symbol }, { dataSources }) => {
+            return await dataSources.completedTradeAPI.completedTrade({ symbol })
+        },
         positionStatus: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatus({ symbol })
         },
@@ -31,6 +35,14 @@ module.exports = {
         }
     },
     Mutation: {
+        // To do
+        createTrade: async (_, data, { dataSources }) => {
+            return await dataSources.completedTradeAPI
+        },
+        // To do
+        updateTrade: async (_, data, { dataSources }) => {
+            return await dataSources.completedTradeAPI
+        },
         updatePosition: async (_, { position }, { dataSources }) => {
             return await dataSources.openPositionAPI.updatePosition({ values: position })
         },

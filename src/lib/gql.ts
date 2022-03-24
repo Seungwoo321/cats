@@ -1,6 +1,7 @@
 import { gql, request } from 'graphql-request'
 import { GRAPHQL_URL } from '@config'
 import { IBar, IPosition, IPositionStatus, TradeDirection, Timeframe } from '@lib/grademark'
+import { ITrade } from '@lib/exchange'
 
 const GET_CANDLES: string = gql`
     query Candles ($symbol: String, $timeframe: String) {
@@ -14,6 +15,7 @@ const GET_CANDLES: string = gql`
         }
     }
 `
+
 const GET_POSITION_STATUS: string = gql`
     query PositionStatus ($symbol: String) {
         positionStatus (symbol: $symbol) {
@@ -87,7 +89,7 @@ const EXIT_POSITION: string = gql`
         }
     }   
 `
-const CLOSE_POSITION: string = gql`
+const CLOSE_POSITION : string = gql`
     mutation ClosePosition ($symbol: String){
         closePosition (symbol: $symbol) {
             symbol
@@ -115,6 +117,29 @@ const UPDATE_POSITION: string = gql`
             initialRiskPct
             curRiskPct
             curRMultiple
+        }
+    }
+`
+
+/**
+ * Completed Trade
+ */
+const GET_COMPLETED_TRADE: string = gql`
+    query CompletedTrade (symbol: String) {
+        trades (symbol: $symbol) {
+            symbol
+            direction
+            entryTime
+            entryPrice
+            exitTime
+            exitPrice
+            profit
+            profitPct
+            holdingPeriod
+            exitReason
+            stopPrice
+            size
+            orderId
         }
     }
 `
@@ -200,5 +225,17 @@ export const service = {
     async closePosition (symbol: string): Promise<IPosition> {
         const { closePosition } = await request(GRAPHQL_URL, CLOSE_POSITION, { symbol })
         return closePosition
+    },
+    /**
+     * Create trade
+     * @param symbol The Cryptocurrency unique code
+     * @returns
+     */
+    async createTrade (Trade: ITrade): Promise<ITrade> {
+        const { createTrade } = await request(GRAPHQL_URL, GET_COMPLETED_TRADE, { Trade })
+        return createTrade
+    },
+    async updateTrade (symbol: string): Promise<ITrade> {
+        const { trade } = await request(GRAPHQL_URL, UPDATE_TRADE)
     }
 }

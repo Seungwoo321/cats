@@ -137,6 +137,14 @@ CompletedTrade.init({
     stopPrice: {
         type: DataTypes.DECIMAL,
         allowNull: true
+    },
+    size: {
+        type: DataTypes.DOUBLE,
+        allowNull: false
+    },
+    orderId: {
+        type: DataTypes.STRING,
+        primaryKey: true
     }
 }, {
     sequelize: sequelize,
