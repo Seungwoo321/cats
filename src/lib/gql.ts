@@ -48,7 +48,7 @@ const GET_OPEN_POSITION: string = gql`
 `
 const ENTER_POSITION: string = gql`
     mutation EnterPosition ($symbol: String, $direction: TradeDirection, $entryPrice: Float) {
-        enterPosition (symbol: $symbol, direction: $direction, entryPrice: $entryPrice) {
+        enterPosition (symbol: $symbol, direction: $direction, conditionalEntryPrice: $entryPrice) {
             symbol
             direction
             conditionalEntryPrice
