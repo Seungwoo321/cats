@@ -206,5 +206,6 @@ sequelize.sync()
 export {
     sequelize,
     OpenPosition,
-    PositionStatus
+    PositionStatus,
+    CompletedTrade
 }

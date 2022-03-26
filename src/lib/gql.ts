@@ -124,9 +124,28 @@ const UPDATE_POSITION: string = gql`
 /**
  * Completed Trade
  */
-const GET_COMPLETED_TRADE: string = gql`
-    query CompletedTrade (symbol: String) {
+const GET_COMPLETED_TRADES: string = gql`
+    query CompletedTrades (symbol: String) {
         trades (symbol: $symbol) {
+            symbol
+            direction
+            entryTime
+            entryPrice
+            exitTime
+            exitPrice
+            profit
+            profitPct
+            holdingPeriod
+            exitReason
+            stopPrice
+            size
+            orderId
+        }
+    }
+`
+const UPDATE_COMPLETED_TRADE: string = gql`
+    mutation UpdateTrade ($trade: InputTrade) {
+        updateTrade (trade: $trade) {
             symbol
             direction
             entryTime
@@ -228,15 +247,21 @@ export const service = {
         return closePosition
     },
     /**
-     * Create trade
+     * Query completed trades
      * @param symbol The Cryptocurrency unique code
-     * @returns
+     * @returns returns completed trades
      */
-    async createTrade (Trade: ITrade): Promise<ITrade> {
-        const { createTrade } = await request(GRAPHQL_URL, GET_COMPLETED_TRADE, { Trade })
-        return createTrade
+    async completedTrades (symbol: string): Promise<ITrade[]> {
+        const { completedTrades } = await request(GRAPHQL_URL, GET_COMPLETED_TRADES, { symbol })
+        return completedTrades
     },
-    async updateTrade (symbol: string): Promise<ITrade> {
-        const { trade } = await request(GRAPHQL_URL, UPDATE_TRADE)
+    /**
+     * Create or Update trade
+     * @param symbol The Cryptocurrency unique code
+     * @returns returns completed trades
+     */
+    async updateTrade (trade: ITrade): Promise<ITrade> {
+        const { updateTrade } = await request(GRAPHQL_URL, UPDATE_COMPLETED_TRADE, { trade })
+        return updateTrade
     }
 }

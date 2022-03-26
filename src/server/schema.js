@@ -81,7 +81,22 @@ const typeDefs = gql`
         time: Date
         value: String
     }
-    type CompletedTrade {
+    type ITrade {
+        symbol: String
+        direction: TradeDirection
+        entryTime: Date
+        entryPrice: Float
+        exitTime: Date
+        exitPrice: Float
+        profit: Float
+        profitPct: Float
+        holdingPeriod: Int
+        exitReason: String
+        stopPrice: Float
+        size: Float
+        orderId: String
+    }
+    input InputTrade {
         symbol: String
         direction: TradeDirection
         entryTime: Date
@@ -100,6 +115,7 @@ const typeDefs = gql`
         positionStatus(symbol: String): IPositionStatus
         openPosition(symbol: String): IPosition
         candles(symbol: String, timeframe: String): [IBar]
+        completedTrades(symbol: String): [ITrade]
     }
     type Mutation {
         updatePosition(position: InputPosition): IPosition
@@ -107,6 +123,7 @@ const typeDefs = gql`
         enterPosition(symbol: String, direction: TradeDirection, entryPrice: Float): IPositionStatus
         exitPosition(symbol: String): IPositionStatus
         closePosition(symbol: String): IPositionStatus
+        updateTrade(trade: InputTrade): ITrade
     }
 `
 module.exports = {

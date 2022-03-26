@@ -20,9 +20,8 @@ const dateScalar = new GraphQLScalarType({
 
 module.exports = {
     Query: {
-        // To do
-        completedTrade: async (_, { symbol }, { dataSources }) => {
-            return await dataSources.completedTradeAPI.completedTrade({ symbol })
+        completedTrades: async (_, { symbol }, { dataSources }) => {
+            return await dataSources.completedTradeAPI.findTradeBySymbol({ symbol })
         },
         positionStatus: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatus({ symbol })
@@ -35,13 +34,8 @@ module.exports = {
         }
     },
     Mutation: {
-        // To do
-        createTrade: async (_, data, { dataSources }) => {
-            return await dataSources.completedTradeAPI
-        },
-        // To do
-        updateTrade: async (_, data, { dataSources }) => {
-            return await dataSources.completedTradeAPI
+        updateTrade: async (_, trade, { dataSources }) => {
+            return await dataSources.completedTradeAPI.updateTrade({ values: trade })
         },
         updatePosition: async (_, { position }, { dataSources }) => {
             return await dataSources.openPositionAPI.updatePosition({ values: position })
@@ -50,7 +44,7 @@ module.exports = {
             const positionStatus = await dataSources.positionStatusAPI.positionStatus({ symbol })
             return positionStatus.value === 'Enter' &&
                 await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } }) &&
-                await dataSources.openPositionAPI.findOrCreatePosition(position)
+                await dataSources.openPositionAPI.createOpenPosition(position)
         },
         enterPosition: async (_, { symbol, direction = 'Long', entryPrice }, { dataSources }) => {
             const positionStatus = await dataSources.positionStatusAPI.positionStatus({ symbol })

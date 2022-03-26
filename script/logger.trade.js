@@ -9,7 +9,7 @@ args.shift()
     const symbol = args[0]
     const client = new BitMEXClient({
         testnet: false,
-        maxTableLen: 100,
+        maxTableLen: 1,
         apiKeyID: process.env.EXCHANGE_API_KEY,
         apiKeySecret: process.env.EXCHANGE_SECRET_KEY
     })
@@ -74,5 +74,20 @@ args.shift()
      */
     client.addStream(symbol.split(':')[0].replace('/', ''), 'execution', async function (data, _, __) {
         console.log(data)
+        const values = {
+            // symbol
+            // direction
+            // entryTime
+            // entryPrice
+            // exitTime
+            // exitPrice
+            // profit
+            // profitPct
+            // holdingPeriod
+            // exitReason
+            // stopPrice
+            // size
+            // orderId
+        }
     })
 })()

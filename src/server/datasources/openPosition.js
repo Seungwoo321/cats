@@ -10,7 +10,7 @@ class OpenPosition extends DataSource {
         this.context = config.context
     }
 
-    async findOrCreatePosition (position) {
+    async createOpenPosition (position) {
         const res = await this.store.findOrCreate({
             where: {
                 symbol: position.symbol
