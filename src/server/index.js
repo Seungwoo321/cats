@@ -9,6 +9,7 @@ const CandleAPI = require('./datasources/candle')
 const OpenPositionAPI = require('./datasources/openPosition')
 const PositionStatusAPI = require('./datasources/positionStatus')
 const CompletedTradeAPI = require('./datasources/completedTrade')
+const OrderHistoryAPI = require('./datasources/orderHistory')
 // const internalEngineDemo = require('./engine-demo')
 const store = createStore()
 
@@ -17,7 +18,8 @@ const dataSources = () => ({
     candleAPI: new CandleAPI(store.influx2),
     openPositionAPI: new OpenPositionAPI(store.mariadb.OpenPosition),
     positionStatusAPI: new PositionStatusAPI(store.mariadb.PositionStatus),
-    completedTradeAPI: new CompletedTradeAPI(store.mariadb.CompletedTrade)
+    completedTradeAPI: new CompletedTradeAPI(store.mariadb.CompletedTrade),
+    orderHistoryAPI: new OrderHistoryAPI(this.store.mariadb.OrderHistory)
 })
 
 // the function that sets up the global context for each resolver, using the req

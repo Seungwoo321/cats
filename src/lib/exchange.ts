@@ -4,6 +4,20 @@ import { TradeDirection } from '@lib/grademark/strategy'
 const ccxt = require('ccxt')
 const ExchangeClass = ccxt[EXCHANGE_ID]
 
+export enum OrderText {
+    EntryRule = 'entry-rule',
+    ExitRule = 'exit-rule',
+    StopLoss = 'stop-loss',
+    TrailingStopLoss = 'trailing-stop'
+}
+
+export enum OrderStatus {
+    New ='New',
+    Filled = 'Filled',
+    PartiallyFilled = 'PartiallyFilled',
+    Canceled = 'Canceled'
+}
+
 export const exchange: Exchange = new ExchangeClass({
     apiKey: EXCHANGE_API_KEY,
     secret: EXCHANGE_SECRET_KEY,
@@ -132,17 +146,34 @@ export type Position = {
 }
 
 export interface ITrade {
+    tradingId: string
     symbol: string
     direction: TradeDirection
     entryTime: Date
     entryPrice: number
-    exitTime: Date
-    exitPrice: number
-    profit: number
-    profitPct: number
-    holdingPeriod: number
-    exitReason: string
+    exitTime?: Date
+    exitPrice?: number
+    profit?: number
+    profitPct?: number
+    exitReason?: string
+    qty: number
+}
+
+export interface IOrder {
+    symbol: string
+    lastQty: number
+    orderQty: number
+    leavesQty: number
+    lastPrice: number
+    price: number
+    avgPrice: number
     stopPrice: number
-    size: number
+    side: string
+    ordType: string
+    ordStatus: OrderStatus
+    currency: string
+    homeNotional: number
+    time: Date
     orderId: string
+    tradingId?: string
 }

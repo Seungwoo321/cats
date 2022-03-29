@@ -44,13 +44,15 @@
     "mariadb": "^3.0.0",
     "module-alias": "^2.2.2",
     "prompts": "^2.4.2",
-    "sequelize": "^6.17.0"
+    "sequelize": "^6.17.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@types/chai": "^4.3.0",
     "@types/node": "^17.0.21",
+    "@types/uuid": "^8.3.4",
     "@types/validator": "^13.7.1",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",

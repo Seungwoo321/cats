@@ -23,6 +23,12 @@ module.exports = {
         completedTrades: async (_, { symbol }, { dataSources }) => {
             return await dataSources.completedTradeAPI.findTradeBySymbol({ symbol })
         },
+        ordersBySymbol: async (_, { symbol }, { dataSources }) => {
+            return await dataSources.orderHistoryAPI.ordersBySymbol({ symbol })
+        },
+        ordersByTrading: async (_, { tradingId }, { dataSources }) => {
+            return await dataSources.orderHistoryAPI.ordersByTrading({ tradingId })
+        },
         positionStatus: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatus({ symbol })
         },
@@ -37,6 +43,9 @@ module.exports = {
         updateTrade: async (_, { trade }, { dataSources }) => {
             return await dataSources.completedTradeAPI.updateTrade({ values: trade })
         },
+        updateOrder: async (_, { order }, { dataSources }) => {
+            return await dataSources.orderHistoryAPI.updateOrder({ value: order })
+        },
         updatePosition: async (_, { position }, { dataSources }) => {
             return await dataSources.openPositionAPI.updatePosition({ values: position })
         },
@@ -44,7 +53,7 @@ module.exports = {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } }) &&
                 await dataSources.openPositionAPI.findOrCreatePosition(position)
         },
-        enterPosition: async (_, { symbol, direction = 'Long', entryPrice, tradingId }, { dataSources }) => {
+        enterPosition: async (_, { symbol, direction = 'long', entryPrice, tradingId }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice, tradingId } })
         },
         exitPosition: async (_, { symbol }, { dataSources }) => {

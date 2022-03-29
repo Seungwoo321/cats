@@ -23,6 +23,7 @@ const typeDefs = gql`
         symbol: String
         direction(direction: TradeDirection): String
         conditionalEntryPrice: Float
+        tradingId: String
         value(status: Status): String
     }
     type IBar {
@@ -82,6 +83,7 @@ const typeDefs = gql`
         value: String
     }
     type ITrade {
+        tradingId: String
         symbol: String
         direction: TradeDirection
         entryTime: Date
@@ -90,13 +92,11 @@ const typeDefs = gql`
         exitPrice: Float
         profit: Float
         profitPct: Float
-        holdingPeriod: Int
         exitReason: String
-        stopPrice: Float
-        size: Float
-        orderId: String
+        qty: Float
     }
     input InputTrade {
+        tradingId: String
         symbol: String
         direction: TradeDirection
         entryTime: Date
@@ -105,25 +105,61 @@ const typeDefs = gql`
         exitPrice: Float
         profit: Float
         profitPct: Float
-        holdingPeriod: Int
         exitReason: String
-        stopPrice: Float
-        size: Float
+        qty: Float
+    }
+    type IOrder {
+        tradingId: String
         orderId: String
+        symbol: String
+        lastQty: Float
+        orderQty: Float
+        leavesQty: Float
+        lastPrice: Float
+        price: Float
+        avgPrice: Float
+        stopPrice: Float
+        side: String
+        ordType: String
+        ordStatus: OrderStatus
+        currency: String
+        homeNotional: Float
+        time: Date
+    }
+    input InputOrder {
+        tradingId: String
+        orderId: String
+        symbol: String
+        lastQty: Float
+        orderQty: Float
+        leavesQty: Float
+        lastPrice: Float
+        price: Float
+        avgPrice: Float
+        stopPrice: Float
+        side: String
+        ordType: String
+        ordStatus: OrderStatus
+        currency: String
+        homeNotional: Float
+        time: Date
     }
     type Query {
+        completedTrades(symbol: String): [ITrade]
+        orderHistory(symbol: String): [IOrder]
+        orderByTrading(tradingId: String): [IOrder]
         positionStatus(symbol: String): IPositionStatus
         openPosition(symbol: String): IPosition
         candles(symbol: String, timeframe: String): [IBar]
-        completedTrades(symbol: String): [ITrade]
     }
     type Mutation {
+        updateTrade(trade: InputTrade): ITrade
+        updateOrder(order: InputOrder): IOrder
         updatePosition(position: InputPosition): IPosition
         openPosition(symbol: String, position: InputPosition): IPosition
-        enterPosition(symbol: String, direction: TradeDirection, entryPrice: Float): IPositionStatus
+        enterPosition(symbol: String, direction: TradeDirection, entryPrice: Float, tradingId: String): IPositionStatus
         exitPosition(symbol: String): IPositionStatus
         closePosition(symbol: String): IPositionStatus
-        updateTrade(trade: InputTrade): ITrade
     }
 `
 module.exports = {

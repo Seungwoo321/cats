@@ -6,7 +6,7 @@ const sequelize = new Sequelize(MARIADB_DATABASE, MARIADB_USERNAME, MARIADB_PASS
     dialect: 'mariadb'
 })
 
-class OpenPosition extends Model { }
+class OpenPosition extends Model {}
 OpenPosition.init({
     symbol: {
         type: DataTypes.STRING,
@@ -64,7 +64,7 @@ OpenPosition.init({
     underscored: true
 })
 
-class PositionStatus extends Model { }
+class PositionStatus extends Model {}
 PositionStatus.init({
     symbol: {
         type: DataTypes.STRING,
@@ -77,6 +77,10 @@ PositionStatus.init({
     },
     conditionalEntryPrice: {
         type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    tradingId: {
+        type: DataTypes.UUIDV4,
         allowNull: true
     },
     value: {
@@ -138,11 +142,11 @@ CompletedTrade.init({
         type: DataTypes.FLOAT,
         allowNull: true
     },
-    size: {
+    qty: {
         type: DataTypes.DOUBLE,
         allowNull: false
     },
-    orderId: {
+    tradingId: {
         type: DataTypes.STRING,
         primaryKey: true
     }
@@ -153,7 +157,7 @@ CompletedTrade.init({
     underscored: true
 })
 
-class OrderHistory extends Model { }
+class OrderHistory extends Model {}
 
 OrderHistory.init({
     symbol: {
@@ -161,37 +165,61 @@ OrderHistory.init({
         allowNull: false,
         primaryKey: true
     },
-    size: {
+    lastQty: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    Filled: {
-        type: DataTypes.STRING,
+    ordQty: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    leavesQty: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    lastPrice: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    ordPrice: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    avgPrice: {
+        type: DataTypes.FLOAT,
         allowNull: true
     },
     stopPrice: {
         type: DataTypes.FLOAT,
         allowNull: true
     },
-    fillPrice: {
+    side: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    ordType: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    ordStatus: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    currency: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    homeNotional: {
         type: DataTypes.FLOAT,
         allowNull: false
-    },
-    type: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    status: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    orderId: {
-        type: DataTypes.STRING,
-        primaryKey: true
     },
     time: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    tradingId: {
+        type: DataTypes.STRING,
+        primaryKey: true
     }
 }, {
     sequelize: sequelize,
@@ -207,5 +235,6 @@ export {
     sequelize,
     OpenPosition,
     PositionStatus,
-    CompletedTrade
+    CompletedTrade,
+    OrderHistory
 }

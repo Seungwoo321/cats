@@ -18,7 +18,8 @@ class PositionStatus extends DataSource {
             defaults: {
                 symbol,
                 conditionalEntryPrice: null,
-                direction: 'Long',
+                direction: 'long',
+                tradingId: null,
                 value: 'None'
             }
         })

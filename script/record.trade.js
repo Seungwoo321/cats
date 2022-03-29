@@ -1,6 +1,7 @@
 require('module-alias/register')
 require('@config')
 const BitMEXClient = require('bitmex-realtime-api')
+const { record } = require('@lib/record/bitmex')
 const args = process.argv.slice()
 args.shift()
 args.shift()
@@ -14,7 +15,7 @@ args.shift()
         apiKeySecret: process.env.EXCHANGE_SECRET_KEY
     })
     client.on('initialize', () => {
-        console.log('history stream start...')
+        console.log('execution stream start...')
     })
     client.on('error', (error) => {
         console.error(error)
@@ -73,21 +74,22 @@ args.shift()
      * ]
      */
     client.addStream(symbol.split(':')[0].replace('/', ''), 'execution', async function (data, _, __) {
-        console.log(data)
-        const values = {
-            // symbol
-            // direction
-            // entryTime
-            // entryPrice
-            // exitTime
-            // exitPrice
-            // profit
-            // profitPct
-            // holdingPeriod
-            // exitReason
-            // stopPrice
-            // size
-            // orderId
-        }
+        record(symbol, {
+            orderId: data.orderID,
+            lastQty: data.lastQty,
+            orderQty: data.orderQty,
+            leavesQty: data.leavesQty,
+            lastPrice: data.lastPrice,
+            price: data.price,
+            avgPrice: data.avgPrice,
+            stopPrice: data.stopPrice,
+            side: data.side,
+            ordType: data.ordType,
+            ordStatus: data.ordStatus,
+            currency: data.currency,
+            homeNotional: data.homeNotional,
+            time: data.timestamp,
+            tradingId: null
+        })
     })
 })()

@@ -1,7 +1,7 @@
 import { gql, request } from 'graphql-request'
 import { GRAPHQL_URL } from '@config'
 import { IBar, IPosition, IPositionStatus, TradeDirection, Timeframe } from '@lib/grademark'
-import { ITrade } from '@lib/exchange'
+import { ITrade, IOrder } from '@lib/exchange'
 
 const GET_CANDLES: string = gql`
     query Candles ($symbol: String, $timeframe: String) {
@@ -22,6 +22,7 @@ const GET_POSITION_STATUS: string = gql`
             symbol
             direction
             conditionalEntryPrice
+            tradingId
             value
         }
     }
@@ -49,11 +50,12 @@ const GET_OPEN_POSITION: string = gql`
     }
 `
 const ENTER_POSITION: string = gql`
-    mutation EnterPosition ($symbol: String, $direction: TradeDirection, $entryPrice: Float) {
-        enterPosition (symbol: $symbol, direction: $direction, entryPrice: $entryPrice) {
+    mutation EnterPosition ($symbol: String, $direction: TradeDirection, $entryPrice: Float $tradingId: String) {
+        enterPosition (symbol: $symbol, direction: $direction, entryPrice: $entryPrice, tradingId: $tradingId) {
             symbol
             direction
             conditionalEntryPrice
+            tradingId
             value
         }
     }
@@ -85,6 +87,7 @@ const EXIT_POSITION: string = gql`
             symbol
             direction
             conditionalEntryPrice
+            tradingId
             value
         }
     }   
@@ -95,6 +98,7 @@ const CLOSE_POSITION : string = gql`
             symbol
             direction
             conditionalEntryPrice
+            tradingId
             value
         }
     }
@@ -125,8 +129,9 @@ const UPDATE_POSITION: string = gql`
  * Completed Trade
  */
 const GET_COMPLETED_TRADES: string = gql`
-    query CompletedTrades (symbol: String) {
-        trades (symbol: $symbol) {
+    query CompletedTrades ($symbol: String) {
+        completedTrades (symbol: $symbol) {
+            tradingId
             symbol
             direction
             entryTime
@@ -135,17 +140,32 @@ const GET_COMPLETED_TRADES: string = gql`
             exitPrice
             profit
             profitPct
-            holdingPeriod
             exitReason
-            stopPrice
-            size
-            orderId
+            qty
+        }
+    }
+`
+const GET_COMPLETED_TRADING: string = gql`
+    query CompletedTrading ($tradingId: String) {
+        completedTrading (tradingId: $tradingId) {
+            tradingId
+            symbol
+            direction
+            entryTime
+            entryPrice
+            exitTime
+            exitPrice
+            profit
+            profitPct
+            exitReason
+            qty
         }
     }
 `
 const UPDATE_COMPLETED_TRADE: string = gql`
     mutation UpdateTrade ($trade: InputTrade) {
         updateTrade (trade: $trade) {
+            tradingId
             symbol
             direction
             entryTime
@@ -157,11 +177,77 @@ const UPDATE_COMPLETED_TRADE: string = gql`
             holdingPeriod
             exitReason
             stopPrice
-            size
-            orderId
+            qty
         }
     }
 `
+/**
+ * Order History
+ */
+const GET_ORDER_BY_SYMBOL: string = gql`
+    query OrderSymbol ($symbol: String) {
+        orderSymbol (symbol: $symbol) {
+            symbol
+            lastQty
+            orderQty
+            leavesQty
+            lastPrice
+            price
+            avgPrice
+            stopPrice
+            side
+            ordType
+            ordStatus
+            currency
+            homeNotional
+            time
+            tradingId
+        }
+    }
+`
+const GET_ORDER_BY_TRADING: string = gql`
+    query OrderTrading ($tradingId: String) {
+        orderTrading (tradingId: $tradingId) {
+            symbol
+            lastQty
+            orderQty
+            leavesQty
+            lastPrice
+            price
+            avgPrice
+            stopPrice
+            side
+            ordType
+            ordStatus
+            currency
+            homeNotional
+            time
+            tradingId
+        }
+    }
+`
+const UPDATE_ORDER: string = gql`
+    mutation UpdateOrder ($order: InputOrder) {
+        updateOrder (order: $order) {
+            symbol
+            lastQty
+            orderQty
+            leavesQty
+            lastPrice
+            price
+            avgPrice
+            stopPrice
+            side
+            ordType
+            ordStatus
+            currency
+            homeNotional
+            time
+            tradingId
+        }
+    }
+`
+
 export const service = {
     /**
      * Query candles
@@ -200,13 +286,12 @@ export const service = {
     /**
      * Change position 'None' to 'Enter'
      * @param symbol The Cryptocurrency unique code
-     * @param direction Long | Short
+     * @param direction long | short
      * @param entryPrice The price when enter
      * @returns returns a open position when status is Enter
      */
-    async enterPosition (symbol: string, direction: TradeDirection, entryPrice: number): Promise<IPosition> {
-        console.log(entryPrice)
-        const { enterPosition } = await request(GRAPHQL_URL, ENTER_POSITION, { symbol, direction, entryPrice })
+    async enterPosition (symbol: string, direction: TradeDirection, entryPrice: number, tradingId: string): Promise<IPosition> {
+        const { enterPosition } = await request(GRAPHQL_URL, ENTER_POSITION, { symbol, direction, entryPrice, tradingId })
         return enterPosition
     },
     /**
@@ -256,12 +341,53 @@ export const service = {
         return completedTrades
     },
     /**
+     * Query trading
+     * @param tradingId
+     * @returns returns a trading
+     */
+    async completedTrading (tradingId: string): Promise<ITrade> {
+        const { completedTrading } = await request(GRAPHQL_URL, GET_COMPLETED_TRADING, { tradingId })
+        return completedTrading
+    },
+    /**
      * Create or Update trade
      * @param symbol The Cryptocurrency unique code
      * @returns returns completed trades
      */
+    /**
+     * TBD
+     * @param trade
+     * @returns
+     */
     async updateTrade (trade: ITrade): Promise<ITrade> {
         const { updateTrade } = await request(GRAPHQL_URL, UPDATE_COMPLETED_TRADE, { trade })
         return updateTrade
+    },
+    /**
+     * TBD
+     * @param order
+     * @returns
+     */
+    async ordersBySymbol (order: IOrder): Promise<IOrder[]> {
+        const { orderSymbol } = await request(GRAPHQL_URL, GET_ORDER_BY_SYMBOL, { order })
+        return orderSymbol
+    },
+    /**
+     * TBD
+     * @param tradingId
+     * @returns
+     */
+    async ordersByTrading (tradingId: string): Promise<IOrder[]> {
+        const { orderTrading } = await request(GRAPHQL_URL, GET_ORDER_BY_TRADING, { tradingId })
+        return orderTrading
+    },
+    /**
+     * TBD
+     * @param order
+     * @returns
+     */
+    async updateOrder (order: IOrder): Promise<IOrder> {
+        const { updateOrder } = await request(GRAPHQL_URL, UPDATE_ORDER, { order })
+        return updateOrder
     }
 }

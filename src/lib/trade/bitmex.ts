@@ -4,6 +4,7 @@ import { service as gqlService } from '@lib/gql'
 import { IDataFrame } from 'data-forge'
 import { Market } from 'ccxt'
 import { assert } from 'chai'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * Update an open position for a new bar.
@@ -12,7 +13,7 @@ import { assert } from 'chai'
  * @param bar The current bar.
  * @returns
  */
-async function updatePosition (position: IPosition, bar: IBar, amount: number, flagNewTralingStop: boolean): Promise<IPosition> {
+async function updatePosition (position: IPosition, bar: IBar, amount: number, flagNewTrailingStop: boolean): Promise<IPosition> {
     position.profit = bar.close - position.entryPrice
     position.profitPct = (position.profit / position.entryPrice) * 100
     position.growth = position.direction === TradeDirection.Long
@@ -20,7 +21,7 @@ async function updatePosition (position: IPosition, bar: IBar, amount: number, f
         : position.entryPrice / bar.close
 
     position.holdingPeriod += 1
-    if (flagNewTralingStop && typeof position.curStopPrice === 'number') {
+    if (flagNewTrailingStop && typeof position.curStopPrice === 'number') {
         const symbol: string = position.symbol
         await exchange.createOrder(
             symbol,
@@ -30,7 +31,7 @@ async function updatePosition (position: IPosition, bar: IBar, amount: number, f
             position.curStopPrice,
             {
                 stopPrice: position.curStopPrice,
-                text: 'traling-stop',
+                text: 'trailing-stop',
                 execInst: 'LastPrice,Close'
             }
         )
@@ -143,7 +144,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 {
                     ordType: 'stopLimit',
                     stopPx: openPosition.curStopPrice,
-                    text: 'traling-stop',
+                    text: 'trailing-stop',
                     execInst: 'LastPrice,Close'
 
                 }
@@ -183,7 +184,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     async function enterPosition (options?: IEnterPositionOptions) {
         assert(positionStatus.value === PositionStatus.None, 'Can only enter a position when not already in one.')
         if (options?.symbol && options?.direction && options?.entryPrice) {
-            await gqlService.enterPosition(symbol, options.direction, options.entryPrice)
+            await gqlService.enterPosition(symbol, options.direction, options.entryPrice, uuidv4())
         }
     }
     /**

@@ -7,7 +7,7 @@ export interface IPosition {
     symbol: string
     /**
      * The direction of the position.
-     * Long or short.
+     * long or short.
      */
     direction: TradeDirection;
 
@@ -78,5 +78,6 @@ export interface IPositionStatus {
     symbol: string;
     direction: TradeDirection;
     conditionalEntryPrice: number | void;
+    tradingId: string;
     value: PositionStatus;
 }
