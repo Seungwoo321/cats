@@ -11,27 +11,14 @@ class CompletedTrade extends DataSource {
     }
 
     async findTrading ({ tradingId }) {
-        const res = await this.store.findOrCreate({
+        const res = await this.store.findAll({
             where: {
                 [Op.eq]: {
                     tradingId
                 }
-            },
-            default: {
-                tradingId,
-                symbol: null,
-                direction: null,
-                entryTime: null,
-                entryPrice: null,
-                exitTime: null,
-                exitPrice: null,
-                profit: null,
-                profitPct: null,
-                exitReason: null,
-                qty: null
             }
         })
-        return res
+        return res && res.length ? res[0].get() : false
     }
 
     async findTradingByOrderId ({ orderId }) {
@@ -42,7 +29,7 @@ class CompletedTrade extends DataSource {
                 }
             }
         })
-        return res
+        return res && res.length ? res[0].get() : false
     }
 
     async findTradingBySymbol ({ symbol }) {
@@ -53,7 +40,7 @@ class CompletedTrade extends DataSource {
                 }
             }
         })
-        return res
+        return res && res.length ? res[0].get() : false
     }
 
     async updateTrading ({ values }) {
@@ -65,7 +52,7 @@ class CompletedTrade extends DataSource {
             }
         })
         if (res && res.length && res[0] === 1) {
-            return await this.findTradeByOrderId({ orderId: values.orderId })
+            return await this.findTradingByOrderId({ orderId: values.orderId })
         }
         return false
     }
