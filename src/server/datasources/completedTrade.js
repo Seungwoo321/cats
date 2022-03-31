@@ -10,7 +10,18 @@ class CompletedTrade extends DataSource {
         this.context = config.context
     }
 
-    async findTradeByOrderId ({ orderId }) {
+    async findTrading ({ tradingId }) {
+        const res = await this.store.findAll({
+            where: {
+                [Op.eq]: {
+                    tradingId
+                }
+            }
+        })
+        return res
+    }
+
+    async findTradingByOrderId ({ orderId }) {
         const res = await this.store.findAll({
             where: {
                 [Op.eq]: {
@@ -21,7 +32,7 @@ class CompletedTrade extends DataSource {
         return res
     }
 
-    async findTradeBySymbol ({ symbol }) {
+    async findTradingBySymbol ({ symbol }) {
         const res = await this.store.findAll({
             where: {
                 [Op.eq]: {

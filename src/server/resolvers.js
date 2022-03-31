@@ -22,14 +22,17 @@ module.exports = {
     Query: {
         /** compltedTrade */
         completedTrades: async (_, { symbol }, { dataSources }) => {
-            return await dataSources.completedTradeAPI.findTradeBySymbol({ symbol })
+            return await dataSources.completedTradeAPI.findTradingBySymbol({ symbol })
+        },
+        completedTrading: async (_, { tradingId }, { dataSources }) => {
+            return await dataSources.completedTradeAPI.findTrading({ tradingId })
         },
         /** orderHistory */
         ordersBySymbol: async (_, { symbol }, { dataSources }) => {
-            return await dataSources.orderHistoryAPI.ordersBySymbol({ symbol })
+            return await dataSources.orderHistoryAPI.findOrdersBySymbol({ symbol })
         },
         ordersByTrading: async (_, { tradingId }, { dataSources }) => {
-            return await dataSources.orderHistoryAPI.ordersByTrading({ tradingId })
+            return await dataSources.orderHistoryAPI.findOrdersByTrading({ tradingId })
         },
         /** positionStatus */
         positionStatus: async (_, { symbol }, { dataSources }) => {
