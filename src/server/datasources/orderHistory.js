@@ -10,7 +10,7 @@ class OrderHistory extends DataSource {
         this.context = config.context
     }
 
-    async orderHistory ({ symbol }) {
+    async ordersBySymbol ({ symbol }) {
         const res = await this.store.findAll({
             where: {
                 [Op.eq]: {
@@ -21,8 +21,8 @@ class OrderHistory extends DataSource {
         return res
     }
 
-    async findOrderByTradingId ({ tradingId }) {
-        const res = await this.store.findAll({
+    async ordersByTrading ({ tradingId }) {
+        const res = await this.store.ㄴfindAll({
             where: {
                 [Op.eq]: {
                     tradingId
