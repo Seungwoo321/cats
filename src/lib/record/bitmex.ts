@@ -4,6 +4,9 @@ import { TradeDirection } from '@lib/grademark'
 
 async function record (symbol: string, data: IOrder) {
     const positionStatus = await gqlService.getPositionStatus(symbol)
+    if (!positionStatus.tradingId) {
+        throw new Error('Expect tradingId must exist')
+    }
     const tradingId = positionStatus.tradingId
     const currentTrading = await gqlService.completedTrading(tradingId) as ITrade
     const order = {
