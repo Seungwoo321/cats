@@ -11,11 +11,24 @@ class CompletedTrade extends DataSource {
     }
 
     async findTrading ({ tradingId }) {
-        const res = await this.store.findAll({
+        const res = await this.store.findOrCreate({
             where: {
                 [Op.eq]: {
                     tradingId
                 }
+            },
+            default: {
+                tradingId,
+                symbol: null,
+                direction: null,
+                entryTime: null,
+                entryPrice: null,
+                exitTime: null,
+                exitPrice: null,
+                profit: null,
+                profitPct: null,
+                exitReason: null,
+                qty: null
             }
         })
         return res

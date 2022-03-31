@@ -11,6 +11,7 @@ async function record (symbol: string, data: IOrder) {
     let currentTrading = {} as ITrade
     if (positionStatus.value !== PositionStatus.None) {
         try {
+            console.log(tradingId)
             currentTrading = await gqlService.completedTrading(tradingId) as ITrade
         } catch (error) {
             console.log(error)
@@ -24,7 +25,7 @@ async function record (symbol: string, data: IOrder) {
 
     async function openTrading (data: IOrder) {
         if (data.text === OrderText.EntryRule) {
-            const trading = {
+            const trade = {
                 tradingId,
                 symbol,
                 direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
@@ -32,25 +33,25 @@ async function record (symbol: string, data: IOrder) {
                 entryPrice: data.avgPrice,
                 qty: data.orderQty - data.leavesQty
             }
-            await gqlService.updateTrading(trading)
+            await gqlService.updateTrading(trade)
         }
     }
 
     async function closeTrading (data: IOrder) {
         if (data.text === OrderText.EntryRule) {
-            const trading = {
+            const trade = {
                 ...currentTrading,
                 entryPrice: data.avgPrice,
                 qty: data.orderQty - data.leavesQty
             }
-            gqlService.updateTrading(trading)
+            gqlService.updateTrading(trade)
         }
 
         if (data.text === OrderText.ExitRule && currentTrading !== null) {
             const profit = currentTrading.direction === TradeDirection.Long
                 ? data.avgPrice - currentTrading.entryPrice
                 : currentTrading.entryPrice - data.avgPrice
-            const trading = {
+            const trade = {
                 ...currentTrading,
                 exitTime: data.time,
                 exitPrice: data.avgPrice,
@@ -59,7 +60,7 @@ async function record (symbol: string, data: IOrder) {
                 exitReason: data.text
 
             }
-            gqlService.updateTrading(trading)
+            gqlService.updateTrading(trade)
         }
     }
 
