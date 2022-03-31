@@ -1,5 +1,5 @@
 const { DataSource } = require('apollo-datasource')
-const { Op } = require('sequelize')
+
 class CompletedTrade extends DataSource {
     constructor (store) {
         super()
@@ -13,9 +13,7 @@ class CompletedTrade extends DataSource {
     async findTrading ({ tradingId }) {
         const res = await this.store.findAll({
             where: {
-                [Op.eq]: {
-                    tradingId
-                }
+                tradingId
             }
         })
         return res && res.length ? res[0].get() : false
@@ -24,9 +22,7 @@ class CompletedTrade extends DataSource {
     async findTradingByOrderId ({ orderId }) {
         const res = await this.store.findAll({
             where: {
-                [Op.eq]: {
-                    orderId
-                }
+                orderId
             }
         })
         return res && res.length ? res[0].get() : false
@@ -35,9 +31,7 @@ class CompletedTrade extends DataSource {
     async findTradingBySymbol ({ symbol }) {
         const res = await this.store.findAll({
             where: {
-                [Op.eq]: {
-                    symbol
-                }
+                symbol
             }
         })
         return res && res.length ? res[0].get() : false
@@ -46,9 +40,7 @@ class CompletedTrade extends DataSource {
     async updateTrading ({ values }) {
         const res = await this.store.upsert(values, {
             where: {
-                [Op.eq]: {
-                    orderId: values.orderId
-                }
+                orderId: values.orderId
             }
         })
         if (res && res.length && res[0] === 1) {
