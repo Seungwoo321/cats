@@ -162,9 +162,9 @@ const GET_COMPLETED_TRADING: string = gql`
         }
     }
 `
-const UPDATE_COMPLETED_TRADE: string = gql`
-    mutation UpdateTrade ($trade: InputTrade) {
-        updateTrade (trade: $trade) {
+const UPDATE_COMPLETED_TRADING: string = gql`
+    mutation UpdateTrading ($trade: InputTrade) {
+        updateTradind (trade: $trade) {
             tradingId
             symbol
             direction
@@ -179,6 +179,11 @@ const UPDATE_COMPLETED_TRADE: string = gql`
             stopPrice
             qty
         }
+    }
+`
+const REMOVE_COMPLETED_TRADING: string = gql`
+    mutation RemoveTrading ($tradingId: String) {
+        removeTrading(trading: $trade) {}
     }
 `
 /**
@@ -351,17 +356,21 @@ export const service = {
     },
     /**
      * Create or Update trade
-     * @param symbol The Cryptocurrency unique code
+     * @param trade
      * @returns returns completed trades
      */
+    async updateTrading (trade: ITrade): Promise<ITrade> {
+        const { updateTrading } = await request(GRAPHQL_URL, UPDATE_COMPLETED_TRADING, { trade })
+        return updateTrading
+    },
     /**
-     * TBD
-     * @param trade
+     * Cancel trading
+     * @param tradingId
      * @returns
      */
-    async updateTrade (trade: ITrade): Promise<ITrade> {
-        const { updateTrade } = await request(GRAPHQL_URL, UPDATE_COMPLETED_TRADE, { trade })
-        return updateTrade
+    async removeTrading (tradingId: string): Promise<Boolean> {
+        const { removeTrade } = await request(GRAPHQL_URL, REMOVE_COMPLETED_TRADING, { tradingId })
+        return removeTrade
     },
     /**
      * TBD

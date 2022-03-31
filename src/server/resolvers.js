@@ -20,48 +20,61 @@ const dateScalar = new GraphQLScalarType({
 
 module.exports = {
     Query: {
+        /** compltedTrade */
         completedTrades: async (_, { symbol }, { dataSources }) => {
             return await dataSources.completedTradeAPI.findTradeBySymbol({ symbol })
         },
+        /** orderHistory */
         ordersBySymbol: async (_, { symbol }, { dataSources }) => {
             return await dataSources.orderHistoryAPI.ordersBySymbol({ symbol })
         },
         ordersByTrading: async (_, { tradingId }, { dataSources }) => {
             return await dataSources.orderHistoryAPI.ordersByTrading({ tradingId })
         },
+        /** positionStatus */
         positionStatus: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatus({ symbol })
         },
+        /** openPosition */
         openPosition: async (_, { symbol }, { dataSources }) => {
             return await dataSources.openPositionAPI.getPosition({ symbol })
         },
+        /** candles */
         candles: async (_, { symbol, timeframe = '1h' }, { dataSources }) => {
             return await dataSources.candleAPI.getCandles({ symbol, timeframe })
         }
     },
     Mutation: {
-        updateTrade: async (_, { trade }, { dataSources }) => {
-            return await dataSources.completedTradeAPI.updateTrade({ values: trade })
+        /** completedTrade */
+        updateTrading: async (_, { trade }, { dataSources }) => {
+            return await dataSources.completedTradeAPI.updateTrading({ values: trade })
         },
+        removeTradind: async (_, { tradingId }, { dataSources }) => {
+            return await dataSources.completedTradeAPI.removeTradind({ tradingId })
+        },
+        /** orderHistory */
         updateOrder: async (_, { order }, { dataSources }) => {
-            return await dataSources.orderHistoryAPI.updateOrder({ value: order })
+            return await dataSources.orderHistoryAPI.updateOrder({ values: order })
         },
-        updatePosition: async (_, { position }, { dataSources }) => {
-            return await dataSources.openPositionAPI.updatePosition({ values: position })
-        },
+        /** positionStatus & openPosition */
         openPosition: async (_, { symbol, position }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } }) &&
                 await dataSources.openPositionAPI.findOrCreatePosition(position)
         },
+        closePosition: async (_, { symbol }, { dataSources }) => {
+            return await dataSources.openPositionAPI.closePostion({ symbol }) &&
+                await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', conditionalEntryPrice: null } })
+        },
+        /** positionStatus */
         enterPosition: async (_, { symbol, direction = 'long', entryPrice, tradingId }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice, tradingId } })
         },
         exitPosition: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Exit' } })
         },
-        closePosition: async (_, { symbol }, { dataSources }) => {
-            return await dataSources.openPositionAPI.closePostion({ symbol }) &&
-                await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', conditionalEntryPrice: null } })
+        /** openPosition */
+        updatePosition: async (_, { position }, { dataSources }) => {
+            return await dataSources.openPositionAPI.updatePosition({ values: position })
         }
     },
     Date: dateScalar

@@ -32,7 +32,7 @@ class CompletedTrade extends DataSource {
         return res
     }
 
-    async updateTrade ({ values }) {
+    async updateTrading ({ values }) {
         const res = await this.store.upsert(values, {
             where: {
                 [Op.eq]: {
@@ -44,6 +44,10 @@ class CompletedTrade extends DataSource {
             return await this.findTradeByOrderId({ orderId: values.orderId })
         }
         return false
+    }
+
+    async removeTrading ({ tradingId }) {
+        return await this.store.destroy({ where: { tradingId } })
     }
 }
 

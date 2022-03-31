@@ -1,61 +1,6 @@
 import { ITrade, OrderText, OrderStatus, IOrder } from '@lib/exchange'
 import { service as gqlService } from '@lib/gql'
 import { TradeDirection } from '@lib/grademark'
-/**
-    symbol: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true
-    },
-    direction: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    entryTime: {
-        type: DataTypes.DATE,
-        allowNull: false
-    },
-    entryPrice: {
-        type: DataTypes.FLOAT,
-        allowNull: false
-    },
-    exitTime: {
-        type: DataTypes.DATE,
-        allowNull: true
-    },
-    exitPrice: {
-        type: DataTypes.FLOAT,
-        allowNull: true
-    },
-    profit: {
-        type: DataTypes.FLOAT,
-        allowNull: true
-    },
-    profitPct: {
-        type: DataTypes.FLOAT,
-        allowNull: true
-    },
-    holdingPeriod: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    exitReason: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    stopPrice: {
-        type: DataTypes.FLOAT,
-        allowNull: true
-    },
-    size: {
-        type: DataTypes.DOUBLE,
-        allowNull: false
-    },
-    orderId: {
-        type: DataTypes.STRING,
-        primaryKey: true
-    }
- */
 
 async function record (symbol: string, data: IOrder) {
     const positionStatus = await gqlService.getPositionStatus(symbol)
@@ -69,7 +14,7 @@ async function record (symbol: string, data: IOrder) {
 
     async function openTrading (data: IOrder) {
         if (data.text === OrderText.EntryRule) {
-            const trade = {
+            const trading = {
                 tradingId,
                 symbol,
                 direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
@@ -77,25 +22,25 @@ async function record (symbol: string, data: IOrder) {
                 entryPrice: data.avgPrice,
                 qty: data.orderQty - data.leavesQty
             }
-            await gqlService.updateTrade(trade)
+            await gqlService.updateTrading(trading)
         }
     }
 
     async function closeTrading (data: IOrder) {
         if (data.text === OrderText.EntryRule) {
-            const trade = {
+            const trading = {
                 ...currentTrading,
                 entryPrice: data.avgPrice,
                 qty: data.orderQty - data.leavesQty
             }
-            gqlService.updateTrade(trade)
+            gqlService.updateTrading(trading)
         }
 
         if (data.text === OrderText.ExitRule && currentTrading !== null) {
             const profit = currentTrading.direction === TradeDirection.Long
                 ? data.avgPrice - currentTrading.entryPrice
                 : currentTrading.entryPrice - data.avgPrice
-            const trade = {
+            const trading = {
                 ...currentTrading,
                 exitTime: data.time,
                 exitPrice: data.avgPrice,
@@ -104,12 +49,12 @@ async function record (symbol: string, data: IOrder) {
                 exitReason: data.text
 
             }
-            gqlService.updateTrade(trade)
+            gqlService.updateTrading(trading)
         }
     }
 
-    async function removeTrading (data: IOrder) {
-        //
+    async function cancelTrading () {
+        gqlService.removeTrading(tradingId)
     }
 
     switch (data.ordStatus) {
@@ -134,7 +79,7 @@ async function record (symbol: string, data: IOrder) {
     case OrderStatus.Canceled:
 
         await gqlService.updateOrder(order)
-        await removeTrading(data)
+        await cancelTrading()
 
         break
     default:

@@ -153,7 +153,8 @@ const typeDefs = gql`
         candles(symbol: String, timeframe: String): [IBar]
     }
     type Mutation {
-        updateTrade(trade: InputTrade): ITrade
+        updateTrading(trade: InputTrade): ITrade
+        removeTrading(tradingId: String): Boolean
         updateOrder(order: InputOrder): IOrder
         updatePosition(position: InputPosition): IPosition
         openPosition(symbol: String, position: InputPosition): IPosition

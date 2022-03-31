@@ -46,7 +46,7 @@ class OpenPosition extends DataSource {
     }
 
     async closePostion ({ symbol }) {
-        return !!this.store.destroy({ where: { symbol } })
+        return await this.store.destroy({ where: { symbol } })
     }
 }
 
