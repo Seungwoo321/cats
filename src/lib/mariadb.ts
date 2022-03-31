@@ -99,8 +99,7 @@ class CompletedTrade extends Model {}
 CompletedTrade.init({
     symbol: {
         type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true
+        allowNull: false
     },
     direction: {
         type: DataTypes.STRING,
@@ -162,8 +161,7 @@ class OrderHistory extends Model {}
 OrderHistory.init({
     symbol: {
         type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true
+        allowNull: false
     },
     lastQty: {
         type: DataTypes.INTEGER,
@@ -217,9 +215,12 @@ OrderHistory.init({
         type: DataTypes.DATE,
         allowNull: true
     },
-    tradingId: {
+    orderId: {
         type: DataTypes.STRING,
         primaryKey: true
+    },
+    tradingId: {
+        type: DataTypes.STRING
     }
 }, {
     sequelize: sequelize,
