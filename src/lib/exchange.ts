@@ -176,4 +176,5 @@ export interface IOrder {
     time: Date
     orderId: string
     tradingId?: string
+    text: string
 }

@@ -60,52 +60,86 @@ import { TradeDirection } from '@lib/grademark'
 async function record (symbol: string, data: IOrder) {
     const positionStatus = await gqlService.getPositionStatus(symbol)
     const tradingId = positionStatus.tradingId
-    // const currentTrading = await gqlService.completedTrading(tradingId)
+    const currentTrading = await gqlService.completedTrading(tradingId) as ITrade
     const order = {
         ...data,
         tradingId,
         symbol
     } as IOrder
+
+    async function openTrading (data: IOrder) {
+        if (data.text === OrderText.EntryRule) {
+            const trade = {
+                tradingId,
+                symbol,
+                direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
+                entryTime: data.time,
+                entryPrice: data.avgPrice,
+                qty: data.orderQty - data.leavesQty
+            }
+            await gqlService.updateTrade(trade)
+        }
+    }
+
+    async function closeTrading (data: IOrder) {
+        if (data.text === OrderText.EntryRule) {
+            const trade = {
+                ...currentTrading,
+                entryPrice: data.avgPrice,
+                qty: data.orderQty - data.leavesQty
+            }
+            gqlService.updateTrade(trade)
+        }
+
+        if (data.text === OrderText.ExitRule && currentTrading !== null) {
+            const profit = currentTrading.direction === TradeDirection.Long
+                ? data.avgPrice - currentTrading.entryPrice
+                : currentTrading.entryPrice - data.avgPrice
+            const trade = {
+                ...currentTrading,
+                exitTime: data.time,
+                exitPrice: data.avgPrice,
+                profit,
+                profitPct: (profit / currentTrading.entryPrice) * 100,
+                exitReason: data.text
+
+            }
+            gqlService.updateTrade(trade)
+        }
+    }
+
+    async function removeTrading (data: IOrder) {
+        //
+    }
+
     switch (data.ordStatus) {
     case OrderStatus.New:
 
-        gqlService.updateOrder(order)
+        await gqlService.updateOrder(order)
+        await openTrading(data)
 
         break
     case OrderStatus.Filled:
-        gqlService.updateOrder(order)
+
+        await gqlService.updateOrder(order)
+        await closeTrading(data)
+
         break
     case OrderStatus.PartiallyFilled:
-        gqlService.updateOrder(order)
+
+        await gqlService.updateOrder(order)
+        await closeTrading(data)
+
         break
     case OrderStatus.Canceled:
-        gqlService.updateOrder(order)
+
+        await gqlService.updateOrder(order)
+        await removeTrading(data)
+
         break
     default:
         break
     }
-    // if (data.text === OrderText.EntryRule) {
-    //     const trade = {
-    //         tradingId,
-    //         symbol,
-    //         direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
-    //         entryTime: data.timestamp,
-    //         entryPrice: data.avgPx,
-    //         size: data.orderQty - data.leavesQty
-    //     } as ITrade
-    //     gqlService.updateTrade(trade)
-    // } else {
-    //     const exitPrice = data.avgPx
-    //     const trade = {
-    //         exitTime: data.timestamp,
-    //         exitPrice: data.avgPx,
-    //         exitReason: data.text,
-    //         profit: currentTrading.direction === TradeDirection.Long
-    //             ? exitPrice - currentTrading.entryPrice
-    //             : currentTrading.entryPrice - exitPrice
-    //     } as ITrade
-    //     gqlService.updateTrade(trade)
-    // }
 }
 
 export {
