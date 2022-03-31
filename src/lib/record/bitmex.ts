@@ -1,6 +1,6 @@
 import { ITrade, OrderText, OrderStatus, IOrder } from '@lib/exchange'
 import { service as gqlService } from '@lib/gql'
-import { PositionStatus, TradeDirection } from '@lib/grademark'
+import { TradeDirection } from '@lib/grademark'
 
 async function record (symbol: string, data: IOrder) {
     const positionStatus = await gqlService.getPositionStatus(symbol)
@@ -8,15 +8,8 @@ async function record (symbol: string, data: IOrder) {
         throw new Error('Expect tradingId must exist')
     }
     const tradingId = positionStatus.tradingId
-    let currentTrading = {} as ITrade
-    if (positionStatus.value !== PositionStatus.None) {
-        try {
-            console.log(tradingId)
-            currentTrading = await gqlService.completedTrading(tradingId) as ITrade
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    const currentTrading = await gqlService.completedTrading(tradingId) as ITrade
+
     const order = {
         ...data,
         tradingId,
@@ -35,6 +28,7 @@ async function record (symbol: string, data: IOrder) {
             }
             await gqlService.updateTrading(trade)
         }
+        return Promise.resolve()
     }
 
     async function closeTrading (data: IOrder) {
@@ -44,7 +38,7 @@ async function record (symbol: string, data: IOrder) {
                 entryPrice: data.avgPrice,
                 qty: data.orderQty - data.leavesQty
             }
-            gqlService.updateTrading(trade)
+            await gqlService.updateTrading(trade)
         }
 
         if (data.text === OrderText.ExitRule && currentTrading !== null) {
@@ -60,12 +54,14 @@ async function record (symbol: string, data: IOrder) {
                 exitReason: data.text
 
             }
-            gqlService.updateTrading(trade)
+            await gqlService.updateTrading(trade)
         }
+        return Promise.resolve()
     }
 
     async function cancelTrading () {
-        gqlService.removeTrading(tradingId)
+        await gqlService.removeTrading(tradingId)
+        return Promise.resolve()
     }
 
     switch (data.ordStatus) {
