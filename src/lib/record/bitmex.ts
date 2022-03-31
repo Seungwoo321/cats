@@ -10,7 +10,11 @@ async function record (symbol: string, data: IOrder) {
     const tradingId = positionStatus.tradingId
     let currentTrading = {} as ITrade
     if (positionStatus.value !== PositionStatus.None) {
-        currentTrading = await gqlService.completedTrading(tradingId) as ITrade
+        try {
+            currentTrading = await gqlService.completedTrading(tradingId) as ITrade
+        } catch (error) {
+            console.log(error)
+        }
     }
     const order = {
         ...data,
