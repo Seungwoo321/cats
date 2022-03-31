@@ -59,6 +59,8 @@ module.exports = {
     CandleAPI,
     OpenPositionAPI,
     PositionStatusAPI,
+    CompletedTradeAPI,
+    OrderHistoryAPI,
     store,
     server
 }

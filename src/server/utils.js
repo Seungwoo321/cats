@@ -1,5 +1,5 @@
 const { Influx2 } = require('@lib/influx2')
-const { sequelize, OpenPosition, PositionStatus, CompletedTrade } = require('@lib/mariadb')
+const { sequelize, OpenPosition, PositionStatus, CompletedTrade, OrderHistory } = require('@lib/mariadb')
 
 const createStore = () => {
     return {
@@ -7,7 +7,8 @@ const createStore = () => {
             sequelize,
             OpenPosition,
             PositionStatus,
-            CompletedTrade
+            CompletedTrade,
+            OrderHistory
         },
         influx2: new Influx2()
     }
