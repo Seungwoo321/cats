@@ -1,6 +1,6 @@
 import { ITrade, OrderText, OrderStatus, IOrder } from '@lib/exchange'
 import { service as gqlService } from '@lib/gql'
-import { TradeDirection } from '@lib/grademark'
+import { PositionStatus, TradeDirection } from '@lib/grademark'
 
 async function record (symbol: string, data: IOrder) {
     const positionStatus = await gqlService.getPositionStatus(symbol)
@@ -8,7 +8,10 @@ async function record (symbol: string, data: IOrder) {
         throw new Error('Expect tradingId must exist')
     }
     const tradingId = positionStatus.tradingId
-    const currentTrading = await gqlService.completedTrading(tradingId) as ITrade
+    let currentTrading = {} as ITrade
+    if (positionStatus.value !== PositionStatus.None) {
+        currentTrading = await gqlService.completedTrading(tradingId) as ITrade
+    }
     const order = {
         ...data,
         tradingId,
