@@ -80,7 +80,7 @@ PositionStatus.init({
         allowNull: true
     },
     tradingId: {
-        type: DataTypes.UUIDV4,
+        type: DataTypes.STRING,
         allowNull: true
     },
     value: {
