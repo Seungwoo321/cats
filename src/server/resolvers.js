@@ -62,7 +62,7 @@ module.exports = {
         /** positionStatus & openPosition */
         openPosition: async (_, { symbol, position }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } }) &&
-                await dataSources.openPositionAPI.findOrCreatePosition(position)
+                await dataSources.openPositionAPI.createPosition(position)
         },
         closePosition: async (_, { symbol }, { dataSources }) => {
             return await dataSources.openPositionAPI.closePostion({ symbol }) &&
