@@ -146,8 +146,8 @@ const typeDefs = gql`
     }
     type Query {
         completedTrades(symbol: String): [ITrade]
-        orderHistory(symbol: String): [IOrder]
-        orderByTrading(tradingId: String): [IOrder]
+        ordersBySymbol(symbol: String): [IOrder]
+        ordersByTrading(tradingId: String): [IOrder]
         positionStatus(symbol: String): IPositionStatus
         openPosition(symbol: String): IPosition
         candles(symbol: String, timeframe: String): [IBar]

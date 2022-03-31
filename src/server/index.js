@@ -1,5 +1,5 @@
 require('module-alias/register')
-require('dotenv').config()
+require('@config')
 
 const { ApolloServer } = require('apollo-server')
 const { typeDefs } = require('./schema')
