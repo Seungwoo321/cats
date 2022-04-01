@@ -73,23 +73,33 @@ args.shift()
      *   }
      * ]
      */
-    client.addStream(symbol.split(':')[0].replace('/', ''), 'execution', async function (data, _, __) {
-        record(symbol, {
-            orderId: data.orderID,
-            lastQty: data.lastQty,
-            orderQty: data.orderQty,
-            leavesQty: data.leavesQty,
-            lastPrice: data.lastPrice,
-            price: data.price,
-            avgPrice: data.avgPrice,
-            stopPrice: data.stopPrice,
-            side: data.side,
-            ordType: data.ordType,
-            ordStatus: data.ordStatus,
-            currency: data.currency,
-            homeNotional: data.homeNotional,
-            time: data.timestamp,
-            tradingId: null
-        })
+    // symbol.split(':')[0].replace('/', '')
+    client.addStream('BCHUSD', 'execution', async function (data, _, __) {
+        try {
+            await record(symbol, {
+                orderId: data.orderID,
+                lastQty: data.lastQty,
+                orderQty: data.orderQty,
+                leavesQty: data.leavesQty,
+                lastPrice: data.lastPrice,
+                price: data.price,
+                avgPrice: data.avgPrice,
+                stopPrice: data.stopPrice,
+                side: data.side,
+                ordType: data.ordType,
+                ordStatus: data.ordStatus,
+                currency: data.currency,
+                homeNotional: data.homeNotional,
+                time: data.timestamp,
+                tradingId: null
+            })
+        } catch (error) {
+            const errors = error.response.errors
+            errors.forEach(error => {
+                console.error('Error Message: ' + error.message)
+                console.error(error.extensions)
+            })
+            console.log('\nFinished ERROR')
+        }
     })
 })()

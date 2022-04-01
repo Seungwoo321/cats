@@ -63,7 +63,6 @@ async function record (symbol: string, data: IOrder) {
         await gqlService.removeTrading(tradingId)
         return Promise.resolve()
     }
-
     switch (data.ordStatus) {
     case OrderStatus.New:
 
