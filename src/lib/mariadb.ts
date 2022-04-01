@@ -3,7 +3,11 @@ import { MARIADB_HOST, MARIADB_DATABASE, MARIADB_USERNAME, MARIADB_PASSWORD, EXC
 
 const sequelize = new Sequelize(MARIADB_DATABASE, MARIADB_USERNAME, MARIADB_PASSWORD, {
     host: MARIADB_HOST,
-    dialect: 'mariadb'
+    dialect: 'mariadb',
+    dialectOptions: {
+        charset: 'utf8',
+        collate: 'utf8_general_ci'
+    }
 })
 
 class OpenPosition extends Model {}
