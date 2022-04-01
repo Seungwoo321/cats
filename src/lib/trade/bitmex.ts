@@ -150,7 +150,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 }
             )
         }
-        await gqlService.openPosition(symbol, openPosition)
+        await gqlService.createPosition(symbol, openPosition)
     }
     /**
      *
@@ -299,7 +299,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         }
 
         if (currentPosition.isOpen) {
-            await gqlService.openPosition(symbol, openPosition)
+            await gqlService.createPosition(symbol, openPosition)
             break
         }
 

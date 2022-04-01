@@ -60,7 +60,7 @@ module.exports = {
             return await dataSources.orderHistoryAPI.updateOrder({ values: order })
         },
         /** positionStatus & openPosition */
-        openPosition: async (_, { symbol, position }, { dataSources }) => {
+        createPosition: async (_, { symbol, position }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } }) &&
                 await dataSources.openPositionAPI.createPosition(position)
         },

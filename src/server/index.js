@@ -19,7 +19,7 @@ const dataSources = () => ({
     openPositionAPI: new OpenPositionAPI(store.mariadb.OpenPosition),
     positionStatusAPI: new PositionStatusAPI(store.mariadb.PositionStatus),
     completedTradeAPI: new CompletedTradeAPI(store.mariadb.CompletedTrade),
-    orderHistoryAPI: new OrderHistoryAPI(store.mariadb.OrderHistory)
+    orderHistoryAPI: new OrderHistoryAPI(this.store.mariadb.OrderHistory)
 })
 
 // the function that sets up the global context for each resolver, using the req
@@ -59,8 +59,6 @@ module.exports = {
     CandleAPI,
     OpenPositionAPI,
     PositionStatusAPI,
-    CompletedTradeAPI,
-    OrderHistoryAPI,
     store,
     server
 }

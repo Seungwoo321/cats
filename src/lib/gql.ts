@@ -60,9 +60,9 @@ const ENTER_POSITION: string = gql`
         }
     }
 `
-const OPEN_POSITION: string = gql`
-    mutation OpenPosition ($symbol: String $position: InputPosition) {
-        openPosition (symbol: $symbol, position: $position) {
+const CREATE_POSITION: string = gql`
+    mutation CreatePosition ($symbol: String $position: InputPosition) {
+        createPosition (symbol: $symbol, position: $position) {
             symbol
             direction
             entryTime
@@ -305,9 +305,9 @@ export const service = {
      * @param position The open position
      * @returns returns a open position when status is Position
      */
-    async openPosition (symbol: string, position: IPosition): Promise<IPosition> {
-        const { openPosition } = await request(GRAPHQL_URL, OPEN_POSITION, { symbol, position })
-        return openPosition
+    async createPosition (symbol: string, position: IPosition): Promise<IPosition> {
+        const { createPosition } = await request(GRAPHQL_URL, CREATE_POSITION, { symbol, position })
+        return createPosition
     },
     /**
      * Change not position
