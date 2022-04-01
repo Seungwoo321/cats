@@ -106,6 +106,7 @@ dist
 
 # private logic
 strategy
+ecosystem.config.js
 
 # vscode plugin
 .history
