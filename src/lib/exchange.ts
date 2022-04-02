@@ -158,10 +158,14 @@ export interface ITrade {
     exitReason?: string
     qty: number
     holdingPeriod: number
+    stopPrice: number
 }
 
 export interface IOrder {
+    orderId: string
+    tradingId?: string
     symbol: string
+    time: Date
     lastQty: number
     orderQty: number
     leavesQty: number
@@ -174,8 +178,5 @@ export interface IOrder {
     ordStatus: OrderStatus
     currency: string
     homeNotional: number
-    time: Date
-    orderId: string
-    tradingId?: string
     text: string
 }

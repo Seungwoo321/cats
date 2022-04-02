@@ -29,6 +29,7 @@ async function record (symbol: string, data: IOrder) {
                 entryTime: data.time,
                 entryPrice: data.avgPrice,
                 qty: +data.orderQty - +data.leavesQty,
+                stopPrice: data.stopPrice,
                 holdingPeriod: openPosition!.holdingPeriod
             }
             console.log(trade)
@@ -44,6 +45,7 @@ async function record (symbol: string, data: IOrder) {
                 ...currentTrading,
                 entryPrice: data.avgPrice,
                 qty: +data.orderQty - +data.leavesQty,
+                stopPrice: data.stopPrice,
                 holdingPeriod: openPosition!.holdingPeriod
             }
             await gqlService.updateTrading(trade)
@@ -60,6 +62,7 @@ async function record (symbol: string, data: IOrder) {
                 profit,
                 profitPct: (profit / +currentTrading.entryPrice) * 100,
                 exitReason: data.text,
+                stopPrice: data.stopPrice,
                 holdingPeriod: openPosition!.holdingPeriod
 
             }
