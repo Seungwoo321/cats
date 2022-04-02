@@ -171,7 +171,7 @@ OrderHistory.init({
         type: DataTypes.INTEGER,
         allowNull: true
     },
-    ordQty: {
+    orderQty: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
