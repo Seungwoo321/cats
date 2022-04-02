@@ -4,10 +4,14 @@ import { TradeDirection } from '@lib/grademark'
 
 async function record (symbol: string, data: IOrder) {
     console.log(symbol, data)
-    const openPosition = await gqlService.getOpenPosition(symbol)
     const positionStatus = await gqlService.getPositionStatus(symbol)
     if (!positionStatus.tradingId) {
         throw new Error('Expect tradingId must exist')
+    }
+    const openPosition = await gqlService.getOpenPosition(symbol)
+    let holdingPeriod = 0
+    if (openPosition?.holdingPeriod) {
+        holdingPeriod = openPosition?.holdingPeriod
     }
     const tradingId = positionStatus.tradingId
     const currentTrading = await gqlService.completedTrading(tradingId) as ITrade
@@ -30,7 +34,7 @@ async function record (symbol: string, data: IOrder) {
                 entryPrice: data.avgPrice,
                 qty: +data.orderQty - +data.leavesQty,
                 stopPrice: data.stopPrice,
-                holdingPeriod: openPosition!.holdingPeriod
+                holdingPeriod
             }
             console.log(trade)
             const result = await gqlService.updateTrading(trade)
@@ -46,7 +50,7 @@ async function record (symbol: string, data: IOrder) {
                 entryPrice: data.avgPrice,
                 qty: +data.orderQty - +data.leavesQty,
                 stopPrice: data.stopPrice,
-                holdingPeriod: openPosition!.holdingPeriod
+                holdingPeriod
             }
             await gqlService.updateTrading(trade)
         }
@@ -63,7 +67,7 @@ async function record (symbol: string, data: IOrder) {
                 profitPct: (profit / +currentTrading.entryPrice) * 100,
                 exitReason: data.text,
                 stopPrice: data.stopPrice,
-                holdingPeriod: openPosition!.holdingPeriod
+                holdingPeriod
 
             }
             await gqlService.updateTrading(trade)
