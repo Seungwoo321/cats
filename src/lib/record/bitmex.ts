@@ -3,6 +3,7 @@ import { service as gqlService } from '@lib/gql'
 import { TradeDirection } from '@lib/grademark'
 
 async function record (symbol: string, data: IOrder) {
+    console.log(symbol, data)
     const positionStatus = await gqlService.getPositionStatus(symbol)
     if (!positionStatus.tradingId) {
         throw new Error('Expect tradingId must exist')

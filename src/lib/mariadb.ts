@@ -213,7 +213,7 @@ OrderHistory.init({
     },
     homeNotional: {
         type: DataTypes.FLOAT,
-        allowNull: false
+        allowNull: true
     },
     time: {
         type: DataTypes.DATE,
@@ -224,7 +224,8 @@ OrderHistory.init({
         primaryKey: true
     },
     tradingId: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false
     }
 }, {
     sequelize: sequelize,
