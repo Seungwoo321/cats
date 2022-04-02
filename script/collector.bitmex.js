@@ -169,7 +169,7 @@ async function collecting (symbol, timeframe, startDate, total, data) {
             await db.importData('candles', measurement, symbol, items)
             console.log('FINISHED')
             const results = await db.fetchCandles('candles', measurement, symbol, { start: '-30d' })
-            console.log(results)
+            console.log(results[results.length - 1])
         } catch (error) {
             console.error(error)
             console.log('\\nFinished ERROR')

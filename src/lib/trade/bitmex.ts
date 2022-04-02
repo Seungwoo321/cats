@@ -99,9 +99,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             availableMargin += market?.maker
         }
         const amount: number = availableMargin / market.info.multiplier / openPosition.entryPrice * market.info.lotSize
-        // const formattedAmount: number = parseFloat(exchange.amountToPrecision(symbol, amount))
-        console.log(amount)
-        const formattedAmount = 1
+        const formattedAmount: number = parseFloat(exchange.amountToPrecision(symbol, amount))
         openPosition.amount = formattedAmount
         const formattedPrice: number = parseFloat(exchange.priceToPrecision(symbol, openPosition.entryPrice))
         // cancle all orders
@@ -164,7 +162,6 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      * @returns
      */
     async function closePosition (direction: TradeDirection, symbol: string, amount: number, exitPrice: number, exitReason: string) {
-        console.log(amount)
         await exchange.createOrder(
             symbol,
             'limit',
