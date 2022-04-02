@@ -48,14 +48,14 @@ async function record (symbol: string, data: IOrder) {
 
         if (data.text === OrderText.ExitRule && currentTrading !== null) {
             const profit = currentTrading.direction === TradeDirection.Long
-                ? data.avgPrice - currentTrading.entryPrice
-                : currentTrading.entryPrice - data.avgPrice
+                ? +data.avgPrice - +currentTrading.entryPrice
+                : +currentTrading.entryPrice - +data.avgPrice
             const trade = {
                 ...currentTrading,
                 exitTime: data.time,
                 exitPrice: data.avgPrice,
                 profit,
-                profitPct: (profit / currentTrading.entryPrice) * 100,
+                profitPct: (profit / +currentTrading.entryPrice) * 100,
                 exitReason: data.text
 
             }
