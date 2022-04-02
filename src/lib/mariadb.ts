@@ -27,7 +27,7 @@ OpenPosition.init({
     },
     entryPrice: {
         type: DataTypes.FLOAT,
-        allowNull: false
+        allowNull: true
     },
     growth: {
         type: DataTypes.INTEGER,
