@@ -157,6 +157,7 @@ export interface ITrade {
     profitPct?: number
     exitReason?: string
     qty: number
+    holdingPeriod: number
 }
 
 export interface IOrder {
