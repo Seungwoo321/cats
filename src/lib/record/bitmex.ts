@@ -21,7 +21,7 @@ async function record (symbol: string, data: IOrder) {
         symbol
     } as IOrder
 
-    async function openTrading (data: IOrder) {
+    async function newTrading (data: IOrder) {
         if (data.text === OrderText.EntryRule) {
             const trade = {
                 tradingId,
@@ -40,12 +40,15 @@ async function record (symbol: string, data: IOrder) {
         return Promise.resolve()
     }
 
-    async function closeTrading (data: IOrder) {
+    async function filledTrading (data: IOrder) {
         if (data.text === OrderText.EntryRule) {
             console.log('entry trading')
             console.log(currentTrading)
             const trade = {
-                ...currentTrading,
+                tradingId,
+                symbol,
+                direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
+                entryTime: currentTrading.entryTime || data.time,
                 entryPrice: data.avgPrice,
                 qty: +data.orderQty - +data.leavesQty,
                 stopPrice: data.stopPrice,
@@ -84,19 +87,19 @@ async function record (symbol: string, data: IOrder) {
     case OrderStatus.New:
 
         await gqlService.updateOrder(order)
-        await openTrading(data)
+        await newTrading(data)
 
         break
     case OrderStatus.Filled:
 
         await gqlService.updateOrder(order)
-        await closeTrading(data)
+        await filledTrading(data)
 
         break
     case OrderStatus.PartiallyFilled:
 
         await gqlService.updateOrder(order)
-        await closeTrading(data)
+        await filledTrading(data)
 
         break
     case OrderStatus.Canceled:
