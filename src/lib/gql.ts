@@ -140,6 +140,7 @@ const GET_COMPLETED_TRADES: string = gql`
             exitPrice
             profit
             profitPct
+            holdingPeriod
             exitReason
             qty
         }
@@ -157,6 +158,7 @@ const GET_COMPLETED_TRADING: string = gql`
             exitPrice
             profit
             profitPct
+            holdingPeriod
             exitReason
             qty
         }
