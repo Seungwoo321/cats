@@ -169,7 +169,7 @@ OrderHistory.init({
     },
     lastQty: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     ordQty: {
         type: DataTypes.INTEGER,
@@ -177,7 +177,7 @@ OrderHistory.init({
     },
     leavesQty: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     lastPrice: {
         type: DataTypes.FLOAT,

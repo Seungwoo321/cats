@@ -24,7 +24,7 @@ async function record (symbol: string, data: IOrder) {
                 direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
                 entryTime: data.time,
                 entryPrice: data.avgPrice,
-                qty: data.orderQty - data.leavesQty
+                qty: +data.orderQty - +data.leavesQty
             }
             await gqlService.updateTrading(trade)
         }
@@ -36,7 +36,7 @@ async function record (symbol: string, data: IOrder) {
             const trade = {
                 ...currentTrading,
                 entryPrice: data.avgPrice,
-                qty: data.orderQty - data.leavesQty
+                qty: +data.orderQty - +data.leavesQty
             }
             await gqlService.updateTrading(trade)
         }

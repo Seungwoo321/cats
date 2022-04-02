@@ -75,30 +75,36 @@ args.shift()
      */
     // symbol.split(':')[0].replace('/', '')
     client.addStream('BCHUSD', 'execution', async function (data, _, __) {
+        if (!data.length) return
         try {
+            const item = data[0]
             await record(symbol, {
-                orderId: data.orderID,
-                lastQty: data.lastQty,
-                orderQty: data.orderQty,
-                leavesQty: data.leavesQty,
-                lastPrice: data.lastPrice,
-                price: data.price,
-                avgPrice: data.avgPrice,
-                stopPrice: data.stopPrice,
-                side: data.side,
-                ordType: data.ordType,
-                ordStatus: data.ordStatus,
-                currency: data.currency,
-                homeNotional: data.homeNotional,
-                time: data.timestamp,
+                orderId: item.orderID,
+                lastQty: item.lastQty,
+                orderQty: item.orderQty,
+                leavesQty: item.leavesQty,
+                lastPrice: item.lastPrice,
+                price: item.price,
+                avgPrice: item.avgPrice,
+                stopPrice: item.stopPrice,
+                side: item.side,
+                ordType: item.ordType,
+                ordStatus: item.ordStatus,
+                currency: item.currency,
+                homeNotional: item.homeNotional,
+                time: item.timestamp,
                 tradingId: null
             })
         } catch (error) {
-            const errors = error.response.errors
-            errors.forEach(error => {
-                console.error('Error Message: ' + error.message)
-                console.error(error.extensions)
-            })
+            if (error.response) {
+                const errors = error.response.errors
+                errors.forEach(error => {
+                    console.error('Error Message: ' + error.message)
+                    console.error(error.extensions)
+                })
+            } else {
+                console.log(error)
+            }
             console.log('\nFinished ERROR')
         }
     })

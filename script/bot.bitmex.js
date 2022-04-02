@@ -65,7 +65,15 @@ args.shift()
             const inputSeries = new dataForge.DataFrame(candles).setIndex('time')
             await trading(symbol, strategy[strategyName], inputSeries)
         } catch (error) {
-            console.error(error.response)
+            if (error.response) {
+                const errors = error.response.errors
+                errors.forEach(error => {
+                    console.error('Error Message: ' + error.message)
+                    console.error(error.extensions)
+                })
+            } else {
+                console.log(error)
+            }
             console.log('\nFinished ERROR')
         }
     })
