@@ -183,7 +183,21 @@ const UPDATE_COMPLETED_TRADING: string = gql`
 `
 const REMOVE_COMPLETED_TRADING: string = gql`
     mutation RemoveTrading ($tradingId: String) {
-        removeTrading(trading: $trade) {}
+        removeTrading(tradingId: $tradingId) {
+            tradingId
+            symbol
+            direction
+            entryTime
+            entryPrice
+            exitTime
+            exitPrice
+            profit
+            profitPct
+            holdingPeriod
+            exitReason
+            stopPrice
+            qty
+        }
     }
 `
 /**
