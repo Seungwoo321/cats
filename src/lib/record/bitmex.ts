@@ -79,10 +79,6 @@ async function record (symbol: string, data: IOrder) {
         return Promise.resolve()
     }
 
-    async function cancelTrading () {
-        await gqlService.removeTrading(tradingId)
-        return Promise.resolve()
-    }
     switch (data.ordStatus) {
     case OrderStatus.New:
 
@@ -105,7 +101,6 @@ async function record (symbol: string, data: IOrder) {
     case OrderStatus.Canceled:
 
         await gqlService.updateOrder(order)
-        await cancelTrading()
 
         break
     default:

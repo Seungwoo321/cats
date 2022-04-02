@@ -183,25 +183,6 @@ const UPDATE_COMPLETED_TRADING: string = gql`
         }
     }
 `
-const REMOVE_COMPLETED_TRADING: string = gql`
-    mutation RemoveTrading ($tradingId: String) {
-        removeTrading(tradingId: $tradingId) {
-            tradingId
-            symbol
-            direction
-            entryTime
-            entryPrice
-            exitTime
-            exitPrice
-            profit
-            profitPct
-            holdingPeriod
-            exitReason
-            stopPrice
-            qty
-        }
-    }
-`
 /**
  * Order History
  */
@@ -378,15 +359,6 @@ export const service = {
     async updateTrading (trade: ITrade): Promise<ITrade> {
         const { updateTrading } = await request(GRAPHQL_URL, UPDATE_COMPLETED_TRADING, { trade })
         return updateTrading
-    },
-    /**
-     * Cancel trading
-     * @param tradingId
-     * @returns
-     */
-    async removeTrading (tradingId: string): Promise<Boolean> {
-        const { removeTrade } = await request(GRAPHQL_URL, REMOVE_COMPLETED_TRADING, { tradingId })
-        return removeTrade
     },
     /**
      * TBD

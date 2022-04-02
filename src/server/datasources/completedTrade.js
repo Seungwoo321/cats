@@ -48,10 +48,6 @@ class CompletedTrade extends DataSource {
         }
         return false
     }
-
-    async removeTrading ({ tradingId }) {
-        return await this.store.destroy({ where: { tradingId } })
-    }
 }
 
 module.exports = CompletedTrade
