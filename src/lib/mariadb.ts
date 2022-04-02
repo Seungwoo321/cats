@@ -133,10 +133,6 @@ CompletedTrade.init({
         type: DataTypes.FLOAT,
         allowNull: true
     },
-    holdingPeriod: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
     exitReason: {
         type: DataTypes.STRING,
         allowNull: true

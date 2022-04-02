@@ -4,6 +4,7 @@ import { TradeDirection } from '@lib/grademark'
 
 async function record (symbol: string, data: IOrder) {
     console.log(symbol, data)
+    const openPosition = await gqlService.getOpenPosition(symbol)
     const positionStatus = await gqlService.getPositionStatus(symbol)
     if (!positionStatus.tradingId) {
         throw new Error('Expect tradingId must exist')
@@ -27,7 +28,8 @@ async function record (symbol: string, data: IOrder) {
                 direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
                 entryTime: data.time,
                 entryPrice: data.avgPrice,
-                qty: +data.orderQty - +data.leavesQty
+                qty: +data.orderQty - +data.leavesQty,
+                holdingPeriod: openPosition?.holdingPeriod
             }
             console.log(trade)
             const result = await gqlService.updateTrading(trade)
@@ -41,7 +43,8 @@ async function record (symbol: string, data: IOrder) {
             const trade = {
                 ...currentTrading,
                 entryPrice: data.avgPrice,
-                qty: +data.orderQty - +data.leavesQty
+                qty: +data.orderQty - +data.leavesQty,
+                holdingPeriod: openPosition?.holdingPeriod
             }
             await gqlService.updateTrading(trade)
         }
@@ -56,7 +59,8 @@ async function record (symbol: string, data: IOrder) {
                 exitPrice: data.avgPrice,
                 profit,
                 profitPct: (profit / +currentTrading.entryPrice) * 100,
-                exitReason: data.text
+                exitReason: data.text,
+                holdingPeriod: openPosition?.holdingPeriod
 
             }
             await gqlService.updateTrading(trade)
