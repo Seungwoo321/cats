@@ -101,6 +101,10 @@ PositionStatus.init({
 class CompletedTrade extends Model {}
 
 CompletedTrade.init({
+    tradingId: {
+        type: DataTypes.STRING,
+        primaryKey: true
+    },
     symbol: {
         type: DataTypes.STRING,
         allowNull: false
@@ -145,9 +149,9 @@ CompletedTrade.init({
         type: DataTypes.DOUBLE,
         allowNull: false
     },
-    tradingId: {
-        type: DataTypes.STRING,
-        primaryKey: true
+    holdingPeriod: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 }, {
     sequelize: sequelize,
