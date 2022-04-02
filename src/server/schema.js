@@ -161,6 +161,7 @@ const typeDefs = gql`
     }
     type Mutation {
         updateTrading(trade: InputTrade): ITrade
+        removeTrading(tradingId: String): ITrade
         updateOrder(order: InputOrder): IOrder
         updatePosition(position: InputPosition): IPosition
         createPosition(symbol: String, position: InputPosition): IPosition

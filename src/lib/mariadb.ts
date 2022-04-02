@@ -152,6 +152,10 @@ CompletedTrade.init({
     holdingPeriod: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    orderId: {
+        type: DataTypes.STRING,
+        allowNull: false
     }
 }, {
     sequelize: sequelize,

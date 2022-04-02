@@ -26,6 +26,7 @@ async function record (symbol: string, data: IOrder) {
             const trade = {
                 tradingId,
                 symbol,
+                orderId: data.orderId,
                 direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
                 entryTime: data.time,
                 entryPrice: data.avgPrice,
@@ -33,20 +34,17 @@ async function record (symbol: string, data: IOrder) {
                 stopPrice: data.stopPrice,
                 holdingPeriod
             }
-            console.log(trade)
-            const result = await gqlService.updateTrading(trade)
-            console.log(result)
+            await gqlService.updateTrading(trade)
         }
         return Promise.resolve()
     }
 
     async function filledTrading (data: IOrder) {
         if (data.text === OrderText.EntryRule) {
-            console.log('entry trading')
-            console.log(currentTrading)
             const trade = {
                 tradingId,
                 symbol,
+                orderId: data.orderId,
                 direction: data.side === 'Buy' ? TradeDirection.Long : TradeDirection.Short,
                 entryTime: currentTrading.entryTime || data.time,
                 entryPrice: data.avgPrice,
@@ -55,11 +53,7 @@ async function record (symbol: string, data: IOrder) {
                 holdingPeriod
             }
             await gqlService.updateTrading(trade)
-        }
-
-        if (data.text === OrderText.ExitRule && currentTrading !== null) {
-            console.log('exit trading')
-            console.log(currentTrading)
+        } else {
             const profit = currentTrading.direction === TradeDirection.Long
                 ? +data.avgPrice - +currentTrading.entryPrice
                 : +currentTrading.entryPrice - +data.avgPrice
@@ -76,6 +70,7 @@ async function record (symbol: string, data: IOrder) {
             }
             await gqlService.updateTrading(trade)
         }
+
         return Promise.resolve()
     }
 
@@ -101,6 +96,9 @@ async function record (symbol: string, data: IOrder) {
     case OrderStatus.Canceled:
 
         await gqlService.updateOrder(order)
+        if (data.orderId === currentTrading.orderId) {
+            await gqlService.removeTrading(tradingId)
+        }
 
         break
     default:

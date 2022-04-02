@@ -150,6 +150,7 @@ const GET_COMPLETED_TRADING: string = gql`
     query CompletedTrading ($tradingId: String) {
         completedTrading (tradingId: $tradingId) {
             tradingId
+            orderId
             symbol
             direction
             entryTime
@@ -168,6 +169,27 @@ const UPDATE_COMPLETED_TRADING: string = gql`
     mutation UpdateTrading ($trade: InputTrade) {
         updateTrading (trade: $trade) {
             tradingId
+            orderId
+            symbol
+            direction
+            entryTime
+            entryPrice
+            exitTime
+            exitPrice
+            profit
+            profitPct
+            holdingPeriod
+            exitReason
+            stopPrice
+            qty
+        }
+    }
+`
+const REMOVE_COMPLETED_TRADING: string = gql`
+    mutation RemoveTrading ($tradingId: string) {
+        removeTrading (tradingId: $tradingId) {
+            tradingId
+            orderId
             symbol
             direction
             entryTime
@@ -359,6 +381,15 @@ export const service = {
     async updateTrading (trade: ITrade): Promise<ITrade> {
         const { updateTrading } = await request(GRAPHQL_URL, UPDATE_COMPLETED_TRADING, { trade })
         return updateTrading
+    },
+    /**
+     * TBD
+     * @param tradingId
+     * @returns
+     */
+    async removeTrading (tradingId: string): Promise<ITrade> {
+        const { removeTrading } = await request(GRAPHQL_URL, REMOVE_COMPLETED_TRADING, { tradingId })
+        return removeTrading
     },
     /**
      * TBD

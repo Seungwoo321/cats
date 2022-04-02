@@ -147,6 +147,7 @@ export type Position = {
 
 export interface ITrade {
     tradingId: string
+    orderId: string
     symbol: string
     direction: TradeDirection
     entryTime: Date

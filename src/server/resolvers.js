@@ -52,6 +52,9 @@ module.exports = {
         updateTrading: async (_, { trade }, { dataSources }) => {
             return await dataSources.completedTradeAPI.updateTrading({ values: trade })
         },
+        removeTrading: async (_, { tradingId }, { dataSources }) => {
+            return await dataSources.completedTradeAPI.removeTrading({ tradingId })
+        },
         /** orderHistory */
         updateOrder: async (_, { order }, { dataSources }) => {
             return await dataSources.orderHistoryAPI.updateOrder({ values: order })
