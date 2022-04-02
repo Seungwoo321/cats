@@ -164,6 +164,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      * @returns
      */
     async function closePosition (direction: TradeDirection, symbol: string, amount: number, exitPrice: number, exitReason: string) {
+        console.log(amount)
         await exchange.createOrder(
             symbol,
             'limit',

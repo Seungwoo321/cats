@@ -163,6 +163,18 @@ CompletedTrade.init({
 class OrderHistory extends Model {}
 
 OrderHistory.init({
+    orderId: {
+        type: DataTypes.STRING,
+        primaryKey: true
+    },
+    tradingId: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    time: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
     symbol: {
         type: DataTypes.STRING,
         allowNull: false
@@ -215,17 +227,9 @@ OrderHistory.init({
         type: DataTypes.FLOAT,
         allowNull: true
     },
-    time: {
-        type: DataTypes.DATE,
+    text: {
+        type: DataTypes.STRING,
         allowNull: true
-    },
-    orderId: {
-        type: DataTypes.STRING,
-        primaryKey: true
-    },
-    tradingId: {
-        type: DataTypes.STRING,
-        allowNull: false
     }
 }, {
     sequelize: sequelize,

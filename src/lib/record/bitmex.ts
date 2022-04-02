@@ -18,6 +18,8 @@ async function record (symbol: string, data: IOrder) {
     } as IOrder
 
     async function openTrading (data: IOrder) {
+        console.log(data)
+        console.log(OrderText.EntryRule)
         if (data.text === OrderText.EntryRule) {
             const trade = {
                 tradingId,
@@ -27,7 +29,9 @@ async function record (symbol: string, data: IOrder) {
                 entryPrice: data.avgPrice,
                 qty: +data.orderQty - +data.leavesQty
             }
-            await gqlService.updateTrading(trade)
+            console.log(trade)
+            const result = await gqlService.updateTrading(trade)
+            console.log(result)
         }
         return Promise.resolve()
     }

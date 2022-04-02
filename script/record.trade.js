@@ -93,6 +93,7 @@ args.shift()
                 currency: item.currency,
                 homeNotional: item.homeNotional,
                 time: item.timestamp,
+                text: item.text,
                 tradingId: null
             })
         } catch (error) {

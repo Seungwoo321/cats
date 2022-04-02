@@ -109,8 +109,9 @@ const typeDefs = gql`
         qty: Float
     }
     type IOrder {
-        tradingId: String
         orderId: String
+        tradingId: String
+        time: Date
         symbol: String
         lastQty: Float
         orderQty: Float
@@ -124,11 +125,12 @@ const typeDefs = gql`
         ordStatus: OrderStatus
         currency: String
         homeNotional: Float
-        time: Date
+        text: String
     }
     input InputOrder {
-        tradingId: String
         orderId: String
+        tradingId: String
+        time: Date
         symbol: String
         lastQty: Float
         orderQty: Float
@@ -142,7 +144,7 @@ const typeDefs = gql`
         ordStatus: OrderStatus
         currency: String
         homeNotional: Float
-        time: Date
+        text: String
     }
     type Query {
         completedTrades(symbol: String): [ITrade]
