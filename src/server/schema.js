@@ -96,6 +96,7 @@ const typeDefs = gql`
         qty: Float
         holdingPeriod: Int
         stopPrice: Float
+        orderId: String
     }
     input InputTrade {
         tradingId: String
@@ -111,6 +112,7 @@ const typeDefs = gql`
         qty: Float
         holdingPeriod: Int
         stopPrice: Float
+        orderId: String
     }
     type IOrder {
         orderId: String
