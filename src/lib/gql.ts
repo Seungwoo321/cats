@@ -164,7 +164,7 @@ const GET_COMPLETED_TRADING: string = gql`
 `
 const UPDATE_COMPLETED_TRADING: string = gql`
     mutation UpdateTrading ($trade: InputTrade) {
-        updateTradind (trade: $trade) {
+        updateTrading (trade: $trade) {
             tradingId
             symbol
             direction
