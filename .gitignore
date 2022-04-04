@@ -112,6 +112,6 @@ ecosystem.config.js
 .history
 
 # build js
-src/lib/*.js
-src/lib/**/*.js
-src/*.js
+lib/*.js
+lib/**/*.js
+config.js

@@ -5,17 +5,17 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
+    "lint": "eslint **/*.ts",
+    "lint:fix": "eslint **/*.ts --fix",
     "build": "tsc",
     "collector:bitmex": "node script/collector.bitmex.js",
     "bot:bitmex": "node script/bot.bitmex.js",
-    "dev:apollo": "nodemon src/server",
-    "serve:apollo": "pm2 start src/server --name apollo-server"
+    "dev:apollo": "nodemon server",
+    "serve:apollo": "pm2 start server --name apollo-server"
   },
   "_moduleAliases": {
-    "@lib": "src/lib",
-    "@config": "src/config.js",
+    "@lib": "lib",
+    "@config": "config.js",
     "@strategy": "strategy",
     "@script": "script"
   },
@@ -39,6 +39,8 @@
     "data-forge": "^1.9.3",
     "data-forge-indicators": "^0.2.7",
     "dotenv": "^16.0.0",
+    "fiori-fundamentals": "^1.7.9",
+    "fundamental-vue": "^0.18.3",
     "graphql": "^16.3.0",
     "graphql-request": "^4.0.0",
     "mariadb": "^3.0.0",
@@ -64,6 +66,8 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
     "jest": "^27.5.1",
+    "node-sass": "^7.0.1",
+    "sass-loader": "^12.6.0",
     "typescript": "^4.6.2"
   },
   "bugs": {

@@ -29,8 +29,8 @@ module.exports = {
     ignorePatterns: [
         'test',
         'dist',
-        'src/lib/**/*.js',
-        'src/lib/*.js',
-        'src/config.js'
+        'lib/**/*.js',
+        'lib/*.js',
+        'config.js'
     ]
 }
