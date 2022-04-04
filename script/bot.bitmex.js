@@ -143,10 +143,10 @@ args.shift()
             const item = data[0]
             await record(symbol, {
                 orderId: item.orderID,
-                lastQty: item.lastPx,
+                lastQty: item.lastQty,
                 orderQty: item.orderQty,
                 leavesQty: item.leavesQty,
-                lastPrice: item.lastPrice,
+                lastPrice: item.lastPx,
                 price: item.price,
                 avgPrice: item.avgPx,
                 stopPrice: item.stopPx,
