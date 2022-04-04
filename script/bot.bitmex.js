@@ -18,7 +18,9 @@ args.shift()
 
     const client = new BitMEXClient({
         testnet: false,
-        maxTableLen: 1
+        maxTableLen: 1,
+        apiKeyID: process.env.EXCHANGE_API_KEY,
+        apiKeySecret: process.env.EXCHANGE_SECRET_KEY
     })
     client.on('initialize', () => {
         console.log('bitmex stream start...')
