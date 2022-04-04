@@ -8,7 +8,8 @@ export enum OrderText {
     EntryRule = 'entry-rule',
     ExitRule = 'exit-rule',
     StopLoss = 'stop-loss',
-    TrailingStopLoss = 'trailing-stop'
+    TrailingStopLoss = 'trailing-stop',
+    Funding = 'Funding'
 }
 
 export enum OrderStatus {

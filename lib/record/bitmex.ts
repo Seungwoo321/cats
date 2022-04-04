@@ -7,6 +7,7 @@ async function record (symbol: string, data: IOrder) {
     if (!positionStatus.tradingId) {
         throw new Error('Expect tradingId must exist')
     }
+
     const openPosition = await gqlService.getOpenPosition(symbol)
     let holdingPeriod = 0
     if (openPosition?.holdingPeriod) {
@@ -14,12 +15,6 @@ async function record (symbol: string, data: IOrder) {
     }
     const tradingId = positionStatus.tradingId
     const currentTrading = await gqlService.completedTrading(tradingId) as ITrade
-
-    const order = {
-        ...data,
-        tradingId,
-        symbol
-    } as IOrder
 
     async function newTrading (data: IOrder) {
         if (data.text === OrderText.EntryRule) {
@@ -54,6 +49,9 @@ async function record (symbol: string, data: IOrder) {
             }
             await gqlService.updateTrading(trade)
         } else {
+            if (data.text === OrderText.Funding) {
+                return
+            }
             const profit = currentTrading.direction === TradeDirection.Long
                 ? +data.avgPrice - +currentTrading.entryPrice
                 : +currentTrading.entryPrice - +data.avgPrice
@@ -73,6 +71,12 @@ async function record (symbol: string, data: IOrder) {
 
         return Promise.resolve()
     }
+
+    const order = {
+        ...data,
+        tradingId,
+        symbol
+    } as IOrder
 
     switch (data.ordStatus) {
     case OrderStatus.New:
