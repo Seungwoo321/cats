@@ -83,30 +83,16 @@
         </div>
       </div>
       <div class="columns">
-        <div class="column is-6">
+        <div class="column">
           <div class="card">
             <header class="card-header">
               <p class="card-header-title">
-                title
+                Trade Logs
               </p>
             </header>
             <div class="card-content">
               <div class="content">
                 content
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="column is-6">
-          <div class="card">
-            <header class="card-header">
-              <p class="card-header-title">
-                title
-              </p>
-            </header>
-            <div class="card-content">
-              <div class="content">
-
               </div>
             </div>
           </div>
@@ -121,20 +107,41 @@ import gql from 'graphql-tag'
 export default {
   name: 'HomeView',
   apollo: {
-    candles: {
-      query: gql`query Candles ($symbol: String, $timeframe: String) {
-        candles (symbol: $symbol, timeframe: $timeframe) {
-            time
-            open
-            high
-            low
-            close
-            volume
+    // candles: {
+    //   query: gql`query Candles ($symbol: String, $timeframe: String) {
+    //     candles (symbol: $symbol, timeframe: $timeframe) {
+    //       time
+    //       open
+    //       high
+    //       low
+    //       close
+    //       volume
+    //     }
+    //   }`,
+    //   variables: {
+    //     symbol: 'BCH/USD:BTC',
+    //     timeframe: '1h'
+    //   }
+    // },
+    completedTrades: {
+      query: gql`query CompletedTrades ($symbol: String) {
+        completedTrades (symbol: $symbol) {
+          tradingId
+          symbol
+          direction
+          entryTime
+          entryPrice
+          exitTime
+          exitPrice
+          profit
+          profitPct
+          holdingPeriod
+          exitReason
+          qty
         }
-    }`,
+      }`,
       variables: {
-        symbol: 'BCH/USD:BTC',
-        timeframe: '1h'
+        symbol: 'BCH/USD:BTC'
       }
     }
   },

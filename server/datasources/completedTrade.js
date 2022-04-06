@@ -25,7 +25,7 @@ class CompletedTrade extends DataSource {
                 orderId
             }
         })
-        return res && res.length ? res[0].get() : false
+        return res && res.length ? res : false
     }
 
     async findTradingBySymbol ({ symbol }) {
@@ -34,7 +34,7 @@ class CompletedTrade extends DataSource {
                 symbol
             }
         })
-        return res && res.length ? res[0].get() : false
+        return res && res.length ? res : false
     }
 
     async updateTrading ({ values }) {
