@@ -32,7 +32,10 @@ class CompletedTrade extends DataSource {
         const res = await this.store.findAll({
             where: {
                 symbol
-            }
+            },
+            order: [
+                'entryTime', 'desc'
+            ]
         })
         return res && res.length ? res : false
     }
