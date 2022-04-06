@@ -11,12 +11,40 @@
           <table class="table is-narrow is-fullwidth">
             <thead>
               <tr>
-                <th>th</th>
+                <th>X
+                  Time
+                </th>
+                <th>
+                  Open
+                </th>
+                <th>
+                  Close
+                </th>
+                <th>
+                  High
+                </th>
+                <th>
+                  Low
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>td</td>
+              <tr v-for="(item, index) in candles" :key="index">
+                <td>
+                  {{ item.time }}
+                </td>
+                <td>
+                  {{ item.open }}
+                </td>
+                <td>
+                  {{ item.close }}
+                </td>
+                <td>
+                  {{ item.high }}
+                </td>
+                <td>
+                  {{ item.low }}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -78,7 +106,7 @@
             </header>
             <div class="card-content">
               <div class="content">
-                content
+
               </div>
             </div>
           </div>
@@ -89,9 +117,27 @@
 </template>
 
 <script>
-
+import gql from 'graphql-tag'
 export default {
   name: 'HomeView',
+  apollo: {
+    candles: {
+      query: gql`query Candles ($symbol: String, $timeframe: String) {
+        candles (symbol: $symbol, timeframe: $timeframe) {
+            time
+            open
+            high
+            low
+            close
+            volume
+        }
+    }`,
+      variables: {
+        symbol: 'BCH/USD:BTC',
+        timeframe: '1h'
+      }
+    }
+  },
   components: {
   }
 }

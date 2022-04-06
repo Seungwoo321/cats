@@ -5,7 +5,7 @@ const dateScalar = new GraphQLScalarType({
     name: 'Date',
     description: 'Date custom scalar type',
     serialize (value) {
-        return value.getTime() // Convert outgoing Date to integer for JSON
+        return new Date(value) // Convert outgoing Date to integer for JSON
     },
     parseValue (value) {
         return new Date(value) // Convert incoming integer to Date
