@@ -34,7 +34,7 @@ class CompletedTrade extends DataSource {
                 symbol
             },
             order: [
-                'entryTime', 'desc'
+                ['entryTime', 'DESC']
             ]
         })
         return res && res.length ? res : false

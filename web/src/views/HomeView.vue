@@ -37,9 +37,6 @@
             </tr>
           </thead>
           <tbody>
-            <!--
-              { "tradingId": "001ba3ee-8540-45aa-976a-656b53d7b5d2", "symbol": "BCH/USD:BTC", "direction": "short", "entryTime": "2022-04-04T22:36:24.000Z", "entryPrice": 373.95, "exitTime": "2022-04-05T00:00:22.000Z", "exitPrice": 376.5, "profit": -2.55, "profitPct": -0.681909, "holdingPeriod": 0, "exitReason": "exit-rule", "qty": 41, "__typename": "ITrade" }
-              -->
             <tr v-for="(item, index) in completedTrades" :key="index">
               <td>
                 {{ item.direction }}
