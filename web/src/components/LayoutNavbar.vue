@@ -1,23 +1,27 @@
 <template>
-<nav class="level">
-  <div class="level-left">
-    <p class="level-item has-text-centered">
-      <LogoSvg></LogoSvg>
-    </p>
-    <p class="leve-item has-text-grey-light">
-      <small>
-        Crypto Automated Trading System
-      </small>
-    </p>
-  </div>
-</nav>
+  <nav class="navbar">
+    <div class="container" style="">
+      <div class="navbar-brand">
+        <a href="" class="navbar-item">
+          <h1 class="title">
+            CATS
+          </h1>
+          <!-- <img src="/img/logo.svg" alt="Logo" srcset=""> -->
+        </a>
+      </div>
+      <div class="navbar-item has-text-grey-light">
+        <small>
+          Crypto Automated Trading System
+        </small>
+      </div>
+      <div class="navbar-end navbar-menu"></div>
+    </div>
+  </nav>
 </template>
 
 <script>
-import LogoSvg from '@/components/LogoSvg'
 export default {
   components: {
-    LogoSvg
   }
 }
 </script>

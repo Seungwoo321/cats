@@ -211,7 +211,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             const direction = +currentPosition?.currentQty > 0
                 ? TradeDirection.Long
                 : TradeDirection.Short
-            await closePosition(direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'none position')
+            await closePosition(direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'none-position')
         }
 
         await strategy.entryRule(enterPosition, {

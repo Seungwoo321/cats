@@ -1,5 +1,4 @@
-<template>
-<svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100.000000pt" height="20.000000pt" viewBox="0 0 198.000000 77.000000" preserveAspectRatio="xMidYMid meet">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="198.000000pt" height="77.000000pt" viewBox="0 0 198.000000 77.000000" preserveAspectRatio="xMidYMid meet">
     <g transform="translate(0.000000,77.000000) scale(0.100000,-0.100000)" fill="#ffffff" stroke="none">
         <path d="M184 612 c-51 -24 -107 -89 -123 -144 -17 -54 -17 -142 0 -196 16
         -55 72 -120 123 -143 60 -27 158 -25 221 5 55 26 91 59 80 75 -10 17 -27 13
@@ -24,15 +23,3 @@
         4 -35 20 -35 17 0 20 7 20 50 l0 50 -230 0 -230 0 0 -51z"/>
     </g>
 </svg>
-
-</template>
-
-<script>
-export default {
-
-}
-</script>
-
-<style>
-
-</style>
