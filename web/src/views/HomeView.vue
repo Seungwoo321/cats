@@ -11,7 +11,7 @@
           <table class="table is-narrow is-fullwidth">
             <thead>
               <tr>
-                <th>X
+                <th>
                   Time
                 </th>
                 <th>
