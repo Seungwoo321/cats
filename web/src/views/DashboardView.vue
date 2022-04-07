@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <section>
       <LayoutNavbar></LayoutNavbar>
     </section>
@@ -10,6 +10,14 @@
       </OverviewLevel>
     </section>
     <section class="section is-hidden-mobile">
+      <div class="columns">
+        <div class="column is-8">
+          <TradingVueChart></TradingVueChart>
+        </div>
+        <div class="column is-4">
+          4
+        </div>
+      </div>
       <div class="columns">
         <div class="column is-12">
           <h1 class="title">
@@ -33,11 +41,13 @@
 import gql from 'graphql-tag'
 import LayoutNavbar from '@/components/LayoutNavbar'
 import OverviewLevel from '@/components/OverviewLevel'
+import TradingVueChart from '@/components/TradingVueChart'
 import CompletedTradeTable from '@/components/CompletedTradeTable'
 export default {
   components: {
     LayoutNavbar,
     OverviewLevel,
+    TradingVueChart,
     CompletedTradeTable
   },
   apollo: {

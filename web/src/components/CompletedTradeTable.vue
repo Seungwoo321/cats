@@ -51,7 +51,7 @@
           {{ item.qty }}
         </td>
         <td :class="item.profitPct < 0 ? 'has-text-danger' : 'has-text-success'">
-          {{ item.profitPct ? item.profitPct.toFixed(2) : item.profitPct }}
+          {{ item.profitPct ? item.profitPct.toFixed(3) : item.profitPct }}
         </td>
         <td>
           {{ item.exitReason }}
