@@ -32,6 +32,10 @@ args.shift()
         console.error('Client closed due to unrecoverable WebSocket error. Please check errors above.')
         process.exit(1)
     })
+    // HeartBeat
+    setInterval(() => {
+        client.socket.send('ping')
+    }, 30 * 1000)
     /**
      *
      * [
