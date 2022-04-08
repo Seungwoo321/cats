@@ -2,10 +2,11 @@
 
 Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/Grademark/grademark/blob/master/src/lib/backtest.ts)
 
-> Still in development.
-> **Currently, only BitMEX exchanges are supported.**
+<img src="./images/01.png">
 
-## Pre requirements
+> Still in development. **Only BitMEX exchanges are supported.**
+
+## Prerequirements
 
 - InfluxDB 2.0 must be installed and [run collecting](https://github.com/Seungwoo321/crypto-automated-trading-system#run-collecting)
 - MySQL must be installed and create database.
