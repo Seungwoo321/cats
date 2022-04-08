@@ -158,7 +158,7 @@ export default {
                 type: 'CompletedTrades',
                 data: trades,
                 settings: {
-                  'z-index': 1000
+                  'z-index': 2
                 }
               }
             ]

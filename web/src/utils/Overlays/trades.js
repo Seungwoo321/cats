@@ -25,7 +25,7 @@ export default {
       return ['CompletedTrades']
     },
     draw (ctx) {
-      ctx.globalCompositeOperation = 'destination-over'
+      console.log(this.$props.settings['z-index'])
       const layout = this.$props.layout // Layout object (see API BOOK)
       ctx.lineWidth = 0.5
       ctx.strokeStyle = 'black'
@@ -47,7 +47,7 @@ export default {
         ctx.arc(x, y, 5, 0, Math.PI * 2, true) // Trade point
         ctx.fill()
         ctx.stroke()
-
+        console.log(ctx)
         // If this is a SELL, draw the profit label
         if (p[1] === 1) {
           ctx.fillStyle = p[3] === 'long' ? '#48C78E' : '#F14668'

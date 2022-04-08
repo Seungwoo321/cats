@@ -28,13 +28,13 @@
         </div>
       </div>
     </section>
-    <section class="section">
+    <!-- <section class="section">
       <div class="columns">
         <div class="column is-12">
             {{ openPosition }}
         </div>
       </div>
-    </section>
+    </section> -->
   </div>
 </template>
 
