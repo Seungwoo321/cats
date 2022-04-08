@@ -8,21 +8,29 @@
         :data="completedTrades"
       >
       </OverviewLevel>
+      <!-- <h1 class="title">
+        BCH/USD:BTC
+      </h1> -->
     </section>
-    <section class="section is-hidden-mobile">
+    <section class="section pb-0">
       <div class="columns">
         <div class="column is-8">
-          <TradingVueChart></TradingVueChart>
+          <h2 class="subtitle">
+            Trading View
+          </h2>
+          <hr>
+          <TradingVueChart
+            :data="{ ohlcv: candles, trades: completedTrades }"
+          ></TradingVueChart>
         </div>
         <div class="column is-4">
           4
         </div>
       </div>
+    </section>
+    <section class="section is-hidden-mobile">
       <div class="columns">
         <div class="column is-12">
-          <h1 class="title">
-            BCH/USD:BTC
-          </h1>
           <h2 class="subtitle">
             Trading Log
           </h2>
