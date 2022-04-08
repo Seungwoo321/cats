@@ -1,5 +1,4 @@
 export default function Stream (url) {
-  console.log(url)
   const ws = new WebSocket(url)
   let cb = () => { }
 

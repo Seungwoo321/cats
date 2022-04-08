@@ -99,9 +99,6 @@ export default {
         expectedValue: (proportionWinning * averageWinningTrade) + (proportionLosing * averageLosingTrade)
       }
     }
-  },
-  mounted () {
-    console.log(this.analyze)
   }
 }
 </script>

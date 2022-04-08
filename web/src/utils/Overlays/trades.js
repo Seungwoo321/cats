@@ -8,6 +8,11 @@ export default {
       desc: ''
     }
   },
+  computed: {
+    sett () {
+      return this.$props.settings
+    }
+  },
   methods: {
     meta_info () {
       return {
@@ -17,9 +22,10 @@ export default {
       }
     },
     use_for () {
-      return ['Trades']
+      return ['CompletedTrades']
     },
     draw (ctx) {
+      ctx.globalCompositeOperation = 'destination-over'
       const layout = this.$props.layout // Layout object (see API BOOK)
       ctx.lineWidth = 0.5
       ctx.strokeStyle = 'black'
@@ -50,12 +56,10 @@ export default {
           ctx.fillText(p[3][0].toUpperCase(), x, y - 25)
         }
         if (p[1] === 0 && prev) {
-          let profit = p[2] / prev[2] - 1
-          profit = (profit * 100).toFixed(3) + '%'
           ctx.fillStyle = '#dfdfdf'
           ctx.font = '10px Arial'
           ctx.textAlign = 'center'
-          ctx.fillText(profit, x, y - 25)
+          ctx.fillText(p[4], x, y - 25)
         }
       }
     }

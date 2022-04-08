@@ -20,7 +20,6 @@
       :width="width"
       :height="height"
       :data="chartData"
-      :timezone="9"
     />
   </div>
 </template>
@@ -28,8 +27,8 @@
 <script>
 import TradingVue from 'trading-vue-js'
 import DataCube from 'trading-vue-js/src/helpers/datacube'
-import Utils from 'trading-vue-js/src/stuff/utils'
-import Const from 'trading-vue-js/src/stuff/constants'
+// import Utils from 'trading-vue-js/src/stuff/utils'
+// import Const from 'trading-vue-js/src/stuff/constants'
 import Overlays from '@/utils/Overlays'
 import moment from 'moment'
 export default {
@@ -99,16 +98,6 @@ export default {
       // this.height = this.width * 0.5 > 511 ? 511 : this.width * 0.5
       this.height = 511
     },
-    getOptionOnChart () {
-      console.log(this.data.trades)
-      return [
-        {
-          name: 'Trades',
-          type: 'PerfectTrades',
-          data: this.data.trades
-        }
-      ]
-    },
     getOptionOffChart () {
       return this.offchart.filter(name => this.indicatorFlag[name]).map(name => this.indicatorOption[name])
     },
@@ -120,8 +109,9 @@ export default {
         window.dc = this.dc
         window.tv = this.$refs.tradingVue
       }
-      const now = Utils.now()
-      console.log([now - Const.HOUR * 100, now])
+      // TBD - stream
+      // const now = Utils.now()
+      // console.log([now - Const.HOUR * 100, now])
     },
     loadChunck (range) {
       // TBD
@@ -155,7 +145,9 @@ export default {
         if (value && value.ohlcv && value.ohlcv.length && value.trades && value.trades.length) {
           const trades = this.data.trades.reduce((accumulator, currentValue) => {
             accumulator.push([new Date(currentValue.entryTime).getTime(), 1, currentValue.entryPrice, currentValue.direction])
-            accumulator.push([new Date(currentValue.exitTime).getTime(), 0, currentValue.exitPrice, currentValue.direction])
+            if (currentValue.exitTime) {
+              accumulator.push([new Date(currentValue.exitTime).getTime(), 0, currentValue.exitPrice, currentValue.direction, currentValue.profitPct])
+            }
             return accumulator
           }, [])
           this.chartData = new DataCube({
@@ -163,8 +155,11 @@ export default {
             onchart: [
               {
                 name: 'Trades',
-                type: 'Trades',
-                data: trades
+                type: 'CompletedTrades',
+                data: trades,
+                settings: {
+                  'z-index': 1000
+                }
               }
             ]
           })
