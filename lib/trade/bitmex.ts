@@ -103,7 +103,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         openPosition.amount = formattedAmount
         const formattedPrice: number = parseFloat(exchange.priceToPrecision(symbol, openPosition.entryPrice))
         // cancle all orders
-        await exchange.cancelAllOrders()
+        await exchange.cancelAllOrders(symbol)
         // create new order
         await exchange.createOrder(
             symbol,
@@ -310,7 +310,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         assert(openPosition !== null, 'Expected open position to already be initialised!')
 
         if (!currentPosition.isOpen) {
-            await exchange.cancelAllOrders()
+            await exchange.cancelAllOrders(symbol)
             await gqlService.closePosition(symbol)
             break
         }
