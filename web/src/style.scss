@@ -1,3 +1,14 @@
 @charset "utf-8";
 
 @import "../node_modules/bulmaswatch/cyborg/bulmaswatch";
+
+.match-height {
+  > [class*='column'] {
+    display: flex;
+    flex-flow: column;
+
+    > .card {
+      flex: 1 1 auto;
+    }
+  }
+}

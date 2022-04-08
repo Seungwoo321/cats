@@ -1,5 +1,5 @@
 <template>
-  <nav class="level is-mobile">
+  <nav class="level">
     <div class="level-item has-text-centered">
       <div>
         <p class="heading">Total Trades</p>

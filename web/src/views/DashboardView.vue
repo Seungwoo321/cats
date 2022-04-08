@@ -8,37 +8,30 @@
         :data="completedTrades"
       >
       </OverviewLevel>
+      <hr>
       <!-- <h1 class="title">
         BCH/USD:BTC
       </h1> -->
-    </section>
-    <section class="section pb-0">
-      <div class="columns">
-        <div class="column is-8">
-          <h2 class="subtitle">
-            Trading View
-          </h2>
-          <hr>
+    <!-- </section>
+    <section class="section pt-0"> -->
+      <div class="columns is-desktop">
+        <div class="column is-9-desktop is-12-tablet">
           <TradingVueChart
             :data="{ ohlcv: candles, trades: completedTrades }"
           ></TradingVueChart>
         </div>
-        <div class="column is-4">
-          4
+        <div class="column is-3-desktop is-12-tablet">
+          <CompletedTradeTable2
+            :data="completedTrades"
+          >
+          </CompletedTradeTable2>
         </div>
       </div>
     </section>
-    <section class="section is-hidden-mobile">
+    <section class="section">
       <div class="columns">
         <div class="column is-12">
-          <h2 class="subtitle">
-            Trading Log
-          </h2>
-          <hr>
-          <CompletedTradeTable
-            :data="completedTrades"
-          >
-          </CompletedTradeTable>
+            {{ openPosition }}
         </div>
       </div>
     </section>
@@ -50,13 +43,13 @@ import gql from 'graphql-tag'
 import LayoutNavbar from '@/components/LayoutNavbar'
 import OverviewLevel from '@/components/OverviewLevel'
 import TradingVueChart from '@/components/TradingVueChart'
-import CompletedTradeTable from '@/components/CompletedTradeTable'
+import CompletedTradeTable2 from '@/components/CompletedTradeTable2'
 export default {
   components: {
     LayoutNavbar,
     OverviewLevel,
     TradingVueChart,
-    CompletedTradeTable
+    CompletedTradeTable2
   },
   apollo: {
     candles: {
@@ -90,6 +83,30 @@ export default {
           holdingPeriod
           exitReason
           qty
+        }
+      }`,
+      variables: {
+        symbol: 'BCH/USD:BTC'
+      }
+    },
+    openPosition: {
+      query: gql`query OpenPosition ($symbol: String) {
+        openPosition (symbol: $symbol) {
+            symbol
+            direction
+            entryTime
+            entryPrice
+            growth
+            profit
+            profitPct
+            holdingPeriod
+            initialStopPrice
+            curStopPrice
+            profitTarget
+            initialUnitRisk
+            initialRiskPct
+            curRiskPct
+            curRMultiple
         }
       }`,
       variables: {
