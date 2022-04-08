@@ -48,10 +48,7 @@ async function record (symbol: string, data: IOrder) {
                 holdingPeriod
             }
             await gqlService.updateTrading(trade)
-        } else {
-            if (data.text === OrderText.Funding) {
-                return
-            }
+        } else if (data.text !== OrderText.Funding) {
             const profit = currentTrading.direction === TradeDirection.Long
                 ? +data.avgPrice - +currentTrading.entryPrice
                 : +currentTrading.entryPrice - +data.avgPrice
