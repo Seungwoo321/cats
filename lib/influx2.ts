@@ -1,8 +1,8 @@
 import { IBar } from './grademark'
-import { INFLUX2_ORG, INFLUX2_URL, INFLUX2_TOKEN } from '@config'
+import { INFLUX2_ORG, INFLUX2_URL, INFLUX2_TOKEN } from '../config'
 
 // eslint-disable-next-line camelcase
-const { InfluxDB, Point, DEFAULT_WriteOptions, fluxDuration } = require('@influxdata/influxdb-client')
+const { InfluxDB, Point, DEFAULT_WriteOptions } = require('@influxdata/influxdb-client')
 const { createOhlcvFlux, createOhlcvWithBbFlux, createOhlcvWithStochFlux } = require('./flux')
 const flushBatchSize = DEFAULT_WriteOptions.batchSize
 const writeOptions = {
@@ -74,9 +74,8 @@ class Influx2 {
         await writeApi.close()
     }
 
-    async fetchCandles (bucket: string, measurement: string, symbol: string, { start }: { start: string}): Promise<void> {
-        const startRange = fluxDuration(start)
-        const query = createOhlcvFlux(bucket, measurement, symbol, startRange)
+    async fetchCandles (bucket: string, measurement: string, symbol: string, { start, stop }: { start: number, stop: number }): Promise<void> {
+        const query = createOhlcvFlux(bucket, measurement, symbol, start, stop)
         return await this.client
             .getQueryApi(this.org)
             .collectRows(query, (row: any, tableMeta: any) => {
@@ -93,10 +92,8 @@ class Influx2 {
     }
 
     // not use
-    async fetchCandleWithBolingerBands (bucket: string, measurement: string, symbol: string, { start = '-1y', stop = '0d', n, std } : { start: string, stop: string, n: number, std: number }): Promise<void> {
-        const startRange = fluxDuration(start)
-        const stopRange = fluxDuration(stop)
-        const query = createOhlcvWithBbFlux(bucket, measurement, symbol, startRange, stopRange, n, std)
+    async fetchCandleWithBolingerBands (bucket: string, measurement: string, symbol: string, { start, stop, n, std } : { start: number, stop: number, n: number, std: number }): Promise<void> {
+        const query = createOhlcvWithBbFlux(bucket, measurement, symbol, start, stop, n, std)
         return await this.client
             .getQueryApi(this.org)
             .collectRows(query, (row: any, tableMeta: any) => {
@@ -116,10 +113,8 @@ class Influx2 {
     }
 
     // not use
-    async fetchCandleWithStochastic (bucket: string, measurement: string, symbol: string, { start = '-1y', stop = '0d', n, m, t }: { start: string, stop: string, n: number, m: number, t: number }): Promise<void> {
-        const startRange = fluxDuration(start)
-        const stopRange = fluxDuration(stop)
-        const query = createOhlcvWithStochFlux(bucket, measurement, symbol, startRange, stopRange, n, m, t)
+    async fetchCandleWithStochastic (bucket: string, measurement: string, symbol: string, { start, stop, n, m, t }: { start: number, stop: number, n: number, m: number, t: number }): Promise<void> {
+        const query = createOhlcvWithStochFlux(bucket, measurement, symbol, start, stop, n, m, t)
         return await this.client
             .getQueryApi(this.org)
             .collectRows(query, (row: any, tableMeta: any) => {

@@ -1,19 +1,19 @@
 const { flux } = require('@influxdata/influxdb-client')
-const createOhlcvFlux = (bucket: string, measurement: string, symbol: string, startRange: string) => {
+const createOhlcvFlux = (bucket: string, measurement: string, symbol: string, startRange: number, stopRange: number) => {
     return flux`
         from(bucket: ${bucket})
-        |> range(start: ${startRange})
+        |> range(start: ${startRange}, stop: ${stopRange})
         |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${symbol})
         |> keep(columns: ["_time", "symbol", "_field", "_value"])
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
     `
 }
-const createOhlcvWithBbFlux = (bucket: string, measurement: string, symbol: string, startRange: string, stopRange: string, n: number, std: number) => {
+const createOhlcvWithBbFlux = (bucket: string, measurement: string, symbol: string, startRange: number, stopRange: number, n: number, std: number) => {
     return flux`
         import "math"
         
         ohlcv = from(bucket: ${bucket})
-        |> range(start: ${startRange})
+        |> range(start: ${startRange}, stop: ${stopRange})
         |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${symbol})
         |> keep(columns: ["_time", "symbol", "_field", "_value"])
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
@@ -45,7 +45,7 @@ const createOhlcvWithBbFlux = (bucket: string, measurement: string, symbol: stri
         }
 
         biband = from(bucket: ${bucket})
-        |> range(start: ${startRange} )
+        |> range(start: ${startRange}, stop: ${stopRange} )
         |> filter(fn: (r) =>
             r._measurement == ${measurement} and
             r.symbol == ${symbol} and
@@ -63,12 +63,12 @@ const createOhlcvWithBbFlux = (bucket: string, measurement: string, symbol: stri
         )
     `
 }
-const createOhlcvWithStochFlux = (bucket: string, measurement: string, symbol: string, startRange: string, stopRange: string, n: number, m: number, t: number) => {
+const createOhlcvWithStochFlux = (bucket: string, measurement: string, symbol: string, startRange: number, stopRange: number, n: number, m: number, t: number) => {
     return flux`
         import "math"
 
         ohlcv = from(bucket: ${bucket})
-        |> range(start: ${startRange})
+        |> range(start: ${startRange}, stop: ${stopRange})
         |> filter(fn: (r) => r._measurement == ${measurement} and r.symbol == ${symbol})
         |> keep(columns: ["_time", "symbol", "_field", "_value"])
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
@@ -117,7 +117,7 @@ const createOhlcvWithStochFlux = (bucket: string, measurement: string, symbol: s
         }
 
         stoch = from(bucket: ${bucket})
-            |> range(start: ${startRange} )
+            |> range(start: ${startRange}, stop: ${stopRange})
             |> filter(fn: (r) =>
                 r._measurement == ${measurement} and
                 r.symbol == ${symbol} and

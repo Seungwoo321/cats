@@ -1,11 +1,11 @@
 import { gql, request } from 'graphql-request'
-import { GRAPHQL_URL } from '@config'
+import { GRAPHQL_URL } from '../config'
 import { IBar, IPosition, IPositionStatus, TradeDirection, Timeframe } from '@lib/grademark'
 import { ITrade, IOrder } from '@lib/exchange'
 
 const GET_CANDLES: string = gql`
-    query Candles ($symbol: String, $timeframe: String) {
-        candles (symbol: $symbol, timeframe: $timeframe) {
+    query Candles ($symbol: String, $timeframe: String, $start: Int, $stop: Int) {
+        candles (symbol: $symbol, timeframe: $timeframe, start: $start, stop: $stop) {
             time
             open
             high
