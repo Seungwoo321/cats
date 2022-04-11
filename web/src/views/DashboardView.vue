@@ -1,8 +1,5 @@
 <template>
   <div>
-    <section>
-      <LayoutNavbar></LayoutNavbar>
-    </section>
     <section class="section">
       <OverviewLevel
         :data="completedTrades"
@@ -40,21 +37,20 @@
 
 <script>
 import gql from 'graphql-tag'
-import LayoutNavbar from '@/components/LayoutNavbar'
-import OverviewLevel from '@/components/OverviewLevel'
-import TradingVueChart from '@/components/TradingVueChart'
-import CompletedTradeTable2 from '@/components/CompletedTradeTable2'
+import OverviewLevel from '@/components/dashboard/OverviewLevel'
+import TradingVueChart from '@/components/dashboard/TradingVueChart'
+import CompletedTradeTable2 from '@/components/dashboard/CompletedTradeTable2'
+import moment from 'moment'
 export default {
   components: {
-    LayoutNavbar,
     OverviewLevel,
     TradingVueChart,
     CompletedTradeTable2
   },
   apollo: {
     candles: {
-      query: gql`query Candles ($symbol: String, $timeframe: String) {
-        candles (symbol: $symbol, timeframe: $timeframe) {
+      query: gql`query Candles ($symbol: String, $timeframe: String, $start: Int, $stop: Int) {
+        candles (symbol: $symbol, timeframe: $timeframe, start: $start, stop: $stop) {
           time
           open
           high
@@ -65,7 +61,9 @@ export default {
       }`,
       variables: {
         symbol: 'BCH/USD:BTC',
-        timeframe: '1h'
+        timeframe: '5m',
+        start: new Date(moment().subtract(10, 'day').format('YYYY-MM-DD HH:mm:ss')).getTime() / 1000,
+        stop: new Date(moment().format('YYYY-MM-DD HH:mm:ss')).getTime() / 1000
       }
     },
     completedTrades: {
