@@ -1,6 +1,7 @@
 'use strict'
 require('module-alias/register')
 require('@config')
+const moment = require('moment')
 const BitMEXClient = require('bitmex-realtime-api')
 const dataForge = require('data-forge')
 const { Influx2 } = require('@lib/influx2')
@@ -36,29 +37,15 @@ args.shift()
     setInterval(() => {
         client.socket.send('ping')
     }, 30 * 1000)
-    /**
-     *
-     * [
-     *   {
-     *       timestamp: '2022-03-20T21:00:00.000Z',
-     *       symbol: 'BCHUSD',
-     *       open: 319.15,
-     *       high: 321.65,
-     *       low: 318.4,
-     *       close: 318.55,
-     *       trades: 113,
-     *       volume: 11882,
-     *       vwap: 319.68,
-     *       lastSize: 105,
-     *       turnover: 379842785,
-     *       homeNotional: 492.8835830491001,
-     *       foreignNotional: 157565.787177658
-     *   }
-     * ]
-     */
+
     client.addStream(symbol.split(':')[0].replace('/', ''), 'tradeBin1h', async function (data, _) {
         console.info(data[0].symbol + ': ' + data[0].timestamp)
         const measurement = `${symbol}_${timeframe}`
+        if (process.env.NODE_ENV === 'development') {
+            console.log(data)
+            console.log('Development Test Success!')
+            return
+        }
         try {
             const items = data.map(item => ({
                 symbol,
@@ -72,7 +59,9 @@ args.shift()
             const bar = items[0]
             const db = new Influx2()
             await db.addData('candles', measurement, symbol, bar)
-            const candles = await db.fetchCandles('candles', measurement, symbol, { start: '-30d' })
+            const start = new Date(moment().subtract(1, 'month').format('YYYY-MM-DD')).getTime() / 1000
+            const stop = new Date(moment().format('YYYY-MM-DD')).getTime() / 1000
+            const candles = await db.fetchCandles('candles', measurement, symbol, { start, stop })
             const inputSeries = new dataForge.DataFrame(candles).setIndex('time')
             await trading(symbol, strategy[strategyName], inputSeries)
         } catch (error) {
@@ -88,60 +77,8 @@ args.shift()
             console.log('\nFinished ERROR')
         }
     })
-    /**
-     * [
-     *   {
-     *     "execID": "0193e879-cb6f-2891-d099-2c4eb40fee21",
-     *     "orderID": "00000000-0000-0000-0000-000000000000",
-     *     "clOrdID": "",
-     *     "clOrdLinkID": "",
-     *     "account": 2,
-     *     "symbol": "XBTUSD",
-     *     "side": "Sell",
-     *     "lastQty": 1,
-     *     "lastPx": 1134.37,
-     *     "underlyingLastPx": null,
-     *     "lastMkt": "XBME",
-     *     "lastLiquidityInd": "RemovedLiquidity",
-     *     "simpleOrderQty": null,
-     *     "orderQty": 1,
-     *     "price": 1134.37,
-     *     "displayQty": null,
-     *     "stopPx": null,
-     *     "pegOffsetValue": null,
-     *     "pegPriceType": "",
-     *     "currency": "USD",
-     *     "settlCurrency": "XBt",
-     *     "execType": "Trade",
-     *     "ordType": "Limit",
-     *     "timeInForce": "ImmediateOrCancel",
-     *     "execInst": "",
-     *     "contingencyType": "",
-     *     "exDestination": "XBME",
-     *     "ordStatus": "Filled",
-     *     "triggered": "",
-     *     "workingIndicator": false,
-     *     "ordRejReason": "",
-     *     "simpleLeavesQty": 0,
-     *     "leavesQty": 0,
-     *     "simpleCumQty": 0.001,
-     *     "cumQty": 1,
-     *     "avgPx": 1134.37,
-     *     "commission": 0.00075,
-     *     "tradePublishIndicator": "DoNotPublishTrade",
-     *     "multiLegReportingType": "SingleSecurity",
-     *     "text": "Liquidation",
-     *     "trdMatchID": "7f4ab7f6-0006-3234-76f4-ae1385aad00f",
-     *     "execCost":88155,
-     *     "execComm":66,
-     *     "homeNotional": -0.00088155,
-     *     "foreignNotional": 1,
-     *     "transactTime":"2017-04-04T22:07:46.035Z",
-     *     "timestamp":"2017-04-04T22:07:46.035Z"
-     *   }
-     * ]
-     */
-    client.addStream('BCHUSD', 'execution', async function (data, _, __) {
+
+    client.addStream(symbol.split(':')[0].replace('/', ''), 'execution', async function (data, _, __) {
         if (!data.length) return
         try {
             const item = data[0]

@@ -6,9 +6,10 @@ const ccxt = require('ccxt')
 const prompts = require('prompts')
 const cliProgress = require('cli-progress')
 const colors = require('ansi-colors')
-
+const args = process.argv.slice()
+args.shift()
+args.shift()
 const toDate = new Date()
-const endDate = new Date(Date.UTC(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate(), toDate.getUTCHours(), toDate.getUTCMinutes())).getTime()
 
 const b1 = new cliProgress.SingleBar({
     format: 'Colleting data... |' + colors.cyan('{bar}') + '| {percentage}% || {value}/{total} Requsts ',
@@ -76,6 +77,13 @@ const questions = [
         initial: new Date(Date.UTC(2017, 0, 1, 0, 0))
     },
     {
+        type: 'date',
+        name: 'endDate',
+        mask: 'YYYY-MM-DD HH:mm',
+        message: 'When will you end collecting?',
+        initial: new Date(Date.UTC(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate(), toDate.getUTCHours(), 0))
+    },
+    {
         type: 'select',
         name: 'timeframe',
         message: 'Please select a time unit',
@@ -107,12 +115,12 @@ const questions = [
     }
 ]
 
-async function collecting (symbol, timeframe, startDate, total, data) {
+async function collecting (symbol, timeframe, startTime, endTime, total, data) {
     try {
         // const index = 4 // [ timestamp, open, high, low, close, volume ]
         // eslint-disable-next-line new-cap
         const exchange = await new ccxt.bitmex()
-        let since = startDate.getTime()
+        let since = startTime
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
         let i = 0
         while (since) {
@@ -120,7 +128,7 @@ async function collecting (symbol, timeframe, startDate, total, data) {
             const ohlcv = await exchange.fetchOHLCV(symbol, timeframe, since)
             if (ohlcv.length) {
                 if (i === 0) {
-                    i = total - getRequestCount(endDate - ohlcv[ohlcv.length - 1][0], timeframe) + 1
+                    i = total - getRequestCount(endTime - ohlcv[ohlcv.length - 1][0], timeframe)
                 } else {
                     i++
                     b1.increment()
@@ -146,14 +154,28 @@ async function collecting (symbol, timeframe, startDate, total, data) {
 }
 
 (async function main () {
-    const { symbol, startDate, timeframe, value } = await prompts(questions, { onCancel })
+    let userInput = {}
+    if (args.length === 4) {
+        userInput = {
+            symbol: args[0],
+            startDate: new Date(args[1]),
+            endDate: new Date(args[2]),
+            timeframe: args[3],
+            value: true
+        }
+    } else {
+        userInput = await prompts(questions, { onCancel })
+    }
+    const { symbol, startDate, endDate, timeframe, value } = userInput
+    const startTime = startDate.getTime()
+    const endTime = endDate.getTime()
     if (value) {
-        const total = getRequestCount(endDate - startDate, timeframe)
+        const total = getRequestCount(endTime - startTime, timeframe)
         b1.start(total, 0, {
             speed: 'N/A'
         })
         const db = new Influx2()
-        const result = await collecting(symbol, timeframe, startDate, total, [])
+        const result = await collecting(symbol, timeframe, startTime, endTime, total, [])
         const measurement = `${symbol}_${timeframe}`
         const items = result.map(item => {
             return {
@@ -168,11 +190,13 @@ async function collecting (symbol, timeframe, startDate, total, data) {
         try {
             await db.importData('candles', measurement, symbol, items)
             console.log('FINISHED')
-            const results = await db.fetchCandles('candles', measurement, symbol, { start: '-30d' })
+            const results = await db.fetchCandles('candles', measurement, symbol, { start: startTime / 1000, stop: endTime / 1000 })
             console.log(results[results.length - 1])
+            process.exit(0)
         } catch (error) {
             console.error(error)
             console.log('\\nFinished ERROR')
+            process.exit(1)
         }
     } else {
         process.exit(1)

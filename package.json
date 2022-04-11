@@ -1,7 +1,7 @@
 {
   "name": "cats",
   "version": "1.0.0",
-  "description": "> Still in development",
+  "description": "Crypto Automated Trading System",
   "main": "index.js",
   "scripts": {
     "test": "jest",
@@ -9,9 +9,10 @@
     "lint:fix": "eslint **/*.ts --fix",
     "build": "tsc",
     "collector:bitmex": "node script/collector.bitmex.js",
-    "bot:bitmex": "node script/bot.bitmex.js",
-    "dev:apollo": "nodemon server",
-    "serve:apollo": "pm2 start server --name apollo-server"
+    "bot:bitmex:development": "cross-env NODE_ENV=development node script/bot.bitmex.js",
+    "bot:bitmex:production": "cross-env NODE_ENV=production node script/bot.bitmex.js",
+    "dev:apollo": "nodemon apollo-server",
+    "serve:apollo": "pm2 start apollo-server --name apollo-server"
   },
   "_moduleAliases": {
     "@lib": "lib",
@@ -41,8 +42,10 @@
     "dotenv": "^16.0.0",
     "fiori-fundamentals": "^1.7.9",
     "fundamental-vue": "^0.18.3",
+    "globby": "^11.0.2",
     "graphql": "^16.3.0",
     "graphql-request": "^4.0.0",
+    "lodash": "^4.17.21",
     "mariadb": "^3.0.0",
     "module-alias": "^2.2.2",
     "prompts": "^2.4.2",
@@ -60,6 +63,7 @@
     "@typescript-eslint/parser": "^5.14.0",
     "babel-jest": "^27.5.1",
     "chai": "^4.3.6",
+    "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.4",

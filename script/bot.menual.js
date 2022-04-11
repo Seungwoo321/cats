@@ -2,6 +2,7 @@
 'use strict'
 require('module-alias/register')
 require('@config')
+const moment = require('moment')
 const dataForge = require('data-forge')
 const { Influx2 } = require('@lib/influx2')
 const { trading } = require('@lib/trade/bitmex')
@@ -18,7 +19,9 @@ args.shift()
 
     try {
         const db = new Influx2()
-        const candles = await db.fetchCandles('candles', measurement, symbol, { start: '-30d' })
+        const start = new Date(moment().subtract(1, 'month').format('YYYY-MM-DD')).getTime() / 1000
+        const stop = new Date(moment().format('YYYY-MM-DD')).getTime() / 1000
+        const candles = await db.fetchCandles('candles', measurement, symbol, { start, stop })
         // console.table(candles)
         const inputSeries = new dataForge.DataFrame(candles).setIndex('time')
         await trading(symbol, strategy[strategyName], inputSeries)
