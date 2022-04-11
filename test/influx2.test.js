@@ -1,15 +1,17 @@
-require('../src/config')
-const { Influx2 } = require('../src/lib/influx2')
-
+require('../config')
+const { Influx2 } = require('../lib/influx2')
+const moment = require('moment')
 jest.useRealTimers();
 
 describe('Influx2 Flux Query', function () {
     it('ohlcv', async () => {
         expect.assertions(3)
         const db = new Influx2()
-        const measurement = 'BTC/USD:BTC_1h'
-        const symbol = 'BTC/USD:BTC'
-        const results = await db.fetchCandles('candles', measurement, symbol, { start: '-30d' })
+        const measurement = 'BCH/USD:BTC_1h'
+        const symbol = 'BCH/USD:BTC'
+        const start = new Date(moment.utc().subtract(2, 'day').format('YYYY-MM-DD')).getTime() / 1000
+        const stop = new Date(moment.utc().format('YYYY-MM-DD')).getTime() / 1000
+        const results = await db.fetchCandles('candles', measurement, symbol, { start, stop })
         const prevBar = results[results.length - 2]
         const bar = results[results.length - 1]
         expect(bar.open).toBe(prevBar.close)
@@ -19,12 +21,14 @@ describe('Influx2 Flux Query', function () {
     it('ohlcv with Stochastic', async () => {
         expect.assertions(5)
         const db = new Influx2()
-        const measurement = 'BTC/USD:BTC_1h'
-        const symbol = 'BTC/USD:BTC'
+        const measurement = 'BCH/USD:BTC_1h'
+        const symbol = 'BCH/USD:BTC'
         const n = 5
         const m = 3
         const t = 3
-        const results = await db.fetchCandleWithStochastic('candles', measurement, symbol, { start: '-1d', stop: '0d', n, m, t })
+        const start = new Date(moment.utc().subtract(2, 'day').format('YYYY-MM-DD')).getTime() / 1000
+        const stop = new Date(moment.utc().format('YYYY-MM-DD')).getTime() / 1000
+        const results = await db.fetchCandleWithStochastic('candles', measurement, symbol, { start, stop, n, m, t })
         const prevBar = results[results.length - 2]
         const bar = results[results.length - 1]
         expect(bar.open).toBe(prevBar.close)
@@ -36,11 +40,13 @@ describe('Influx2 Flux Query', function () {
     it('ohlcv with BolingerBand', async () => {
         expect.assertions(5)
         const db = new Influx2()
-        const measurement = 'BTC/USD:BTC_1h'
-        const symbol = 'BTC/USD:BTC'
+        const measurement = 'BCH/USD:BTC_1h'
+        const symbol = 'BCH/USD:BTC'
         const n = 40
         const std = 0.5
-        const results = await db.fetchCandleWithBolingerBands('candles', measurement, symbol, { start: '-2d', stop: '0d', n, std })
+        const start = new Date(moment.utc().subtract(2, 'day').format('YYYY-MM-DD')).getTime() / 1000
+        const stop = new Date(moment.utc().format('YYYY-MM-DD')).getTime() / 1000
+        const results = await db.fetchCandleWithBolingerBands('candles', measurement, symbol, { start, stop, n, std })
         const prevBar = results[results.length - 2]
         const bar = results[results.length - 1]
         expect(bar.open).toBe(prevBar.close)
@@ -49,5 +55,4 @@ describe('Influx2 Flux Query', function () {
         expect(bar.upper).toBeGreaterThanOrEqual(bar.middle)
         expect(bar.lower).toBeLessThanOrEqual(bar.middle)
     })
-
 })
