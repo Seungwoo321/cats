@@ -5,6 +5,9 @@ import { IDataFrame } from 'data-forge'
 import { Market } from 'ccxt'
 import { assert } from 'chai'
 import { v4 as uuidv4 } from 'uuid'
+import debug from 'debug'
+
+const tradingLog = debug('trading:bitmex')
 
 /**
  * Update an open position for a new bar.
@@ -36,7 +39,7 @@ async function updatePosition (position: IPosition, bar: IBar, amount: number, f
             }
         )
     }
-
+    tradingLog('updatePosition')
     return await gqlService.updatePosition(position)
 }
 
@@ -53,7 +56,6 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     if (inputSeries.none()) {
         throw new Error('Expect input data series to contain at last 1 bar.')
     }
-
     const lookbackPeriod = strategy.lookbackPeriod || 1
     if (inputSeries.count() < lookbackPeriod) {
         throw new Error('You have less input data than your lookback period, the size of your input data should be some multiple of your lookback period.')
@@ -77,7 +79,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         indicatorsSeries = inputSeries as IDataFrame<IndexT, IndicatorBarT>
     }
     const bar = indicatorsSeries.last()
-    console.table([bar])
+    tradingLog([bar])
     const positionStatus = await gqlService.getPositionStatus(symbol)
     const entryPrice = bar.close
     const positionDirection = positionStatus.direction
@@ -86,6 +88,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         isOpen: false,
         currentQty: '0'
     }
+    tradingLog(positionStatus.value)
     /**
      *
      * @param openPosition
@@ -103,9 +106,10 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         openPosition.amount = formattedAmount
         const formattedPrice: number = parseFloat(exchange.priceToPrecision(symbol, openPosition.entryPrice))
         // cancle all orders
-        await exchange.cancelAllOrders(symbol)
+        const cancel = await exchange.cancelAllOrders(symbol)
+        tradingLog(cancel)
         // create new order
-        await exchange.createOrder(
+        const order = await exchange.createOrder(
             symbol,
             'limit',
             openPosition.direction === TradeDirection.Long ? 'buy' : 'sell',
@@ -116,10 +120,10 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 text: 'entry-rule'
             }
         )
-
+        tradingLog(order)
         // if initial stop price then add stop order
         if (openPosition.initialStopPrice) {
-            await exchange.createOrder(
+            const order = await exchange.createOrder(
                 symbol,
                 'stop',
                 openPosition.direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -131,11 +135,12 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                     execInst: 'LastPrice,Close'
                 }
             )
+            tradingLog(order)
         }
 
         // if trailing stop loss then add trailing stop order
         if (strategy.trailingStopLoss && openPosition.curStopPrice !== undefined && openPosition.initialStopPrice !== openPosition.curStopPrice) {
-            await exchange.createOrder(
+            const order = await exchange.createOrder(
                 symbol,
                 'stopLimit',
                 openPosition.direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -149,7 +154,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
                 }
             )
+            tradingLog(order)
         }
+        tradingLog('createPosition')
         await gqlService.createPosition(symbol, openPosition)
     }
     /**
@@ -162,7 +169,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      * @returns
      */
     async function closePosition (direction: TradeDirection, symbol: string, amount: number, exitPrice: number, exitReason: string) {
-        await exchange.createOrder(
+        const order = await exchange.createOrder(
             symbol,
             'limit',
             direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -174,7 +181,8 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 execInst: 'ReduceOnly'
             }
         )
-
+        tradingLog(order)
+        tradingLog('closePosition')
         return await gqlService.closePosition(symbol)
     }
     /**
@@ -184,6 +192,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     async function enterPosition (options?: IEnterPositionOptions) {
         assert(positionStatus.value === PositionStatus.None, 'Can only enter a position when not already in one.')
         if (options?.symbol && options?.direction && options?.entryPrice) {
+            tradingLog('enterPosition')
             await gqlService.enterPosition(symbol, options.direction, options.entryPrice, uuidv4())
         }
     }
@@ -194,6 +203,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      */
     async function exitPosition (symbol: string) {
         assert(positionStatus.value === PositionStatus.Position, 'Can only exit a position when we are in a position.')
+        tradingLog('exitPosition')
         return await gqlService.exitPosition(symbol)
     }
     /**
@@ -230,12 +240,14 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             if (positionStatus.direction === TradeDirection.Long) {
                 if (bar.high < positionStatus.conditionalEntryPrice) {
                     await exchange.cancelAllOrders(symbol)
+                    tradingLog('Cancel order because of high < conditionalEntryPrice')
                     await gqlService.closePosition(symbol)
                     break
                 }
             } else {
                 if (bar.low > positionStatus.conditionalEntryPrice) {
                     await exchange.cancelAllOrders(symbol)
+                    tradingLog('Cancel order because of low > conditionalEntryPrice')
                     await gqlService.closePosition(symbol)
                     break
                 }
@@ -315,6 +327,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
         if (!currentPosition.isOpen) {
             await exchange.cancelAllOrders(symbol)
+            tradingLog('Cancel order because of is not open position')
             await gqlService.closePosition(symbol)
             break
         }
