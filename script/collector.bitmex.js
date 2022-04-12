@@ -38,7 +38,7 @@ const getRequestCount = (count, timeframe) => {
         count = count / (60 * 60 * 24 * 1000 * 100)
         break
     }
-    return Math.ceil(count) + 1
+    return Math.ceil(count)
 }
 const questions = [
     {
@@ -126,20 +126,29 @@ async function collecting (symbol, timeframe, startTime, endTime, total, data) {
         while (since) {
             await sleep(exchange.rateLimit)
             const ohlcv = await exchange.fetchOHLCV(symbol, timeframe, since)
+            if (ohlcv.length === 0) {
+                throw Error(`There is no data for that ${new Date(startTime).toISOString()}.`)
+            }
+            if (ohlcv.length > 0 && i === 0 && ohlcv[0][0] > endTime) {
+                throw Error(`The start date is at least ${new Date(ohlcv[0][0]).toISOString()}.`)
+            }
             if (ohlcv.length) {
-                if (i === 0) {
-                    i = total - getRequestCount(endTime - ohlcv[ohlcv.length - 1][0], timeframe)
-                } else {
-                    i++
-                    b1.increment()
-                }
+                i++
+                b1.increment()
                 b1.update(i)
                 since = ohlcv[ohlcv.length - 1][0]
                 if (ohlcv.length < 100) {
                     since = null
+                    console.log('\nEnd date: ' + new Date(ohlcv[ohlcv.length - 1][0]).toISOString())
                 }
                 data.pop()
-                data = data.concat(ohlcv)
+                if (endTime <= ohlcv[ohlcv.length - 1][0]) {
+                    data = data.concat(ohlcv.filter(itme => itme[0] <= endTime))
+                    since = null
+                    console.log('\nEnd date: ' + new Date(ohlcv[ohlcv.length - 1][0]).toISOString())
+                } else {
+                    data = data.concat(ohlcv)
+                }
             } else {
                 since = since + (60 * 60 * 24 * 1000)
             }
@@ -158,9 +167,9 @@ async function collecting (symbol, timeframe, startTime, endTime, total, data) {
     if (args.length === 4) {
         userInput = {
             symbol: args[0],
-            startDate: new Date(args[1]),
-            endDate: new Date(args[2]),
-            timeframe: args[3],
+            timeframe: args[1],
+            startDate: new Date(args[2]),
+            endDate: new Date(args[3]),
             value: true
         }
     } else {
@@ -186,6 +195,8 @@ async function collecting (symbol, timeframe, startTime, endTime, total, data) {
                 close: item[4],
                 volume: item[5]
             }
+        }).filter(item => {
+            return item.time && item.open && item.high && item.low && item.close && item.volume
         })
         try {
             await db.importData('candles', measurement, symbol, items)
