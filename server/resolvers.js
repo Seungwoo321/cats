@@ -65,8 +65,8 @@ module.exports = {
                 await dataSources.openPositionAPI.createPosition(position)
         },
         closePosition: async (_, { symbol }, { dataSources }) => {
-            return await dataSources.openPositionAPI.closePostion({ symbol }) &&
-                await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', conditionalEntryPrice: null } })
+            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', conditionalEntryPrice: null } }) &&
+                await dataSources.openPositionAPI.closePostion({ symbol })
         },
         /** positionStatus */
         enterPosition: async (_, { symbol, direction = 'long', entryPrice, tradingId }, { dataSources }) => {
