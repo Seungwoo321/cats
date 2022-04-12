@@ -38,6 +38,7 @@
     "cli-progress": "^3.10.0",
     "data-forge": "^1.9.3",
     "data-forge-indicators": "^0.2.7",
+    "debug": "^4.3.4",
     "dotenv": "^16.0.0",
     "fiori-fundamentals": "^1.7.9",
     "fundamental-vue": "^0.18.3",
