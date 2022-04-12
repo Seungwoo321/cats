@@ -229,10 +229,14 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         if (positionStatus.conditionalEntryPrice !== undefined) {
             if (positionStatus.direction === TradeDirection.Long) {
                 if (bar.high < positionStatus.conditionalEntryPrice) {
+                    await exchange.cancelAllOrders(symbol)
+                    await gqlService.closePosition(symbol)
                     break
                 }
             } else {
                 if (bar.low > positionStatus.conditionalEntryPrice) {
+                    await exchange.cancelAllOrders(symbol)
+                    await gqlService.closePosition(symbol)
                     break
                 }
             }
