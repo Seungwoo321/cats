@@ -1,5 +1,4 @@
-require('module-alias/register')
-require('@config')
+require('@cats/config')
 
 const { ApolloServer } = require('apollo-server')
 const typeDefs = require('./type-defs')
