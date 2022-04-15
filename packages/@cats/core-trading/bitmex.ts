@@ -1,5 +1,5 @@
 import { IStrategy, IPosition, IBar, TradeDirection, PositionStatus, IEnterPositionOptions } from '@lib/grademark'
-import { Position, exchange } from '@lib/exchange'
+import { Position, exchange } from '@cats/core/exchange'
 import { service as gqlService } from '@lib/gql'
 import { IDataFrame } from 'data-forge'
 import { Market } from 'ccxt'

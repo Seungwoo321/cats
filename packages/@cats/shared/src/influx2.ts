@@ -1,5 +1,5 @@
 import { IBar } from './grademark'
-import { INFLUX2_ORG, INFLUX2_URL, INFLUX2_TOKEN } from '../config'
+import { EXCHANGE_ID, INFLUX2_URL, INFLUX2_TOKEN } from '../config'
 
 // eslint-disable-next-line camelcase
 const { InfluxDB, Point, DEFAULT_WriteOptions } = require('@influxdata/influxdb-client')
@@ -23,7 +23,7 @@ class Influx2 {
 
     constructor (options: any = {}) {
         this.client = new InfluxDB({ url: INFLUX2_URL, token: INFLUX2_TOKEN, timeout: 180 * 1000 })
-        this.org = INFLUX2_ORG
+        this.org = EXCHANGE_ID
         this.timestampsPoint = 'ms'
         this.writeOptions = { ...writeOptions, ...options }
     }

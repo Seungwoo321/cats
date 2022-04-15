@@ -1,8 +1,9 @@
 {
-  "name": "cats",
+  "private": true,
   "version": "1.0.0",
-  "description": "Crypto Automated Trading System",
-  "main": "index.js",
+  "workspaces": [
+    "packages/@cats/*"
+  ],
   "scripts": {
     "test": "jest",
     "lint": "eslint **/*.ts",

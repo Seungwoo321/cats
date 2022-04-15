@@ -1,0 +1,32 @@
+{
+  "name": "@cats/apollo-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev:apollo": "nodemon apollo-server",
+    "serve:apollo": "pm2 start apollo-server --name apollo-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Seungwoo321/cats.git",
+    "directory": "packages/@cats/apollo-server"
+  },
+  "engines": {
+    "node": ">=16.14.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@influxdata/influxdb-client": "^1.23.0",
+    "apollo-server": "^3.6.4",
+    "globby": "^11.0.2",
+    "graphql": "^16.3.0",
+    "lodash": "^4.17.21",
+    "sequelize": "^6.17.0"
+  },
+  "bugs": {
+    "url": "https://github.com/Seungwoo321/cats/issues"
+  },
+  "homepage": "https://github.com/Seungwoo321/cats#readme"
+}
