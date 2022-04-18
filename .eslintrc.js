@@ -28,9 +28,6 @@ module.exports = {
     },
     ignorePatterns: [
         'test',
-        'dist',
-        'lib/**/*.js',
-        'lib/*.js',
-        'config.js'
+        'dist'
     ]
 }

@@ -1,10 +1,10 @@
 'use strict'
 require('module-alias/register')
-require('@config')
+require('@cats/config')
 const { backtest, analyze } = require('grademark')
 const dataForge = require('data-forge')
-const { Influx2 } = require('@lib/influx2')
-const strategy = require('@strategy')
+const { Influx2 } = require('@cats/helperinflux2')
+const strategy = require('@cats/helper-strategy')
 const args = process.argv.slice()
 args.shift()
 args.shift()

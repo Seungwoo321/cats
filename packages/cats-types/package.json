@@ -1,0 +1,21 @@
+{
+  "name": "@cats/types",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Seungwoo321/cats.git",
+    "directory": "packages/cats-types"
+  },
+  "author": "Seungwoo321",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Seungwoo321/cats/issues"
+  },
+  "homepage": "https://github.com/Seungwoo321/cats#readme"
+}

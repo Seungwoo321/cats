@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "packages/cats-config/src/**/*.ts",
+    "packages/cats-helper-exchange/src/**/*.ts",
+    "packages/cats-helper-gql/src/**/*.ts",
+    "packages/cats-helper-record/src/**/*.ts",
+    "packages/cats-helper-trading/src/**/*.ts",
+    "packages/cats-shared-utils/src/**/*.ts",
+    "packages/cats-types/src/**/*.ts"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@cats/config": [
+        "./packages/cats-config"
+      ],
+      "@cats/helper-exchange": [
+        "./packages/cats-helper-exchange"
+      ],
+      "@cats/helper-gql": [
+        "./packages/cats-helper-gql"
+      ],
+      "@cats/helper-record": [
+        "./packages/cats-helper-record"
+      ],
+      "@cats/helper-trading": [
+        "./packages/cats-helper-trading"
+      ],
+      "@cats/shared-utils": [
+        "./packages/cats-shared-utils"
+      ],
+      "@cats/types": [
+        "./packages/cats-types"
+      ]
+    }
+  }
+}

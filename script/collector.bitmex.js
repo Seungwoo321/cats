@@ -1,7 +1,7 @@
 'use strict'
 require('module-alias/register')
 require('@config')
-const { Influx2 } = require('@lib/influx2')
+const { Influx2 } = require('@cats/helper-influx2')
 const ccxt = require('ccxt')
 const prompts = require('prompts')
 const cliProgress = require('cli-progress')

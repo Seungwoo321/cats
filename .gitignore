@@ -115,6 +115,4 @@ ecosystem.config.js
 .history
 
 # build js
-lib/*.js
-lib/**/*.js
-config.js
+lib
