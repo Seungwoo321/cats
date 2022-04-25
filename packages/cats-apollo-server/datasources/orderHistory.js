@@ -20,7 +20,7 @@ class OrderHistory extends DataSource {
     }
 
     async findOrdersByTrading ({ tradingId }) {
-        const res = await this.store.ㄴfindAll({
+        const res = await this.store.findAll({
             where: {
                 tradingId
             }

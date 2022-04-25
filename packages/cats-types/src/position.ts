@@ -4,7 +4,14 @@ import { TradeDirection } from './strategy'
  * Interface that defines an open position.
  */
 export interface IPosition {
-    symbol: string
+    /**
+     * 
+     */
+    positionId?: string;
+    /**
+     * 
+     */
+    symbol: string;
     /**
      * The direction of the position.
      * long or short.

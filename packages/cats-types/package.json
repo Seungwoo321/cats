@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/Seungwoo321/cats/issues"
   },
-  "homepage": "https://github.com/Seungwoo321/cats#readme"
+  "homepage": "https://github.com/Seungwoo321/cats#readme",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  }
 }

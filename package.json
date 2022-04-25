@@ -5,20 +5,18 @@
     "packages/cats-apollo-server",
     "packages/cats-config",
     "packages/cats-types",
-    "packages/cats-shared-utils",
     "packages/cats-helper-exchange",
-    "packages/cats-helper-trading",
-    "packages/cats-helper-strategy",
-    "packages/cats-helper-record",
     "packages/cats-helper-gql",
-    "packages/cats-helper-influx2",
-    "packages/cats-helper-mariadb"
+    "pakcages/cats-helper-influx2",
+    "packages/cats-helper-mariadb",
+    "packages/cats-helper-strategy",
+    "packages/cats-helper-trading"
   ],
   "scripts": {
     "test": "jest",
     "lint": "eslint **/*.ts",
     "lint:fix": "eslint **/*.ts --fix",
-    "build": "tsc",
+    "build": "tsc --build tsconfig.build.json",
     "collector:bitmex": "node script/collector.bitmex.js",
     "bot:bitmex:development": "cross-env NODE_ENV=development node script/bot.bitmex.js",
     "bot:bitmex:production": "cross-env NODE_ENV=production node script/bot.bitmex.js",
@@ -44,6 +42,7 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
+    "@cats/helper-trading": "file:packages/cats-helper-trading",
     "ccxt": "^1.79.63",
     "grademark": "^0.2.9"
   }

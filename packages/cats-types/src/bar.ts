@@ -34,8 +34,8 @@ export interface IBar {
 }
 
 export enum Timeframe {
-    '1m',
-    '5m',
-    '1h',
-    '1d'
+    '1m' = '1m',
+    '5m' = '5m',
+    '1h' = '1h',
+    '1d' = '1d'
 }

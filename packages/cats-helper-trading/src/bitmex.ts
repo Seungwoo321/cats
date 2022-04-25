@@ -1,4 +1,4 @@
-import { IStrategy, IPosition, IBar, TradeDirection, PositionStatus, IEnterPositionOptions } from '@cats/types'
+import { IStrategy, IPosition, IBar, TradeDirection, PositionStatus, IEnterPositionOptions, ITrade, IOrder, OrderStatus } from '@cats/types'
 import { Position } from '@cats/types'
 import { exchange } from '@cats/helper-exchange'
 import { service as gqlService } from '@cats/helper-gql'
@@ -63,12 +63,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     const strategyParameters = strategy.parameters || {} as ParametersT
     let openPosition = await gqlService.getOpenPosition(symbol)
     let newTrailingStopOrder = false
-    // const indicatorsSeries = inputSeries as IDataFrame<IndexT, IndicatorBarT>
     let indicatorsSeries: IDataFrame<IndexT, IndicatorBarT>
 
-    //
     // Prepare indicators.
-    //
     if (strategy.prepIndicators) {
         indicatorsSeries = strategy.prepIndicators({
             parameters: strategyParameters,
@@ -78,7 +75,6 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         indicatorsSeries = inputSeries as IDataFrame<IndexT, IndicatorBarT>
     }
     const bar = indicatorsSeries.last()
-    console.table([bar])
     const positionStatus = await gqlService.getPositionStatus(symbol)
     const entryPrice = bar.close
     const positionDirection = positionStatus.direction
@@ -151,7 +147,6 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 }
             )
         }
-        await gqlService.createPosition(symbol, openPosition)
     }
     /**
      *
@@ -163,7 +158,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      * @returns
      */
     async function closePosition (direction: TradeDirection, symbol: string, amount: number, exitPrice: number, exitReason: string) {
-        await exchange.createOrder(
+        return await exchange.createOrder(
             symbol,
             'limit',
             direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -175,8 +170,6 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 execInst: 'ReduceOnly'
             }
         )
-
-        return await gqlService.closePosition(symbol)
     }
     /**
      *
@@ -185,7 +178,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     async function enterPosition (options?: IEnterPositionOptions) {
         assert(positionStatus.value === PositionStatus.None, 'Can only enter a position when not already in one.')
         if (options?.symbol && options?.direction && options?.entryPrice) {
-            await gqlService.enterPosition(symbol, options.direction, options.entryPrice, uuidv4())
+            await gqlService.enterPosition(symbol, options.direction, options.entryPrice)
         }
     }
     /**
@@ -197,24 +190,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         assert(positionStatus.value === PositionStatus.Position, 'Can only exit a position when we are in a position.')
         return await gqlService.exitPosition(symbol)
     }
-    /**
-     *
-     * @param openPosition
-     * @param exitTime
-     * @param exitPrice
-     * @param exitReason
-     * @returns
-     */
 
     switch (positionStatus.value) {
     case PositionStatus.None:
-        if (currentPosition?.isOpen) {
-            const direction = +currentPosition?.currentQty > 0
-                ? TradeDirection.Long
-                : TradeDirection.Short
-            await closePosition(direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'none-position')
-        }
-
         await strategy.entryRule(enterPosition, {
             bar,
             parameters: {
@@ -251,7 +229,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             profit: 0,
             profitPct: 0,
             holdingPeriod: 0,
-            amount: Number(currentPosition.currentQty)
+            amount: 0
         }
 
         if (strategy.stopLoss) {
@@ -301,11 +279,6 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 ? entryPrice + profitDistance
                 : entryPrice - profitDistance
             openPosition.profitTarget = parseFloat(exchange.priceToPrecision(symbol, openPosition.profitTarget))
-        }
-
-        if (currentPosition.isOpen) {
-            await gqlService.createPosition(symbol, openPosition)
-            break
         }
 
         await createPosition(openPosition, symbol)
@@ -401,6 +374,80 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     }
 }
 
+async function executionTrading(
+    symbol: string,
+    data: IOrder
+) {
+    const positionStatus = await gqlService.getPositionStatus(symbol)
+    const positionDirection = positionStatus.direction
+    let openPosition = await gqlService.getOpenPosition(symbol)
+    console.log(openPosition)
+    if (openPosition === null) {
+        openPosition = {
+            positionId: uuidv4(),
+            symbol,
+            direction: positionDirection,
+            entryTime: new Date(data.time),
+            entryPrice: data.avgPrice,
+            growth: 1,
+            profit: 0,
+            profitPct: 0,
+            holdingPeriod: 0,
+            amount: Number(data.orderQty)
+        } as IPosition
+    }
+
+    const order = {
+        ...data,
+        tradingId: openPosition.positionId,
+        symbol
+    } as IOrder
+    await gqlService.updateOrder(order)
+
+    const trade = {
+        tradingId: openPosition.positionId,
+        symbol,
+        direction: openPosition.direction,
+        entryTime: openPosition.entryTime,
+        entryPrice: openPosition.entryPrice,
+        holdingPeriod: openPosition.holdingPeriod,
+    } as ITrade
+
+    switch (positionStatus.value) {
+    case PositionStatus.Enter:
+
+        if (
+            data.ordStatus === OrderStatus.Filled || 
+            data.ordStatus === OrderStatus.PartiallyFilled
+        ) {
+            await gqlService.createPosition(symbol, openPosition)
+        }
+
+        break
+
+    case PositionStatus.Exit:
+        if (data.ordStatus === OrderStatus.Filled) {
+            await gqlService.closePosition(symbol)
+        }
+        trade.growth = openPosition.direction === TradeDirection.Long
+            ? data.avgPrice / openPosition.entryPrice
+            : openPosition.entryPrice / data.avgPrice
+        trade.profit = data.avgPrice - openPosition.entryPrice
+        trade.profitPct = (trade.profit / openPosition.entryPrice) * 100
+        trade.amount = data.orderQty
+        trade.exitTime = data.time
+        trade.exitPrice = data.avgPrice
+        trade.stopPrice = data.stopPrice
+        trade.finalCapital = data.homeNotional
+    
+        await gqlService.updateTrading(trade)
+        break
+    default:
+        throw new Error('Unexpected state!')
+    }
+}
+
 export {
-    trading
+    trading,
+    executionTrading
 }

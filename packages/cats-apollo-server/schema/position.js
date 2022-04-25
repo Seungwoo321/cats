@@ -9,12 +9,13 @@ exports.types = gql`
     type Mutation {
         updatePosition(position: InputPosition): IPosition
         createPosition(symbol: String, position: InputPosition): IPosition
-        enterPosition(symbol: String, direction: TradeDirection, entryPrice: Float, tradingId: String): IPositionStatus
+        enterPosition(symbol: String, direction: TradeDirection, entryPrice: Float): IPositionStatus
         exitPosition(symbol: String): IPositionStatus
         closePosition(symbol: String): IPositionStatus
     }
 
     type IPosition {
+        positionId: String
         symbol: String
         direction: TradeDirection
         entryTime: Date
@@ -34,6 +35,7 @@ exports.types = gql`
     }
 
     input InputPosition {
+        positionId: String
         symbol: String
         direction: String
         entryTime: Date
@@ -90,8 +92,8 @@ exports.resolvers = {
                 await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', conditionalEntryPrice: null } })
         },
         /** positionStatus */
-        enterPosition: async (_, { symbol, direction = 'long', entryPrice, tradingId }, { dataSources }) => {
-            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice, tradingId } })
+        enterPosition: async (_, { symbol, direction = 'long', entryPrice }, { dataSources }) => {
+            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice } })
         },
         exitPosition: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Exit' } })

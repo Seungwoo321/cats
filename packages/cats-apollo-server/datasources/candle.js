@@ -19,6 +19,11 @@ class CandleAPI extends DataSource {
         const measurement = `${symbol}_${timeframe}`
         return this.store.fetchCandles('candles', measurement, symbol, { start, stop })
     }
+
+    async updateCandle ({ symbol, timeframe, bar }) {
+        const measurement = `${symbol}_${timeframe}`
+        return db.addData('candles', measurement, symbol, bar)
+    }
 }
 
 module.exports = CandleAPI

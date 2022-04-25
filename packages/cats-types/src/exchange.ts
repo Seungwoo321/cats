@@ -141,19 +141,20 @@ export type Position = {
 
 export interface ITrade {
     tradingId: string
-    orderId: string
     symbol: string
     direction: TradeDirection
     entryTime: Date
     entryPrice: number
-    exitTime?: Date
-    exitPrice?: number
+    growth?: number
     profit?: number
     profitPct?: number
-    exitReason?: string
-    qty: number
     holdingPeriod: number
-    stopPrice: number
+    amount?: number
+    exitTime?: Date
+    exitPrice?: number
+    exitReason?: string
+    stopPrice?: number
+    finalCapital?: number
 }
 
 export interface IOrder {

@@ -1,1 +1,1 @@
-export { trading as bitmex } from './bitmex'
+export * as bitmex from './bitmex'

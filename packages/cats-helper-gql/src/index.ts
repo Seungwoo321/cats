@@ -17,6 +17,19 @@ const GET_CANDLES: string = gql`
     }
 `
 
+const UPDATE_CANDLE: string = gql`
+    mutation UpdateCandle ($symbol: String, $timeframe: String, $bar: IBar){
+        updateCandle (bar: $bar) {
+            time
+            open
+            high
+            low
+            close
+            volume
+        }
+    }
+`
+
 const GET_POSITION_STATUS: string = gql`
     query PositionStatus ($symbol: String) {
         positionStatus (symbol: $symbol) {
@@ -32,6 +45,7 @@ const GET_POSITION_STATUS: string = gql`
 const GET_OPEN_POSITION: string = gql`
     query Position ($symbol: String) {
         openPosition (symbol: $symbol) {
+            positionId
             symbol
             direction
             entryTime
@@ -51,12 +65,12 @@ const GET_OPEN_POSITION: string = gql`
     }
 `
 const ENTER_POSITION: string = gql`
-    mutation EnterPosition ($symbol: String, $direction: TradeDirection, $entryPrice: Float $tradingId: String) {
-        enterPosition (symbol: $symbol, direction: $direction, entryPrice: $entryPrice, tradingId: $tradingId) {
+    mutation EnterPosition ($symbol: String, $direction: TradeDirection, $entryPrice: Float) {
+        enterPosition (symbol: $symbol, direction: $direction, entryPrice: $entryPrice) {
             symbol
             direction
             conditionalEntryPrice
-            tradingId
+            startingCapital
             value
         }
     }
@@ -280,9 +294,18 @@ export const service = {
      * @param timeframe The period of time
      * @returns returns an array of candles.
      */
-    async getCandles(symbol: string, timeframe: Timeframe): Promise<IBar[]> {
-        const { candles } = await request(GRAPHQL_URL, GET_CANDLES, { symbol, timeframe })
+    async getCandles(symbol: string, timeframe: Timeframe, start: number, stop: number): Promise<IBar[]> {
+        const { candles } = await request(GRAPHQL_URL, GET_CANDLES, { symbol, timeframe, start, stop })
         return candles
+    },
+    /**
+     * Insert stream candle
+     * @param bar
+     * @returns
+     */
+    async updateCandle(symbol: string, timeframe: Timeframe, bar: IBar): Promise<IBar> {
+        const { updateCandle } = await request(GRAPHQL_URL, UPDATE_CANDLE, { symbol, timeframe, bar })
+        return updateCandle
     },
     /**
      * Query position status
@@ -315,8 +338,8 @@ export const service = {
      * @param entryPrice The price when enter
      * @returns returns a open position when status is Enter
      */
-    async enterPosition(symbol: string, direction: TradeDirection, entryPrice: number, tradingId: string): Promise<IPosition> {
-        const { enterPosition } = await request(GRAPHQL_URL, ENTER_POSITION, { symbol, direction, entryPrice, tradingId })
+    async enterPosition(symbol: string, direction: TradeDirection, entryPrice: number): Promise<IPosition> {
+        const { enterPosition } = await request(GRAPHQL_URL, ENTER_POSITION, { symbol, direction, entryPrice })
         return enterPosition
     },
     /**
