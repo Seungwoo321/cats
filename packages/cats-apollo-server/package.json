@@ -21,6 +21,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@cats/helper-influx2": "^1.0.0",
     "apollo-server": "^3.6.4",
     "globby": "^11.0.2",
     "graphql": "^16.3.0",

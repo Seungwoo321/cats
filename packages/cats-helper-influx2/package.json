@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/Seungwoo321/cats/issues"
   },
-  "homepage": "https://github.com/Seungwoo321/cats#readme"
+  "homepage": "https://github.com/Seungwoo321/cats#readme",
+  "dependencies": {
+    "@influxdata/influxdb-client": "^1.24.0"
+  }
 }
