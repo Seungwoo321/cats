@@ -3,6 +3,7 @@ class CandleAPI extends DataSource {
     constructor (store) {
         super()
         this.store = store
+        this.bucketName = 'candle'
     }
 
     initialize (config) {
@@ -15,14 +16,16 @@ class CandleAPI extends DataSource {
      * @param {string} timeframe
      * @returns
      */
-    async getCandles ({ symbol, timeframe, start, stop }) {
+    async getCandles ({ exchange, mode, symbol, timeframe, start, stop }) {
+        const org = `${exchange}${mode === 'test' ? '.test': ''}`
         const measurement = `${symbol}_${timeframe}`
-        return this.store.fetchCandles('candles', measurement, symbol, { start, stop })
+        return this.store.fetchCandles(org, this.bucketName, measurement, symbol, { start, stop })
     }
 
     async updateCandle ({ symbol, timeframe, bar }) {
+        const org = `${exchange}${mode === 'test' ? '.test' : ''}`
         const measurement = `${symbol}_${timeframe}`
-        return db.addData('candles', measurement, symbol, bar)
+        return db.addCandleData(org, this.bucketName, measurement, symbol, bar)
     }
 }
 

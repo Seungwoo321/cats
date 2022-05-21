@@ -1,18 +1,19 @@
 import { sequelize, options, DataTypes } from '../util'
 
 export const OpenPosition = sequelize.define('OpenPosition', {
-    symbol: {
+    positionId: {
         type: DataTypes.STRING(50),
-        allowNull: false,
-        unique: true
+        primaryKey: true,
+        unique: true,
+        allowNull: false
     },
-    tradingId: {
-        type: DataTypes.STRING(50),
-        allowNull: false,
-        unique: true
-    },
+    // symbol: {
+    //     type: DataTypes.STRING(50),
+    //     unique: true,
+    //     allowNull: false
+    // },
     direction: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(5),
         allowNull: false
     },
     entryTime: {
@@ -24,7 +25,7 @@ export const OpenPosition = sequelize.define('OpenPosition', {
         allowNull: false
     },
     growth: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: true
     },
     profit: {

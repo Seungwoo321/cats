@@ -85,6 +85,6 @@ export interface IPositionStatus {
     symbol: string;
     direction: TradeDirection;
     conditionalEntryPrice: number | void;
-    tradingId: string;
+    starting_capital: number;
     value: PositionStatus;
 }

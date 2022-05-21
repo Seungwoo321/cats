@@ -9,7 +9,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Seungwoo321/cats.git"
+    "url": "git+https://github.com/Seungwoo321/cats.git",
+    "directory": "packages/cats-helper-trading"
   },
   "author": "Seungwoo321",
   "license": "MIT",

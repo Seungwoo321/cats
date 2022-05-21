@@ -21,6 +21,9 @@
     },
     {
       "path": "./packages/cats-helper-trading"
+    },
+    {
+      "path": "./packages/cats-shared-utils"
     }
   ]
 }

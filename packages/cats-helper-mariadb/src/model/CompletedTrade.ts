@@ -7,10 +7,10 @@ export const CompletedTrade = sequelize.define('CompletedTrade' ,{
         unique: true,
         allowNull: false,
     },
-    symbol: {
-        type: DataTypes.STRING(50),
-        allowNull: false
-    },
+    // symbol: {
+    //     type: DataTypes.STRING(50),
+    //     allowNull: false
+    // },
     direction: {
         type: DataTypes.STRING(5),
         allowNull: false
@@ -24,7 +24,7 @@ export const CompletedTrade = sequelize.define('CompletedTrade' ,{
         allowNull: false
     },
     growth: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: false
     },
     profit: {
@@ -32,7 +32,7 @@ export const CompletedTrade = sequelize.define('CompletedTrade' ,{
         allowNull: false
     },
     profitPct: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.DOUBLE,
         allowNull: false
     },
     holdingPeriod: {
@@ -59,7 +59,7 @@ export const CompletedTrade = sequelize.define('CompletedTrade' ,{
         type: DataTypes.FLOAT,
         allowNull: false
     },
-    final_capital: {
+    finalCapital: {
         type: DataTypes.FLOAT,
         allowNull: false
     }

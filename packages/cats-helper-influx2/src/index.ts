@@ -2,7 +2,7 @@
 import { IBar } from '@cats/types'
 import config from '@cats/config'
 
-const { EXCHANGE_ID, INFLUX2_URL, INFLUX2_TOKEN } = config
+const { INFLUX2_URL, INFLUX2_TOKEN } = config
 const { InfluxDB, Point, DEFAULT_WriteOptions } = require('@influxdata/influxdb-client')
 const { createOhlcvFlux, createOhlcvWithBbFlux, createOhlcvWithStochFlux } = require('./flux')
 const flushBatchSize = DEFAULT_WriteOptions.batchSize
@@ -18,19 +18,17 @@ const writeOptions = {
 
 class Influx2 {
     private client: any
-    private org: string
     private timestampsPoint: string
     private writeOptions: any
 
     constructor (options: any = {}) {
         this.client = new InfluxDB({ url: INFLUX2_URL, token: INFLUX2_TOKEN, timeout: 180 * 1000 })
-        this.org = EXCHANGE_ID
         this.timestampsPoint = 'ms'
         this.writeOptions = { ...writeOptions, ...options }
     }
 
-    async addData (bucket: string, measurement: string, symbol: string, item: IBar) {
-        const writeApi = this.client.getWriteApi(this.org, bucket, this.timestampsPoint, this.writeOptions)
+    async addCandleData (org: string, bucket: string, measurement: string, symbol: string, item: IBar) {
+        const writeApi = this.client.getWriteApi(org, bucket, this.timestampsPoint, this.writeOptions)
         const point = new Point(measurement)
             .tag('symbol', symbol)
             // .timestamp(new Date(item.timestamp))
@@ -52,8 +50,8 @@ class Influx2 {
         return point
     }
 
-    async importData (bucket: string, measurement: string, symbol: string, data: IBar[]): Promise<void> {
-        const writeApi = this.client.getWriteApi(this.org, bucket, this.timestampsPoint, this.writeOptions)
+    async importCandleData (org: string, bucket: string, measurement: string, symbol: string, data: IBar[]): Promise<void> {
+        const writeApi = this.client.getWriteApi(org, bucket, this.timestampsPoint, this.writeOptions)
         const points = data.map(item => {
             const point = new Point(measurement)
                 .tag('symbol', symbol)
@@ -75,10 +73,10 @@ class Influx2 {
         await writeApi.close()
     }
 
-    async fetchCandles (bucket: string, measurement: string, symbol: string, { start, stop }: { start: number, stop: number }): Promise<void> {
+    async fetchCandles (org: string, bucket: string, measurement: string, symbol: string, { start, stop }: { start: number, stop: number }): Promise<void> {
         const query = createOhlcvFlux(bucket, measurement, symbol, start, stop)
         return await this.client
-            .getQueryApi(this.org)
+            .getQueryApi(org)
             .collectRows(query, (row: any, tableMeta: any) => {
                 return {
                     symbol: row[tableMeta.column('symbol').index],
@@ -92,11 +90,11 @@ class Influx2 {
             })
     }
 
-    // not use
-    async fetchCandleWithBolingerBands (bucket: string, measurement: string, symbol: string, { start, stop, n, std } : { start: number, stop: number, n: number, std: number }): Promise<void> {
+    // Unused
+    async fetchCandleWithBolingerBands (org: string, bucket: string, measurement: string, symbol: string, { start, stop, n, std } : { start: number, stop: number, n: number, std: number }): Promise<void> {
         const query = createOhlcvWithBbFlux(bucket, measurement, symbol, start, stop, n, std)
         return await this.client
-            .getQueryApi(this.org)
+            .getQueryApi(org)
             .collectRows(query, (row: any, tableMeta: any) => {
                 return {
                     symbol: row[tableMeta.column('symbol').index],
@@ -113,11 +111,11 @@ class Influx2 {
             })
     }
 
-    // not use
-    async fetchCandleWithStochastic (bucket: string, measurement: string, symbol: string, { start, stop, n, m, t }: { start: number, stop: number, n: number, m: number, t: number }): Promise<void> {
+    // Unused
+    async fetchCandleWithStochastic (org: string, bucket: string, measurement: string, symbol: string, { start, stop, n, m, t }: { start: number, stop: number, n: number, m: number, t: number }): Promise<void> {
         const query = createOhlcvWithStochFlux(bucket, measurement, symbol, start, stop, n, m, t)
         return await this.client
-            .getQueryApi(this.org)
+            .getQueryApi(org)
             .collectRows(query, (row: any, tableMeta: any) => {
                 return {
                     symbol: row[tableMeta.column('symbol').index],

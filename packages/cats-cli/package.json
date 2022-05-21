@@ -1,0 +1,38 @@
+{
+  "name": "@cats/cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "cats": "bin/cats.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Seungwoo321/cats.git",
+    "directory": "packages/cats-cli"
+  },
+  "engines": {
+    "node": ">=16.14.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Seungwoo321/cats/issues"
+  },
+  "homepage": "https://github.com/Seungwoo321/cats#readme",
+  "dependencies": {
+    "bitmex-realtime-api": "^0.5.1",
+    "commander": "^9.2.0",
+    "fs-extra": "^10.1.0",
+    "inquirer": "^8.2.2",
+    "minimist": "^1.2.6"
+  },
+  "devDependencies": {
+    "@cats/shared-utils": "^1.0.0",
+    "pm2": "^5.2.0"
+  }
+}

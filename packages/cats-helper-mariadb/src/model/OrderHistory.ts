@@ -6,12 +6,12 @@ export const OrderHistory = sequelize.define('OrderHistory', {
         primaryKey: true,
         allowNull: false
     },
-    tradingId: {
-        type: DataTypes.STRING(50),
-        allowNull: false
-    },
+    // tradingId: {
+    //     type: DataTypes.STRING(50),
+    //     allowNull: false
+    // },
     symbol: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(50),
         allowNull: false
     },
     time: {

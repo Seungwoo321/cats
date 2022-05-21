@@ -10,7 +10,9 @@
     "pakcages/cats-helper-influx2",
     "packages/cats-helper-mariadb",
     "packages/cats-helper-strategy",
-    "packages/cats-helper-trading"
+    "packages/cats-helper-trading",
+    "packages/cats-cli",
+    "packages/cats-shared-utils"
   ],
   "scripts": {
     "test": "jest",
@@ -44,6 +46,6 @@
   "dependencies": {
     "@cats/helper-trading": "file:packages/cats-helper-trading",
     "ccxt": "^1.79.63",
-    "grademark": "^0.2.9"
+    "grademark": "^0.0.15"
   }
 }
