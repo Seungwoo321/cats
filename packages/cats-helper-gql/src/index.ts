@@ -5,8 +5,8 @@ import { gql, request } from 'graphql-request'
 const { GRAPHQL_URL } = config
 
 const GET_CANDLES: string = gql`
-    query Candles ($symbol: String, $timeframe: String, $start: Int, $stop: Int) {
-        candles (symbol: $symbol, timeframe: $timeframe, start: $start, stop: $stop) {
+    query Candles ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $start: Int, $stop: Int) {
+        candles (exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, start: $start, stop: $stop) {
             time
             open
             high
@@ -18,8 +18,8 @@ const GET_CANDLES: string = gql`
 `
 
 const UPDATE_CANDLE: string = gql`
-    mutation UpdateCandle ($symbol: String, $timeframe: String, $bar: IBar){
-        updateCandle (bar: $bar) {
+    mutation UpdateCandle ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $bar: IBar){
+        updateCandle (exchange: $exchange, mode: $mode, symbol: $symobl, timeframe: $timeframe, bar: $bar) {
             time
             open
             high
@@ -294,8 +294,8 @@ export const service = {
      * @param timeframe The period of time
      * @returns returns an array of candles.
      */
-    async getCandles(symbol: string, timeframe: Timeframe, start: number, stop: number): Promise<IBar[]> {
-        const { candles } = await request(GRAPHQL_URL, GET_CANDLES, { symbol, timeframe, start, stop })
+    async getCandles(exchange: string, mode: string, symbol: string, timeframe: Timeframe, start: number, stop: number): Promise<IBar[]> {
+        const { candles } = await request(GRAPHQL_URL, GET_CANDLES, { exchange, mode, symbol, timeframe, start, stop })
         return candles
     },
     /**
@@ -303,8 +303,8 @@ export const service = {
      * @param bar
      * @returns
      */
-    async updateCandle(symbol: string, timeframe: Timeframe, bar: IBar): Promise<IBar> {
-        const { updateCandle } = await request(GRAPHQL_URL, UPDATE_CANDLE, { symbol, timeframe, bar })
+    async updateCandle(exchange: string, mode: string, symbol: string, timeframe: Timeframe, bar: IBar): Promise<IBar> {
+        const { updateCandle } = await request(GRAPHQL_URL, UPDATE_CANDLE, { exchange, mode, symbol, timeframe, bar })
         return updateCandle
     },
     /**

@@ -18,12 +18,7 @@
     "test": "jest",
     "lint": "eslint **/*.ts",
     "lint:fix": "eslint **/*.ts --fix",
-    "build": "tsc --build tsconfig.build.json",
-    "collector:bitmex": "node script/collector.bitmex.js",
-    "bot:bitmex:development": "cross-env NODE_ENV=development node script/bot.bitmex.js",
-    "bot:bitmex:production": "cross-env NODE_ENV=production node script/bot.bitmex.js",
-    "dev:apollo": "nodemon apollo-server -w @cats/apollo-server",
-    "serve:apollo": "pm2 start apollo-server --name apollo-server"
+    "build": "tsc --build tsconfig.build.json"
   },
   "repository": {
     "type": "git",

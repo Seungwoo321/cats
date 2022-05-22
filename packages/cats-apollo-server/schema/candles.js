@@ -2,13 +2,20 @@ const gql = require('graphql-tag')
 
 exports.types = gql`
     type Query {
-        candles(symbol: String, timeframe: String, start: Int, stop: Int): [IBar]
+        candles(exchange: String, mode: String, symbol: String, timeframe: String, start: Int, stop: Int): [IBar]
     }
 
     type Mutation {
-        updateCandle(bar: IBar): IBar
+        updateCandle(exchange: String, mode: String, symbol: String, timeframe: String, bar: InputBar): IBar
     }
-
+    input InputBar {
+        time: Date!
+        open: Float!
+        high: Float!
+        low: Float!
+        close: Float!
+        volume: Float!
+    }
     type IBar {
         time: Date!
         open: Float!
@@ -21,13 +28,13 @@ exports.types = gql`
 
 exports.resolvers = {
     Query: {
-        candles: async (_, { symbol, timeframe = '1h', start, stop }, { dataSources }) => {
-            return await dataSources.candleAPI.getCandles({ symbol, timeframe, start, stop })
+        candles: async (_, { exchange, mode, symbol, timeframe = '1h', start, stop }, { dataSources }) => {
+            return await dataSources.candleAPI.getCandles({ exchange, mode, symbol, timeframe, start, stop })
         }
     },
     Mutation: {
-        updateCandle: async (_, { symbol, timeframe = '1h', bar }, { dataSources }) => {
-            return await dataSources.candleAPI.updateCandle({ symbol, timeframe, bar})
+        updateCandle: async (_, { exchange, mode, symbol, timeframe = '1h', bar }, { dataSources }) => {
+            return await dataSources.candleAPI.updateCandle({ exchange, mode, symbol, timeframe, bar})
         }
     }
 }

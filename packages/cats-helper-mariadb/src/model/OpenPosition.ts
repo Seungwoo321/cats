@@ -1,6 +1,6 @@
 import { sequelize, options, DataTypes } from '../util'
 
-export const OpenPosition = sequelize.define('OpenPosition', {
+export const OpenPosition = sequelize.define('open_position', {
     positionId: {
         type: DataTypes.STRING(50),
         primaryKey: true,

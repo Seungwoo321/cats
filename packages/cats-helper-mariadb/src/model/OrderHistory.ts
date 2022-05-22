@@ -1,6 +1,6 @@
 import { sequelize, options, DataTypes } from '../util'
 
-export const OrderHistory = sequelize.define('OrderHistory', {
+export const OrderHistory = sequelize.define('order_history', {
     orderId: {
         type: DataTypes.STRING(50),
         primaryKey: true,

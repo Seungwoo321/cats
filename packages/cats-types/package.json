@@ -18,9 +18,5 @@
   "bugs": {
     "url": "https://github.com/Seungwoo321/cats/issues"
   },
-  "homepage": "https://github.com/Seungwoo321/cats#readme",
-  "exports": {
-    ".": "./lib/index.js",
-    "./package.json": "./package.json"
-  }
+  "homepage": "https://github.com/Seungwoo321/cats#readme"
 }

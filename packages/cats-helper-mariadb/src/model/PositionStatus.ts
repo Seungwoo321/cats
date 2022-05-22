@@ -1,6 +1,6 @@
 import { sequelize, options, DataTypes } from '../util'
 
-export const PositionStatus = sequelize.define('PositionStatus', {
+export const PositionStatus = sequelize.define('position_status', {
     symbol: {
         type: DataTypes.STRING(50),
         allowNull: false,

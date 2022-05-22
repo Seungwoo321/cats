@@ -1,6 +1,6 @@
 import { sequelize, options, DataTypes } from '../util'
 
-export const CompletedTrade = sequelize.define('CompletedTrade' ,{
+export const CompletedTrade = sequelize.define('completed_trade' ,{
     tradingId: {
         type: DataTypes.STRING(50),
         primaryKey: true,
