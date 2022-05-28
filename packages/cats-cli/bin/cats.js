@@ -72,6 +72,21 @@ program
         require('../commands/run')(name, options)
     })
 
+program
+    .command('collector')
+    .option('--exchange <exchangeId>', 'exchange Name to collect data. eg. bitmex')
+    .option('--symbol <symbol>', 'currency symbol')
+    .option('--timeframe <timeframe>', 'trading cycle')
+    .option('--start <startDate>', 'data collection start date')
+    .option('--end <endDate>', 'data collection end date')
+    .option('--influxdb-token <token>', 'Token for access Influxdb (localhost:8086)')
+    .action((name, options) => {
+        if (minimist(process.argv.slice(3))._.length < 1) {
+            options = {}
+        }
+        require('../commands/collector')(name, options)
+    }) 
+
 // output help information on unknown commands
 program.on('command:*', ([cmd]) => {
     program.outputHelp()

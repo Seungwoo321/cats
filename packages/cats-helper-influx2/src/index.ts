@@ -2,7 +2,7 @@
 import { IBar } from '@cats/types'
 import config from '@cats/config'
 
-const { INFLUX2_URL, INFLUX2_TOKEN } = config
+const { INFLUX2_URL, INFLUX2_TOKEN } = config()
 const { InfluxDB, Point, DEFAULT_WriteOptions } = require('@influxdata/influxdb-client')
 const { createOhlcvFlux, createOhlcvWithBbFlux, createOhlcvWithStochFlux } = require('./flux')
 const flushBatchSize = DEFAULT_WriteOptions.batchSize
@@ -27,19 +27,19 @@ class Influx2 {
         this.writeOptions = { ...writeOptions, ...options }
     }
 
-    async addCandleData (org: string, bucket: string, measurement: string, symbol: string, item: IBar) {
+    async addCandle (org: string, bucket: string, measurement: string, symbol: string, bar: IBar) {
         const writeApi = this.client.getWriteApi(org, bucket, this.timestampsPoint, this.writeOptions)
         const point = new Point(measurement)
             .tag('symbol', symbol)
             // .timestamp(new Date(item.timestamp))
             // .floatField('price', item.price)
             // .floatField('volume', item.foreignNotional)
-            .timestamp(item.time)
-            .floatField('open', Number(item.open))
-            .floatField('high', Number(item.high))
-            .floatField('low', Number(item.low))
-            .floatField('close', Number(item.close))
-            .floatField('volume', Number(item.volume))
+            .timestamp(bar.time)
+            .floatField('open', Number(bar.open))
+            .floatField('high', Number(bar.high))
+            .floatField('low', Number(bar.low))
+            .floatField('close', Number(bar.close))
+            .floatField('volume', Number(bar.volume))
         writeApi.writePoint(point)
         try {
             await writeApi.flush()
@@ -50,7 +50,7 @@ class Influx2 {
         return point
     }
 
-    async importCandleData (org: string, bucket: string, measurement: string, symbol: string, data: IBar[]): Promise<void> {
+    async importCandles (org: string, bucket: string, measurement: string, symbol: string, data: IBar[]): Promise<void> {
         const writeApi = this.client.getWriteApi(org, bucket, this.timestampsPoint, this.writeOptions)
         const points = data.map(item => {
             const point = new Point(measurement)

@@ -41,6 +41,6 @@
   "dependencies": {
     "@cats/helper-trading": "file:packages/cats-helper-trading",
     "ccxt": "^1.79.63",
-    "grademark": "^0.0.15"
+    "grademark": "^0.2.9"
   }
 }

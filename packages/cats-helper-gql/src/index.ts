@@ -2,7 +2,7 @@ import config from '@cats/config'
 import { IBar, IPosition, IPositionStatus, TradeDirection, Timeframe, ITrade, IOrder } from '@cats/types'
 import { gql, request } from 'graphql-request'
 
-const { GRAPHQL_URL } = config
+const { GRAPHQL_URL } = config()
 
 const GET_CANDLES: string = gql`
     query Candles ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $start: Int, $stop: Int) {
@@ -18,7 +18,7 @@ const GET_CANDLES: string = gql`
 `
 
 const UPDATE_CANDLE: string = gql`
-    mutation UpdateCandle ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $bar: IBar){
+    mutation UpdateCandle ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $bar: InputBar) {
         updateCandle (exchange: $exchange, mode: $mode, symbol: $symobl, timeframe: $timeframe, bar: $bar) {
             time
             open
@@ -29,6 +29,19 @@ const UPDATE_CANDLE: string = gql`
         }
     }
 `
+
+const IMPORT_CANDLES: string = gql`
+    mutation ImportCandles ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $bars: [InputBar]) {
+        importCandles (exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, bars: $bars) {
+            time
+            open
+            high
+            low
+            close
+            volume
+        }
+    }
+ `
 
 const GET_POSITION_STATUS: string = gql`
     query PositionStatus ($symbol: String) {
@@ -306,6 +319,15 @@ export const service = {
     async updateCandle(exchange: string, mode: string, symbol: string, timeframe: Timeframe, bar: IBar): Promise<IBar> {
         const { updateCandle } = await request(GRAPHQL_URL, UPDATE_CANDLE, { exchange, mode, symbol, timeframe, bar })
         return updateCandle
+    },
+    /**
+     * 
+     * @param symbol 
+     * @returns 
+     */
+    async importCandles(exchange: string, mode: string, symbol: string, timeframe: Timeframe, bars: IBar[]): Promise<IBar> {
+        const { importCandles } = await request(GRAPHQL_URL, IMPORT_CANDLES, { exchange, mode, symbol, timeframe, bars })
+        return importCandles
     },
     /**
      * Query position status

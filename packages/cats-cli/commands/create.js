@@ -1,8 +1,9 @@
 const inquirer = require('inquirer')
 const { chalk } = require('@cats/shared-utils')
-const createPrompt = require('../util/createPrompt')
+const createPrompt = require('../util/prompt/create')
 const GeneratorAPI = require('../util/generator')
-const validationPrompt = require('../util/validationPrompt')
+const validationPrompt = require('../util/prompt/validationPrompt')
+
 async function create (name, options) {
     try {
         const generator = new GeneratorAPI()
@@ -15,11 +16,11 @@ async function create (name, options) {
         const promptOptions = await inquirer.prompt(createPrompt(options))
         const fullOptions = Object.assign({}, options, promptOptions)
 
-        if (fullOptions.testMode === 'test' && !validationPrompt.isEnableTestExchange(fullOptions.exchangeId)) {
+        if (fullOptions.testMode === 'test' && !validationPrompt.enableTestExchange(fullOptions.exchangeId)) {
             throw new Error(`${fullOptions.exchangeId} is not supported test mode`)
         }
 
-        if (validationPrompt.isSupportableExchange(fullOptions.exchangeId)) {
+        if (validationPrompt.supportableExchange(fullOptions.exchangeId)) {
             await generator.addConfig(name, fullOptions)
 
             console.log(`${chalk.green(`Successfully registered.`)}

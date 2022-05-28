@@ -1,5 +1,6 @@
 const { chalk } = require('@cats/shared-utils')
 const validationPrompt = require('./validationPrompt')
+
 module.exports = options => {
     const prompts = []
 
@@ -21,7 +22,7 @@ module.exports = options => {
         })
         prompts.push({
             name: 'exchangeMode',
-            when: answers => validationPrompt.isEnableTestExchange(answers.exchangeId),
+            when: answers => validationPrompt.enableTestExchange(answers.exchangeId),
             type: 'list',
             choices: [
                 {
@@ -37,14 +38,14 @@ module.exports = options => {
         })
         prompts.push({
             name: 'exchangeApiKey',
-            when: answers => validationPrompt.isSupportableExchange(answers.exchangeId),
+            when: answers => validationPrompt.supportableExchange(answers.exchangeId),
             type: 'input',
             message: 'Enter the exchange API KEY to be used by ccxt'
         })
 
         prompts.push({
             name: 'exchangeSecretKey',
-            when: answers => validationPrompt.isSupportableExchange(answers.exchangeId),
+            when: answers => validationPrompt.supportableExchange(answers.exchangeId),
             type: 'input',
             message: 'Enter the exchange SECRET KEY to be used by ccxt'
         })
@@ -54,8 +55,8 @@ module.exports = options => {
         prompts.push({
             type: 'list',
             name: 'symbol',
-            when: answers => validationPrompt.isSupportableExchange(answers.exchangeId),
-            message: 'Please select an symbol in Bitmex',
+            when: answers => validationPrompt.isExchangeBitmex(answers.exchangeId),
+            message: 'Please select an symbol',
             choices: [
                 {
                     name: 'BTC/USD:BTC',
@@ -86,7 +87,7 @@ module.exports = options => {
         prompts.push({
             type: 'list',
             name: 'timeframe',
-            when: answers => validationPrompt.isSupportableExchange(answers.exchangeId),
+            when: answers => validationPrompt.supportableExchange(answers.exchangeId),
             message: 'Please select a time unit',
             choices: [
                 {
@@ -123,7 +124,7 @@ module.exports = options => {
         prompts.push({
             type: 'list',
             name: 'strategy',
-            when: answers => validationPrompt.isSupportableExchange(answers.exchangeId),
+            when: answers => validationPrompt.supportableExchange(answers.exchangeId),
             message: 'Please select a strategy name',
             choices,
             default: 0

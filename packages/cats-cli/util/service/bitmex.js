@@ -1,6 +1,7 @@
 const { bitmex } = require('@cats/helper-trading')
 const gqlService = require('@cats/helper-gql')
-const { config } = require('@cats/config')
+const configuration = require('@cats/config')
+const config = configuration()
 const moment = require('moment')
 const BitMEXClient = require('bitmex-realtime-api')
 const dataForge = require('data-forge')
@@ -10,7 +11,6 @@ const strategyModule = require('@cats/helper-strategy')
 module.exports = async ({ symbol, timeframe, strategy }) => {
     // console.log(symbol, timeframe, strategyModule[strategy])
     // console.log(bitmex)
-    console.log(config)
     // process.exit(0)
     const client = new BitMEXClient({
         testnet: config.EXCHANGE_MODE === 'test',

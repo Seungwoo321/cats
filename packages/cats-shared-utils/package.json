@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "devDependencies": {
     "@types/semver": "^7.3.9"
   },
@@ -23,7 +24,7 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "data-forge": "^1.9.5",
-    "grademark": "^0.0.15",
+    "grademark": "^0.2.9",
     "semver": "^7.3.7"
   }
 }

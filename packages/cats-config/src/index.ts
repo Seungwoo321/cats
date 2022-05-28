@@ -5,9 +5,9 @@ const dotenv = require('dotenv')
 const mode = process.env.NODE_ENV
 const envPath = path.resolve(__dirname, '../../../', `.env${mode ? `.${mode}` : ''}`)
 
-function configuration () {
+function config () {
     if (!process.env.CATS_CLI_MODE) {
-        const logger = debug('cats:config')
+        const logger = debug('@cats/cli')
         try {
             dotenv.config({ path: envPath, debug: process.env.DEBUG })
             logger(`environment variable setting: ${envPath}`)
@@ -30,8 +30,6 @@ function configuration () {
     }
 
 }
-
-const config = configuration()
 
 export default config
 

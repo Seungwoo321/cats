@@ -29,7 +29,7 @@ module.exports = class Service {
     }
 
     loadEnv (mode) {
-        const logger = debug('cats:env')
+        const logger = debug('@cats/cli')
         const basePath = path.resolve(this.context, `.env${mode ? `.${mode}` : ``}`)
         const localPath = `${basePath}.local`
         const load = envPath => {

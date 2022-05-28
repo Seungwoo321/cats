@@ -7,7 +7,7 @@ const path = require('path')
 process.env.CATS_CLI_MODE = true
 
 async function run (name, options) {
-    const logger = debug('cats:run')
+    const logger = debug('@cats/cli:run')
 
     try {
         const generator = new GeneratorAPI()
@@ -33,10 +33,10 @@ async function run (name, options) {
         const service = new Service(projectDir, process.env.CATS_CLI_MODE)
 
         const isServe = await service.getApollo()
-        console.log(isServe)
+        // console.log(isServe)
         if (!isServe) {
-            console.log(isServe)
-            console.log(process.env)
+            // console.log(isServe)
+            // console.log(process.env)
         }
 
         // process.env.EXCHANGE_ID = config.env.EXCHANGE_ID
