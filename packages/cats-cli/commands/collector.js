@@ -1,10 +1,9 @@
 const inquirer = require('inquirer')
 const cliProgress = require('cli-progress')
-const { chalk } = require('@cats/shared-utils')
+const { chalk, debug } = require('@cats/shared-utils')
 const collectPrompt = require('../util/prompt/collect')
 const validationPrompt = require('../util/prompt/validationPrompt')
-const debug = require('debug')
-
+const logger = debug('cats:collector')
 inquirer.registerPrompt('datepicker', require('inquirer-datepicker'))
 
 process.env.CATS_CLI_MODE = true
@@ -13,7 +12,7 @@ async function collect (name, options) {
     try {
         const promptOptions = await inquirer.prompt(collectPrompt(options))
         const fullOptions = Object.assign({}, options, promptOptions)
-
+        logger(JSON.stringify(fullOptions))
         if (fullOptions.exchangeMode === 'test' && !validationPrompt.enableTestExchange(fullOptions.exchangeId)) {
             throw new Error(`${fullOptions.exchangeId} is not supported test mode`)
         }
@@ -21,9 +20,9 @@ async function collect (name, options) {
         process.env.EXCHANGE_ID = fullOptions.exchangeId
         process.env.INFLUX2_TOKEN = fullOptions.token || 'cats'
 
+
         if (validationPrompt.supportableExchange(fullOptions.exchangeId)) {
-            const logger = debug('@cats/cli')
-            logger(fullOptions)
+
             const CollectorAPI = require('../util/collector')
             const api = new CollectorAPI({
                 exchangeId: fullOptions.exchangeId,
