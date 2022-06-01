@@ -1,7 +1,7 @@
 const { chalk } = require('@cats/shared-utils')
 const GeneratorAPI = require('../util/generator')
 
-async function list(options) {
+async function list(name, options) {
     try {
         let logData = []
         const generator = new GeneratorAPI()
@@ -13,7 +13,7 @@ async function list(options) {
                 logData = logData.concat(allConfig.map(generator.formatter))
             }
         } else {
-            const config = generator.getConfig(options.name)
+            const config = generator.getConfig(name)
             logData = logData.concat([config].map(generator.formatter))
         }
 

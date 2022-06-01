@@ -23,9 +23,7 @@ async function create (name, options) {
         if (validationPrompt.supportableExchange(fullOptions.exchangeId)) {
             await generator.addConfig(name, fullOptions)
 
-            console.log(`${chalk.green(`Successfully registered.`)}
-                run command: ${chalk.blue(`cats list ${name}`)}`)
-        }
+            console.log(`${chalk.green(`Successfully registered.`)} \nrun command: ${chalk.blue(`cats list ${name}`)}`)}
 
     } catch (error) {
         throw error

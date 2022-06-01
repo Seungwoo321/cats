@@ -2,7 +2,7 @@ const inquirer = require('inquirer')
 const { chalk } = require('@cats/shared-utils')
 const GeneratorAPI = require('../util/generator')
 
-async function list(options) {
+async function list(name, options) {
     try {
 
         const generator = new GeneratorAPI()
@@ -20,14 +20,14 @@ async function list(options) {
             if (ok) {
                 await generator.resetConfig()
             }
-        } else if (options.name) {
-            await generator.removeConfig(options.name)
+        } else if (name) {
+            await generator.removeConfig(name)
         } else {
             throw new Error('Check out the remove options')
         }
-        console.log(`
-            ${chalk.green(`Successfully ${options.all ? 'all' : ''} removed.`)}
-        `)
+
+        console.log(`${chalk.green(`Successfully${options.all ? ' all' : ''} removed.`)}`)
+
     } catch (error) {
         throw error
     }
