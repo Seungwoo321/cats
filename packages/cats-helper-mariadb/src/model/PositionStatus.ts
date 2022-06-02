@@ -15,12 +15,12 @@ export const PositionStatus = sequelize.define('position_status', {
         type: DataTypes.FLOAT,
         allowNull: true
     },
-    starting_capital: {
+    startingCapital: {
         type: DataTypes.FLOAT,
         allowNull: false
     },
     value: {
-        type: DataTypes.STRING(5),
+        type: DataTypes.STRING(10),
         allowNull: false,
         defaultValue: 'None'
     }

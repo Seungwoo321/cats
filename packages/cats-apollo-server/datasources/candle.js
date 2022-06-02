@@ -27,7 +27,7 @@ class CandleAPI extends DataSource {
     async updateCandle ({ exchange, mode, symbol, timeframe, bar }) {
         const bucketName = `${exchange}${mode === this.USE_TEST_NET ? `.${this.USE_TEST_NET}` : ''}`
         const measurement = `${symbol}_${timeframe}`
-        return this.store.addCandle(this.org, bucketName, measurement, symbol, bar)
+        return this.store.updateCandle(this.org, bucketName, measurement, symbol, bar)
     }
 
     async importCandles ({ exchange, mode, symbol, timeframe, bars }) {

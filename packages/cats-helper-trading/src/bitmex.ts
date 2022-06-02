@@ -7,6 +7,9 @@ import { Market } from 'ccxt'
 import { assert } from 'chai'
 import { v4 as uuidv4 } from 'uuid'
 
+const { debug } = require('@cats/shared-utils')
+const logger = debug('trading:bitmex')
+
 /**
  * Update an open position for a new bar.
  *
@@ -83,26 +86,35 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         isOpen: false,
         currentQty: '0'
     }
+    const capital = positionStatus.startingCapital
     /**
      *
      * @param openPosition
      * @param symbol
      */
-    async function createPosition (openPosition: IPosition, symbol: string) {
+    async function createPosition(openPosition: IPosition, symbol: string) {
         const market: Market = markets[symbol]
-        const balance = await exchange.fetchBalance()
-        let availableMargin: number = balance.BTC.total * 100000000 * (1 - +market.info.initMargin - +market.info.maintMargin)
+        logger('capital: ' + capital)
+        // const balance = await exchange.fetchBalance()
+        // let availableMargin: number = balance.BTC.total * 100000000 * (1 - +market.info.initMargin - +market.info.maintMargin)
+        let availableMargin: number = capital / 100000000 * (1 - +market.info.initMargin - +market.info.maintMargin)
         if (market.maker) {
             availableMargin += market?.maker
         }
-        const amount: number = availableMargin / market.info.multiplier / openPosition.entryPrice * market.info.lotSize
+        const amount: number = symbol === 'BTC/USD:BTC'
+            ? availableMargin * openPosition.entryPrice
+            : availableMargin / market.info.multiplier / openPosition.entryPrice * market.info.lotSize
         const formattedAmount: number = parseFloat(exchange.amountToPrecision(symbol, amount))
         openPosition.amount = formattedAmount
+
         const formattedPrice: number = parseFloat(exchange.priceToPrecision(symbol, openPosition.entryPrice))
         // cancle all orders
-        await exchange.cancelAllOrders(symbol)
+        const cancle = await exchange.cancelAllOrders(symbol)
+        logger(cancle)
+        logger('formattedAmount: ' + formattedAmount)
+        logger('formattedPrice: ' + formattedPrice)
         // create new order
-        await exchange.createOrder(
+        const order = await exchange.createOrder(
             symbol,
             'limit',
             openPosition.direction === TradeDirection.Long ? 'buy' : 'sell',
@@ -113,10 +125,10 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 text: 'entry-rule'
             }
         )
-
+        logger(order)
         // if initial stop price then add stop order
         if (openPosition.initialStopPrice) {
-            await exchange.createOrder(
+            const order = await exchange.createOrder(
                 symbol,
                 'stop',
                 openPosition.direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -128,11 +140,12 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                     execInst: 'LastPrice,Close'
                 }
             )
+            logger(order)
         }
 
         // if trailing stop loss then add trailing stop order
         if (strategy.trailingStopLoss && openPosition.curStopPrice !== undefined && openPosition.initialStopPrice !== openPosition.curStopPrice) {
-            await exchange.createOrder(
+            const order = await exchange.createOrder(
                 symbol,
                 'stopLimit',
                 openPosition.direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -146,6 +159,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
                 }
             )
+            logger(order)
         }
     }
     /**
@@ -372,6 +386,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     default:
         throw new Error('Unexpected state!')
     }
+    console.log('end trading')
 }
 
 async function executionTrading(
@@ -381,7 +396,6 @@ async function executionTrading(
     const positionStatus = await gqlService.getPositionStatus(symbol)
     const positionDirection = positionStatus.direction
     let openPosition = await gqlService.getOpenPosition(symbol)
-    console.log(openPosition)
     if (openPosition === null) {
         openPosition = {
             positionId: uuidv4(),
@@ -399,8 +413,7 @@ async function executionTrading(
 
     const order = {
         ...data,
-        tradingId: openPosition.positionId,
-        symbol
+        tradingId: openPosition.positionId
     } as IOrder
     await gqlService.updateOrder(order)
 
@@ -441,10 +454,12 @@ async function executionTrading(
         trade.finalCapital = data.homeNotional
     
         await gqlService.updateTrading(trade)
+        await gqlService.updatePositionCapital(symbol, data.homeNotional)
         break
     default:
         throw new Error('Unexpected state!')
     }
+    console.log('end executionTrading')
 }
 
 export {

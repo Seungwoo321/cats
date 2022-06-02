@@ -11,6 +11,7 @@ exports.types = gql`
         createPosition(symbol: String, position: InputPosition): IPosition
         enterPosition(symbol: String, direction: TradeDirection, entryPrice: Float): IPositionStatus
         exitPosition(symbol: String): IPositionStatus
+        updatePositionCapital(symbol: String, capital: Float): IPositionStatus
         closePosition(symbol: String): IPositionStatus
     }
 
@@ -58,7 +59,7 @@ exports.types = gql`
         symbol: String
         direction(direction: TradeDirection): String
         conditionalEntryPrice: Float
-        tradingId: String
+        startingCapital: Float
         value(status: Status): String
     }
 
@@ -97,6 +98,9 @@ exports.resolvers = {
         },
         exitPosition: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Exit' } })
+        },
+        updatePositionCapital: async (_, { symbol, capital }, { dataSources }) => {
+            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, startingCapital: capital }})
         },
         /** openPosition */
         updatePosition: async (_, { position }, { dataSources }) => {

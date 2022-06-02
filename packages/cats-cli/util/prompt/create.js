@@ -3,7 +3,6 @@ const validationPrompt = require('./validationPrompt')
 
 module.exports = options => {
     const prompts = []
-
     if (!options.exchangeId || !options.exchangeApiKey || !options.exchangeSecretKey) {
         prompts.push({
             name: 'exchangeId',

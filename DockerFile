@@ -1,0 +1,36 @@
+# base image
+FROM ubunut:21.10
+
+# install package
+RUN apt update && apt -y install vim sodo wget gpg lsb-release git
+
+# Install mariadb 10.x
+RUN apt -y install mariadb-server
+
+# Install Influxdb 2.x
+RUN wget -qO- https://repos.influxdata.com/influxdb.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/influxdb.gpg > /dev/null && \
+    export DISTRIB_ID=$(lsb_release -si); export DISTRIB_CODENAME=$(lsb_release -sc) && \
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/influxdb.gpg] https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list > /dev/null
+
+# Install node.js 
+RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
+    source ~/.bashrc && \
+    nvm install 16 && \
+    nvm use 16
+
+# Start database service
+RUN service mariadb restart && \
+    service influxdb start && 
+
+# Clone code
+RUN mkdir /home/cats
+
+WORKDIR /home/cats
+
+VOLUME /home/cats
+
+COPY . /home/cats/
+
+CMD 
+
+EXPOSE 3306 8086 3000

@@ -27,7 +27,8 @@ class Influx2 {
         this.writeOptions = { ...writeOptions, ...options }
     }
 
-    async addCandle (org: string, bucket: string, measurement: string, symbol: string, bar: IBar) {
+    async updateCandle (org: string, bucket: string, measurement: string, symbol: string, bar: IBar) {
+        console.log(org)
         const writeApi = this.client.getWriteApi(org, bucket, this.timestampsPoint, this.writeOptions)
         const point = new Point(measurement)
             .tag('symbol', symbol)
@@ -47,7 +48,10 @@ class Influx2 {
             console.error(e)
         }
         await writeApi.close()
-        return point
+        return {
+            time: point.time,
+            ...point.fields
+        }
     }
 
     async importCandles (org: string, bucket: string, measurement: string, symbol: string, data: IBar[]): Promise<void> {

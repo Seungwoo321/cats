@@ -94,6 +94,7 @@ exports.types = gql`
         PartiallyFilled
         Filled
         Canceled
+        Rejected
     }
 `
 

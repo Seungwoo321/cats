@@ -19,7 +19,7 @@ const GET_CANDLES: string = gql`
 
 const UPDATE_CANDLE: string = gql`
     mutation UpdateCandle ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $bar: InputBar) {
-        updateCandle (exchange: $exchange, mode: $mode, symbol: $symobl, timeframe: $timeframe, bar: $bar) {
+        updateCandle (exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, bar: $bar) {
             time
             open
             high
@@ -49,7 +49,19 @@ const GET_POSITION_STATUS: string = gql`
             symbol
             direction
             conditionalEntryPrice
-            tradingId
+            startingCapital
+            value
+        }
+    }
+`
+
+const UPDATE_POSITION_CAPITAL: string = gql`
+    mutation UpdatePositionCapital ($symbol: String, $capital: Float) {
+        updatePositionCapital (symbol: $symbol, capital: $capital) {
+            symbol
+            direction
+            conditionalEntryPrice
+            startingCapital
             value
         }
     }
@@ -70,10 +82,6 @@ const GET_OPEN_POSITION: string = gql`
             initialStopPrice
             curStopPrice
             profitTarget
-            initialUnitRisk
-            initialRiskPct
-            curRiskPct
-            curRMultiple
         }
     }
 `
@@ -91,6 +99,7 @@ const ENTER_POSITION: string = gql`
 const CREATE_POSITION: string = gql`
     mutation CreatePosition ($symbol: String $position: InputPosition) {
         createPosition (symbol: $symbol, position: $position) {
+            positionId
             symbol
             direction
             entryTime
@@ -102,10 +111,6 @@ const CREATE_POSITION: string = gql`
             initialStopPrice
             curStopPrice
             profitTarget
-            initialUnitRisk
-            initialRiskPct
-            curRiskPct
-            curRMultiple
         }
     }
 `
@@ -115,7 +120,7 @@ const EXIT_POSITION: string = gql`
             symbol
             direction
             conditionalEntryPrice
-            tradingId
+            startingCapital
             value
         }
     }   
@@ -126,7 +131,7 @@ const CLOSE_POSITION: string = gql`
             symbol
             direction
             conditionalEntryPrice
-            tradingId
+            startingCapital
             value
         }
     }
@@ -134,6 +139,7 @@ const CLOSE_POSITION: string = gql`
 const UPDATE_POSITION: string = gql`
     mutation UpdatePosition ($position: InputPosition) {
         updatePosition (position: $position) {
+            positionId
             symbol
             direction
             entryTime
@@ -145,10 +151,6 @@ const UPDATE_POSITION: string = gql`
             initialStopPrice
             curStopPrice
             profitTarget
-            initialUnitRisk
-            initialRiskPct
-            curRiskPct
-            curRMultiple
         }
     }
 `
@@ -164,13 +166,16 @@ const GET_COMPLETED_TRADES: string = gql`
             direction
             entryTime
             entryPrice
-            exitTime
-            exitPrice
+            growth
             profit
             profitPct
             holdingPeriod
+            amount
+            exitTime
+            exitPrice
             exitReason
-            qty
+            stopPrice
+            finalCapital
         }
     }
 `
@@ -178,18 +183,20 @@ const GET_COMPLETED_TRADING: string = gql`
     query CompletedTrading ($tradingId: String) {
         completedTrading (tradingId: $tradingId) {
             tradingId
-            orderId
             symbol
             direction
             entryTime
             entryPrice
-            exitTime
-            exitPrice
+            growth
             profit
             profitPct
             holdingPeriod
+            amount
+            exitTime
+            exitPrice
             exitReason
-            qty
+            stopPrice
+            finalCapital
         }
     }
 `
@@ -197,19 +204,20 @@ const UPDATE_COMPLETED_TRADING: string = gql`
     mutation UpdateTrading ($trade: InputTrade) {
         updateTrading (trade: $trade) {
             tradingId
-            orderId
             symbol
             direction
             entryTime
             entryPrice
-            exitTime
-            exitPrice
+            growth
             profit
             profitPct
             holdingPeriod
+            amount
+            exitTime
+            exitPrice
             exitReason
             stopPrice
-            qty
+            finalCapital
         }
     }
 `
@@ -217,19 +225,20 @@ const REMOVE_COMPLETED_TRADING: string = gql`
     mutation RemoveTrading ($tradingId: string) {
         removeTrading (tradingId: $tradingId) {
             tradingId
-            orderId
             symbol
             direction
             entryTime
             entryPrice
-            exitTime
-            exitPrice
+            growth
             profit
             profitPct
             holdingPeriod
+            amount
+            exitTime
+            exitPrice
             exitReason
             stopPrice
-            qty
+            finalCapital
         }
     }
 `
@@ -239,7 +248,10 @@ const REMOVE_COMPLETED_TRADING: string = gql`
 const GET_ORDER_BY_SYMBOL: string = gql`
     query OrderSymbol ($symbol: String) {
         orderSymbol (symbol: $symbol) {
+            orderId
+            tradingId
             symbol
+            time
             lastQty
             orderQty
             leavesQty
@@ -252,15 +264,17 @@ const GET_ORDER_BY_SYMBOL: string = gql`
             ordStatus
             currency
             homeNotional
-            time
-            tradingId
+            text
         }
     }
 `
 const GET_ORDER_BY_TRADING: string = gql`
     query OrderTrading ($tradingId: String) {
         orderTrading (tradingId: $tradingId) {
+            orderId
+            tradingId
             symbol
+            time
             lastQty
             orderQty
             leavesQty
@@ -273,15 +287,17 @@ const GET_ORDER_BY_TRADING: string = gql`
             ordStatus
             currency
             homeNotional
-            time
-            tradingId
+            text
         }
     }
 `
 const UPDATE_ORDER: string = gql`
     mutation UpdateOrder ($order: InputOrder) {
         updateOrder (order: $order) {
+            orderId
+            tradingId
             symbol
+            time
             lastQty
             orderQty
             leavesQty
@@ -294,8 +310,7 @@ const UPDATE_ORDER: string = gql`
             ordStatus
             currency
             homeNotional
-            time
-            tradingId
+            text
         }
     }
 `
@@ -340,6 +355,15 @@ export const service = {
             positionStatus.conditionalEntryPrice = undefined
         }
         return positionStatus
+    },
+    /**
+     * Update position status
+     * @param positionStatus 
+     * @returns 
+     */
+    async updatePositionCapital(symbol: string, capital: number): Promise<IPositionStatus> {
+        const { updatePositionCapital } = await request(GRAPHQL_URL, UPDATE_POSITION_CAPITAL, { symbol, capital })
+        return updatePositionCapital
     },
     /**
      * Query open position

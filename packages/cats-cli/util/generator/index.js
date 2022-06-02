@@ -32,6 +32,9 @@ module.exports = class GeneratorAPI {
     existsName (name) {
         return this._config.apps.some(app => app.name === name)
     }
+    getConfigPath () {
+        return this.configPath
+    }
 
     getConfig (name) {
         if (!this.existsName(name)) {
@@ -49,6 +52,7 @@ module.exports = class GeneratorAPI {
             strategy: argvs.strategy,
             timeframe: argvs.timeframe,
             exchange: env.EXCHANGE_ID,
+            exchangeMode: env.EXCHANGE_MODE,
             api_key: env.EXCHANGE_API_KEY,
             secret_key: env.EXCHANGE_SECRET_KEY
         }

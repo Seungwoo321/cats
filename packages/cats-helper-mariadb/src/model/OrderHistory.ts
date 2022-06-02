@@ -34,7 +34,7 @@ export const OrderHistory = sequelize.define('order_history', {
         type: DataTypes.FLOAT,
         allowNull: true
     },
-    ordPrice: {
+    price: {
         type: DataTypes.FLOAT,
         allowNull: true
     },

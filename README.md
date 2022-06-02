@@ -2,9 +2,70 @@
 
 Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/Grademark/grademark/blob/master/src/lib/backtest.ts)
 
-<img src="./images/01.png">
-
 > Still in development. **Only BitMEX exchanges are supported.**
+
+## Cats Cli
+
+Manage json configuration file to manage bot application as `pm2` service
+
+### cats create
+
+```bash
+Usage: cats create [options] <bot-name>
+
+Configure variables to run the bot application.
+
+Options:
+  --symbol <symbol>                          currency symbol to apply automatic trading
+  --strategy <strategy>                      trading strategy e.g ...
+  --timeframe <timeframe>                    trading cycle. e.g 30m,1h,4h,1d
+  --exchange-id <exchangeId>                 ccxt for EXCHANGE_ID - https://docs.ccxt.com/en/latest/manual.html#instantiation
+  --exchange-access-key <exchangeAccessKey>  ccxt for EXCHANGE_ACCESS_KEY - https://docs.ccxt.com/en/latest/manual.html#instantiation
+  --exchagne-secret-key <exhcnageSecretKey   ccxt for EXCHANGE_SECRET_KEY - https://docs.ccxt.com/en/latest/manual.html#instantiation
+  --exchange-mode <exchangeMode>             ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments
+  -h, --help                                 display help for command
+
+  Missing required argument <bot-name>.
+```
+
+### cats list
+
+```bash
+Usage: cats list [options] [bot-name]
+
+list configured bot.
+
+Options:
+  -h, --help  display help for command
+```
+
+### Delete
+
+```bash
+Usage: cats delete [options] [bot-name]
+
+delete the bot application configured or all
+
+Options:
+  -h, --help  display help for command
+```
+
+### usage
+
+```bash
+cats create cats-btc \
+    --symbol BTC/USD:BTC \
+    --strategy a \
+    --timeframe 1d \
+    --exchange-id bitmex
+    --exchange-access-key <exchangeAccessKey> \
+    --exchagne-secret-key <exhcnageSecretKey \
+    --exchange-mode production 
+
+cats list cats-btc
+
+cats delete cats-btc
+```
 
 ## Prerequirements
 
