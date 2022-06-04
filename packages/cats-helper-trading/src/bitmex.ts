@@ -125,7 +125,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 text: 'entry-rule'
             }
         )
-        logger(order)
+        logger(order.datetime, order.id)
         // if initial stop price then add stop order
         if (openPosition.initialStopPrice) {
             const order = await exchange.createOrder(
@@ -140,7 +140,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                     execInst: 'LastPrice,Close'
                 }
             )
-            logger(order)
+            logger(order.datetime, order.id)
         }
 
         // if trailing stop loss then add trailing stop order
@@ -159,7 +159,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
                 }
             )
-            logger(order)
+            logger(order.datetime, order.id)
         }
     }
     /**
@@ -192,7 +192,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     async function enterPosition (options?: IEnterPositionOptions) {
         assert(positionStatus.value === PositionStatus.None, 'Can only enter a position when not already in one.')
         if (options?.symbol && options?.direction && options?.entryPrice) {
-            await gqlService.enterPosition(symbol, options.direction, options.entryPrice)
+            await gqlService.updatePositionStatusEnter(symbol, options.direction, options.entryPrice)
         }
     }
     /**
@@ -202,7 +202,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      */
     async function exitPosition (symbol: string) {
         assert(positionStatus.value === PositionStatus.Position, 'Can only exit a position when we are in a position.')
-        return await gqlService.exitPosition(symbol)
+        return await gqlService.updatePositionStatusExit(symbol)
     }
 
     switch (positionStatus.value) {
@@ -224,12 +224,14 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 if (bar.high < positionStatus.conditionalEntryPrice) {
                     await exchange.cancelAllOrders(symbol)
                     await gqlService.closePosition(symbol)
+                    await gqlService.updatePositionStatusNone(symbol)
                     break
                 }
             } else {
                 if (bar.low > positionStatus.conditionalEntryPrice) {
                     await exchange.cancelAllOrders(symbol)
                     await gqlService.closePosition(symbol)
+                    await gqlService.updatePositionStatusNone(symbol)
                     break
                 }
             }
@@ -304,6 +306,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         if (!currentPosition.isOpen) {
             await exchange.cancelAllOrders(symbol)
             await gqlService.closePosition(symbol)
+            await gqlService.updatePositionStatusNone(symbol)
             break
         }
 
@@ -380,13 +383,14 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             await closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
         } else {
             await gqlService.closePosition(symbol)
+            await gqlService.updatePositionStatusNone(symbol)
         }
         break
 
     default:
-        throw new Error('Unexpected state!')
+        throw new Error('Unexpected state! from trading')
     }
-    console.log('end trading')
+    logger('End trading')
 }
 
 async function executionTrading(
@@ -425,23 +429,7 @@ async function executionTrading(
         entryPrice: openPosition.entryPrice,
         holdingPeriod: openPosition.holdingPeriod,
     } as ITrade
-
-    switch (positionStatus.value) {
-    case PositionStatus.Enter:
-
-        if (
-            data.ordStatus === OrderStatus.Filled || 
-            data.ordStatus === OrderStatus.PartiallyFilled
-        ) {
-            await gqlService.createPosition(symbol, openPosition)
-        }
-
-        break
-
-    case PositionStatus.Exit:
-        if (data.ordStatus === OrderStatus.Filled) {
-            await gqlService.closePosition(symbol)
-        }
+    const updateCompletedTrading = async (trade: ITrade, data: IOrder, openPosition: IPosition) => {
         trade.growth = openPosition.direction === TradeDirection.Long
             ? data.avgPrice / openPosition.entryPrice
             : openPosition.entryPrice / data.avgPrice
@@ -450,16 +438,53 @@ async function executionTrading(
         trade.amount = data.orderQty
         trade.exitTime = data.time
         trade.exitPrice = data.avgPrice
+        trade.exitReason = data.text
         trade.stopPrice = data.stopPrice
-        trade.finalCapital = data.homeNotional
-    
+        console.log(data)
+        trade.finalCapital = openPosition.direction === TradeDirection.Long
+            ? data.homeNotional * -100000000
+            : data.homeNotional * 100000000
+
         await gqlService.updateTrading(trade)
-        await gqlService.updatePositionCapital(symbol, data.homeNotional)
+        await gqlService.updatePositionCapital(symbol, trade.finalCapital)
+    }
+    switch (positionStatus.value) {
+    case PositionStatus.Enter:
+        if (data.ordStatus === OrderStatus.PartiallyFilled) {
+            logger(`${positionStatus.value}: updatePosition when OrderStatus is partially filled.`)
+            await gqlService.updatePosition(openPosition)
+        }
+        if (data.ordStatus === OrderStatus.Filled) {
+            logger(`${positionStatus.value}: updatePosition when OrderStatus is filled.`)
+            await gqlService.updatePosition(openPosition)
+            await gqlService.updatePositionStatusPosition(symbol)
+        }
+
+        break
+    case PositionStatus.Position:
+            if (data.ordStatus === OrderStatus.PartiallyFilled) {
+                logger(`${positionStatus.value}: updatePosition when OrderStatus is partially filled.`)
+                await gqlService.updatePosition(openPosition)
+            }
+            if (data.ordStatus === OrderStatus.Filled) {
+                logger(`${positionStatus.value}: closePosition when OrderStatus is filled.`)
+                await gqlService.closePosition(symbol)
+                await gqlService.updatePositionStatusNone(symbol)
+                updateCompletedTrading(trade, data, openPosition)
+            }
+        break
+    case PositionStatus.Exit:
+        if (data.ordStatus === OrderStatus.Filled) {
+            logger(`${positionStatus.value}: closePosition when OrderStatus is filled.`)
+            await gqlService.closePosition(symbol)
+            await gqlService.updatePositionStatusNone(symbol)
+            updateCompletedTrading(trade, data, openPosition)
+        }
         break
     default:
-        throw new Error('Unexpected state!')
+        logger(`Unexpected state: ${positionStatus.value}! from executionTrading`)
     }
-    console.log('end executionTrading')
+    logger('End executionTrading')
 }
 
 export {

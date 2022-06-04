@@ -1,5 +1,5 @@
 const { DataSource } = require('apollo-datasource')
-
+const { PositionStatus } = require('@cats/helper-mariadb')
 class OpenPosition extends DataSource {
     constructor (store) {
         super()
@@ -16,8 +16,16 @@ class OpenPosition extends DataSource {
                 symbol: position.symbol
             },
             defaults: position
+        }, {
+            association: [
+                {
+                    association: PositionStatus.symbol
+                }
+            ]
         })
-        return res && res.length ? res[0].get() : false
+        if (res && res.length && res[0] === 1) {
+            return this.getPosition({ symbol: position.symbol })
+        }
     }
 
     async getPositions ({ symbols }) {
@@ -37,7 +45,7 @@ class OpenPosition extends DataSource {
     }
 
     async updatePosition ({ values }) {
-        const res = await this.store.update(values, {
+        const res = await this.store.upsert(values, {
             where: { symbol: values.symbol }
         })
         if (res && res.length && res[0] === 1) {
@@ -46,7 +54,10 @@ class OpenPosition extends DataSource {
     }
 
     async closePostion ({ symbol }) {
-        return await this.store.destroy({ where: { symbol } })
+        const res = await this.store.destroy({ where: { symbol } })
+        if (res > 0) {
+            return this.getPosition({ symbol })
+        }
     }
 }
 

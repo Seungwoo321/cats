@@ -21,15 +21,16 @@ exports.types = gql`
         direction: TradeDirection
         entryTime: Date
         entryPrice: Float
-        exitTime: Date
-        exitPrice: Float
+        growth: Float
         profit: Float
         profitPct: Float
-        exitReason: String
-        qty: Float
         holdingPeriod: Int
+        amount: Float
+        exitTime: Date
+        exitPrice: Float
+        exitReason: String
         stopPrice: Float
-        orderId: String
+        finalCapital: Float
     }
 
     type IOrder {
@@ -58,15 +59,16 @@ exports.types = gql`
         direction: TradeDirection
         entryTime: Date
         entryPrice: Float
-        exitTime: Date
-        exitPrice: Float
+        growth: Float
         profit: Float
         profitPct: Float
-        exitReason: String
-        qty: Float
         holdingPeriod: Int
+        amount: Float
+        exitTime: Date
+        exitPrice: Float
+        exitReason: String
         stopPrice: Float
-        orderId: String
+        finalCapital: Float
     }
 
     input InputOrder {

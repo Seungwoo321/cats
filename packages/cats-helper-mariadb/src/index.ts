@@ -10,7 +10,7 @@ import { sequelize } from './util'
         foreignKey: 'symbol'
     })
     CompletedTrade.belongsTo(PositionStatus)
-
+    
     /** PositionStatus (1) : OpenPosition (1) */
     PositionStatus.hasOne(OpenPosition, {
         foreignKey: 'symbol'

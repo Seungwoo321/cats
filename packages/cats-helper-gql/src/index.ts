@@ -85,9 +85,9 @@ const GET_OPEN_POSITION: string = gql`
         }
     }
 `
-const ENTER_POSITION: string = gql`
+const POSITION_STATUS_ENTER: string = gql`
     mutation EnterPosition ($symbol: String, $direction: TradeDirection, $entryPrice: Float) {
-        enterPosition (symbol: $symbol, direction: $direction, entryPrice: $entryPrice) {
+        updatePositionStatusEnter (symbol: $symbol, direction: $direction, entryPrice: $entryPrice) {
             symbol
             direction
             conditionalEntryPrice
@@ -95,6 +95,39 @@ const ENTER_POSITION: string = gql`
             value
         }
     }
+`
+const POSITION_STATUS_EXIT: string = gql`
+    mutation ExitPosition ($symbol: String) {
+        updatePositionStatusExit (symbol: $symbol) {
+            symbol
+            direction
+            conditionalEntryPrice
+            startingCapital
+            value
+        }
+    }   
+`
+const POSITION_STATUS_POSITION: string = gql`
+    mutation PositionPosition ($symbol: String) {
+        updatePositionStatusPosition (symbol: $symbol) {
+            symbol
+            direction
+            conditionalEntryPrice
+            startingCapital
+            value
+        }
+    }   
+`
+const POSITION_STATUS_NONE: string = gql`
+    mutation NonePosition ($symbol: String) {
+        updatePositionStatusNone (symbol: $symbol) {
+            symbol
+            direction
+            conditionalEntryPrice
+            startingCapital
+            value
+        }
+    }   
 `
 const CREATE_POSITION: string = gql`
     mutation CreatePosition ($symbol: String $position: InputPosition) {
@@ -111,28 +144,6 @@ const CREATE_POSITION: string = gql`
             initialStopPrice
             curStopPrice
             profitTarget
-        }
-    }
-`
-const EXIT_POSITION: string = gql`
-    mutation ExitPosition ($symbol: String) {
-        exitPosition (symbol: $symbol) {
-            symbol
-            direction
-            conditionalEntryPrice
-            startingCapital
-            value
-        }
-    }   
-`
-const CLOSE_POSITION: string = gql`
-    mutation ClosePosition ($symbol: String){
-        closePosition (symbol: $symbol) {
-            symbol
-            direction
-            conditionalEntryPrice
-            startingCapital
-            value
         }
     }
 `
@@ -154,7 +165,24 @@ const UPDATE_POSITION: string = gql`
         }
     }
 `
-
+const CLOSE_POSITION: string = gql`
+    mutation ClosePosition ($symbol: String){
+        closePosition (symbol: $symbol) {
+            positionId
+            symbol
+            direction
+            entryTime
+            entryPrice
+            growth
+            profit
+            profitPct
+            holdingPeriod
+            initialStopPrice
+            curStopPrice
+            profitTarget
+        }
+    }
+`
 /**
  * Completed Trade
  */
@@ -378,18 +406,45 @@ export const service = {
         return openPosition
     },
     /**
-     * Change position 'None' to 'Enter'
+     * Change position status 'None' to 'Enter'
      * @param symbol The Cryptocurrency unique code
      * @param direction long | short
      * @param entryPrice The price when enter
      * @returns returns a open position when status is Enter
      */
-    async enterPosition(symbol: string, direction: TradeDirection, entryPrice: number): Promise<IPosition> {
-        const { enterPosition } = await request(GRAPHQL_URL, ENTER_POSITION, { symbol, direction, entryPrice })
+    async updatePositionStatusEnter(symbol: string, direction: TradeDirection, entryPrice: number): Promise<IPositionStatus> {
+        const { enterPosition } = await request(GRAPHQL_URL, POSITION_STATUS_ENTER, { symbol, direction, entryPrice })
         return enterPosition
     },
     /**
-     * Change position 'Enter' to 'Position'
+     * Change positions status 'Position' to 'Exit'
+     * @param symbol The Cryptocurrency unique code
+     * @returns returns a open position when status is Exit
+     */
+    async updatePositionStatusExit(symbol: string): Promise<IPositionStatus> {
+        const { exitPosition } = await request(GRAPHQL_URL, POSITION_STATUS_EXIT, { symbol })
+        return exitPosition
+    },
+    /**
+     * Change positions status 'Enter' to 'Position'
+     * @param symbol The Cryptocurrency unique code
+     * @returns returns a open position when status is Exit
+     */
+    async updatePositionStatusPosition(symbol: string): Promise<IPositionStatus> {
+        const { positionPosition } = await request(GRAPHQL_URL, POSITION_STATUS_POSITION, { symbol })
+        return positionPosition
+    },
+    /**
+     * Change positions status 'Position' to 'None'
+     * @param symbol The Cryptocurrency unique code
+     * @returns returns a open position when status is Exit
+     */
+    async updatePositionStatusNone(symbol: string): Promise<IPositionStatus> {
+        const { nonePosition } = await request(GRAPHQL_URL, POSITION_STATUS_NONE, { symbol })
+        return nonePosition
+    },
+    /**
+     * Insert position
      * @param symbol The Cryptocurrency unique code
      * @param position The open position
      * @returns returns a open position when status is Position
@@ -399,7 +454,7 @@ export const service = {
         return createPosition
     },
     /**
-     * Change not position
+     * Upsert position
      * @param position The open position
      * @returns returns a open position when status is Position
      */
@@ -408,16 +463,7 @@ export const service = {
         return updatePosition
     },
     /**
-     * Change positions 'Position' to 'Exit'
-     * @param symbol The Cryptocurrency unique code
-     * @returns returns a open position when status is Exit
-     */
-    async exitPosition(symbol: string): Promise<IPosition> {
-        const { exitPosition } = await request(GRAPHQL_URL, EXIT_POSITION, { symbol })
-        return exitPosition
-    },
-    /**
-     * Change position 'Exit' to 'None'
+     * Destroy position
      * @param symbol The Cryptocurrency unique code
      * @returns returns a open position when status is None
      */
@@ -444,7 +490,7 @@ export const service = {
         return completedTrading
     },
     /**
-     * Create or Update trade
+     * Upsert trade
      * @param trade
      * @returns returns completed trades
      */

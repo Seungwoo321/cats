@@ -7,12 +7,14 @@ exports.types = gql`
     }
 
     type Mutation {
+        createPosition(position: InputPosition): IPosition
         updatePosition(position: InputPosition): IPosition
-        createPosition(symbol: String, position: InputPosition): IPosition
-        enterPosition(symbol: String, direction: TradeDirection, entryPrice: Float): IPositionStatus
-        exitPosition(symbol: String): IPositionStatus
+        closePosition(symbol: String): IPosition
+        updatePositionStatusEnter(symbol: String, direction: TradeDirection, entryPrice: Float): IPositionStatus
+        updatePositionStatusExit(symbol: String): IPositionStatus
+        updatePositionStatusPosition(symbol: String): IPositionStatus
+        updatePositionStatusNone(symbol: String): IPositionStatus
         updatePositionCapital(symbol: String, capital: Float): IPositionStatus
-        closePosition(symbol: String): IPositionStatus
     }
 
     type IPosition {
@@ -25,34 +27,26 @@ exports.types = gql`
         profit: Float
         profitPct: Float
         holdingPeriod: Int
+        amount: Float
         initialStopPrice: Float
         curStopPrice: Float
         profitTarget: Float
-        initialUnitRisk: Float
-        initialRiskPct: Float
-        curRiskPct: Float
-        curRMultiple: Float
-        amount: Float
     }
 
     input InputPosition {
         positionId: String
         symbol: String
-        direction: String
+        direction: TradeDirection
         entryTime: Date
         entryPrice: Float
         growth: Float
         profit: Float
         profitPct: Float
         holdingPeriod: Int
+        amount: Float
         initialStopPrice: Float
         curStopPrice: Float
         profitTarget: Float
-        initialUnitRisk: Float
-        initialRiskPct: Float
-        curRiskPct: Float
-        curRMultiple: Float
-        amount: Float
     }
 
     type IPositionStatus {
@@ -83,28 +77,34 @@ exports.resolvers = {
         }
     },
     Mutation: {
-        /** positionStatus & openPosition */
-        createPosition: async (_, { symbol, position }, { dataSources }) => {
-            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } }) &&
-                await dataSources.openPositionAPI.createPosition(position)
+        /** openPosition */
+        createPosition: async (_, { position }, { dataSources }) => {
+            return await dataSources.openPositionAPI.createPosition(position)
+                && await dataSources.openPositionAPI.getPosition({ symbol })
+        },
+        updatePosition: async (_, { position }, { dataSources }) => {
+            return await dataSources.openPositionAPI.updatePosition({ values: position })
+                && await dataSources.openPositionAPI.getPosition({ symbol })
         },
         closePosition: async (_, { symbol }, { dataSources }) => {
-            return await dataSources.openPositionAPI.closePostion({ symbol }) &&
-                await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', conditionalEntryPrice: null } })
+            return await dataSources.openPositionAPI.closePostion({ symbol })
+                && await dataSources.openPositionAPI.getPosition({ symbol })
         },
         /** positionStatus */
-        enterPosition: async (_, { symbol, direction = 'long', entryPrice }, { dataSources }) => {
+        updatePositionStatusEnter: async (_, { symbol, direction = 'long', entryPrice }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice } })
         },
-        exitPosition: async (_, { symbol }, { dataSources }) => {
+        updatePositionStatusExit: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Exit' } })
+        },
+        updatePositionStatusPosition: async (_, { symbol }, { dataSources }) => {
+            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } })
+        },
+        updatePositionStatusNone: async (_, { symbol }, { dataSources }) => {
+            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', direction: null, conditionalEntryPrice: null } })
         },
         updatePositionCapital: async (_, { symbol, capital }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, startingCapital: capital }})
-        },
-        /** openPosition */
-        updatePosition: async (_, { position }, { dataSources }) => {
-            return await dataSources.openPositionAPI.updatePosition({ values: position })
         }
     }
 }

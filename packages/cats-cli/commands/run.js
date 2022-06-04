@@ -23,11 +23,10 @@ async function run (name, options) {
         const argvs = [config].map(generator.formatter)[0]
 
         // Capital
-        logger('if exist "--capital" options then force update and always get ')
         let positionStatus = await gqlService.getPositionStatus(argvs.symbol)
-        if (Number(options.capital) > 0) {
+        if (positionStatus.startingCapital < 0 && Number(options.capital) > 0) {
+            logger('update only the first time to "--capital" option.')
             positionStatus = await gqlService.updatePositionCapital(argvs.symbol, Number(options.capital))
-            
         }
         
         console.log(positionStatus)

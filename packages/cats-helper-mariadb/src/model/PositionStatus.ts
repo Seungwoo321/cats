@@ -8,8 +8,7 @@ export const PositionStatus = sequelize.define('position_status', {
     },
     direction: {
         type: DataTypes.STRING(5),
-        allowNull: false,
-        defaultValue: 'Long'
+        allowNull: true
     },
     conditionalEntryPrice: {
         type: DataTypes.FLOAT,
