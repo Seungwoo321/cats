@@ -515,58 +515,51 @@ async function executionTrading(
     }
     const trading = tradingToInitialize(tradingId, openPosition)
     if (!existTrading.tradingId) {
-        logger('executionTrading:createTradingId')
+        logger('executionTrading:createTrading')
         await gqlService.updateTrading(trading)
     }
     await gqlService.updateOrder(order)
 
     const completedTrading = tradingToComplete(trading, order, openPosition, positionStatus)
     if (execInst === 'Close' && data.ordStatus === OrderStatus.Filled) {
-        logger(`executionTrading:updateTrading ${positionStatus.value}`)
+        logger(`executionTrading:${positionStatus.value}~`)
+
+        logger(`executionTrading:updateTradingAndClosePosition (updatePositionStatusNone)`)
         await gqlService.updateTrading(completedTrading)
-
-        logger(`executionTrading:closePosition ${positionStatus.value}`)
         await gqlService.closePosition(symbol)
-
-        logger(`executionTrading:updatePositionStatusNone ${positionStatus.value}`)
         await gqlService.updatePositionStatusNone(symbol)
         return Promise.resolve()
     }
     switch (positionStatus.value) {
         case PositionStatus.Enter:
+            logger(`executionTrading:${positionStatus.value}~ ${OrderStatus.PartiallyFilled}~`)
             if (data.ordStatus === OrderStatus.PartiallyFilled) {
-
-                logger(`executionTrading:updatePosition ${positionStatus.value}`)
+                logger(`executionTrading:updateTrading`)
                 await gqlService.updatePosition(openPosition)
             }
             if (data.ordStatus === OrderStatus.Filled) {
 
-                logger(`executionTrading:updatePosition ${positionStatus.value}`)
+                logger(`executionTrading:updatePosition (updatePositionStatusPosition)`)
                 await gqlService.updatePosition(openPosition)
-
-                logger(`executionTrading:updatePositionStatusPosition ${positionStatus.value}`)
                 await gqlService.updatePositionStatusPosition(symbol)
             }
         break
         case PositionStatus.Exit:
+            logger(`executionTrading:${positionStatus.value}~ ${OrderStatus.PartiallyFilled}~`)
             if (data.ordStatus === OrderStatus.PartiallyFilled) {
-
-                logger(`executionTrading:updatePosition ${positionStatus.value}`)
+                logger(`executionTrading:updateTrading`)
                 await gqlService.updatePosition(openPosition)
             }
             if (data.ordStatus === OrderStatus.Filled) {
 
-                logger(`executionTrading:updatePosition ${positionStatus.value}`)
+                logger(`executionTrading:updateTradingAndClosePosition (updatePositionStatusNone)`)
                 await gqlService.updateTrading(completedTrading)
-
-                logger(`executionTrading:closePosition ${positionStatus.value}`)
                 await gqlService.closePosition(symbol)
-
-                logger(`executionTrading:updatePositionStatusNone ${positionStatus.value}`)
                 await gqlService.updatePositionStatusNone(symbol)
             }
         break
         default:
+            logger(`executionTrading:${positionStatus.value}~ ${OrderStatus.PartiallyFilled}~`)
             logger(`Unexpected state`)
         break
     }
