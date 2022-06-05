@@ -24,20 +24,20 @@ async function run (name, options) {
 
         // Capital
         let positionStatus = await gqlService.getPositionStatus(argvs.symbol)
-        if (positionStatus.startingCapital < 0 && Number(options.capital) > 0) {
-            logger('update only the first time to "--capital" option.')
+        if ((!positionStatus.startingCapital || positionStatus.startingCapital <= 0 || options.force) && Number(options.capital) > 0) {
+            logger('update startingCapital.')
             positionStatus = await gqlService.updatePositionCapital(argvs.symbol, Number(options.capital))
         }
         
-        console.log(positionStatus)
         const startingCapital = positionStatus.startingCapital
-        logger('startingCapital:' + startingCapital)
         
         if (startingCapital <= 0) {
             console.log()
             console.log(chalk.red('No starting capital.'))
             console.log()
             process.exit(0)
+        } else {
+            console.log('startingCapital:' + startingCapital)
         }
 
         // Service       
