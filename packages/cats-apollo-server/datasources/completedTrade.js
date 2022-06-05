@@ -1,5 +1,5 @@
 const { DataSource } = require('apollo-datasource')
-
+const { PositionStatus } = require('@cats/helper-mariadb')
 class CompletedTrade extends DataSource {
     constructor (store) {
         super()
@@ -11,21 +11,12 @@ class CompletedTrade extends DataSource {
     }
 
     async findTrading ({ tradingId }) {
-        const res = await this.store.findAll({
+        const res = await this.store.findOne({
             where: {
                 tradingId
             }
         })
         return res && res.length ? res[0].get() : false
-    }
-
-    async findTradingByOrderId ({ orderId }) {
-        const res = await this.store.findAll({
-            where: {
-                orderId
-            }
-        })
-        return res && res.length ? res : false
     }
 
     async findTradingBySymbol ({ symbol }) {
@@ -35,7 +26,8 @@ class CompletedTrade extends DataSource {
             },
             order: [
                 ['entryTime', 'DESC']
-            ]
+            ],
+            include: PositionStatus
         })
         return res && res.length ? res : false
     }
@@ -43,11 +35,11 @@ class CompletedTrade extends DataSource {
     async updateTrading ({ values }) {
         const res = await this.store.upsert(values, {
             where: {
-                orderId: values.orderId
+                tradingId: values.tradingId
             }
         })
         if (res && res.length && res[0] === 1) {
-            return await this.findTradingByOrderId({ orderId: values.orderId })
+            return await this.findTrading({ tradingId: values.tradingId })
         }
         return false
     }

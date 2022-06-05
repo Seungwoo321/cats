@@ -1,4 +1,5 @@
 const gql = require('graphql-tag')
+const { v4: uuidv4 } = require('uuid');
 
 exports.types = gql`
     type Query {
@@ -54,6 +55,7 @@ exports.types = gql`
         direction(direction: TradeDirection): String
         conditionalEntryPrice: Float
         startingCapital: Float
+        tradingId: String
         value(status: Status): String
     }
 
@@ -92,7 +94,7 @@ exports.resolvers = {
         },
         /** positionStatus */
         updatePositionStatusEnter: async (_, { symbol, direction = 'long', entryPrice }, { dataSources }) => {
-            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice } })
+            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Enter', direction, conditionalEntryPrice: entryPrice, tradingId: uuidv4() } })
         },
         updatePositionStatusExit: async (_, { symbol }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Exit' } })
@@ -101,7 +103,7 @@ exports.resolvers = {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'Position' } })
         },
         updatePositionStatusNone: async (_, { symbol }, { dataSources }) => {
-            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', direction: null, conditionalEntryPrice: null } })
+            return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, value: 'None', direction: null, conditionalEntryPrice: null, tradingId: null } })
         },
         updatePositionCapital: async (_, { symbol, capital }, { dataSources }) => {
             return await dataSources.positionStatusAPI.positionStatusUpdate({ values: { symbol, startingCapital: capital }})

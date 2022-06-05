@@ -73,7 +73,7 @@ module.exports = async ({ symbol, timeframe, strategy }) => {
                 homeNotional: item.homeNotional,
                 time: item.timestamp,
                 text: item.text
-            })
+            }, data.execInst)
         } catch (error) {
             if (error.response) {
                 const errors = error.response?.errors

@@ -18,6 +18,11 @@ export const PositionStatus = sequelize.define('position_status', {
         type: DataTypes.FLOAT,
         allowNull: false
     },
+    tradingId: {
+        type: DataTypes.STRING(50),
+        unique: true,
+        allowNull: true
+    },
     value: {
         type: DataTypes.STRING(10),
         allowNull: false,

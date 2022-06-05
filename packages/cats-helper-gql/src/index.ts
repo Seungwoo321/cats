@@ -50,6 +50,7 @@ const GET_POSITION_STATUS: string = gql`
             direction
             conditionalEntryPrice
             startingCapital
+            tradingId
             value
         }
     }
@@ -62,6 +63,7 @@ const UPDATE_POSITION_CAPITAL: string = gql`
             direction
             conditionalEntryPrice
             startingCapital
+            tradingId
             value
         }
     }
@@ -92,6 +94,7 @@ const POSITION_STATUS_ENTER: string = gql`
             direction
             conditionalEntryPrice
             startingCapital
+            tradingId
             value
         }
     }
@@ -103,6 +106,7 @@ const POSITION_STATUS_EXIT: string = gql`
             direction
             conditionalEntryPrice
             startingCapital
+            tradingId
             value
         }
     }   
@@ -114,6 +118,7 @@ const POSITION_STATUS_POSITION: string = gql`
             direction
             conditionalEntryPrice
             startingCapital
+            tradingId
             value
         }
     }   
@@ -125,6 +130,7 @@ const POSITION_STATUS_NONE: string = gql`
             direction
             conditionalEntryPrice
             startingCapital
+            tradingId
             value
         }
     }   
@@ -250,7 +256,7 @@ const UPDATE_COMPLETED_TRADING: string = gql`
     }
 `
 const REMOVE_COMPLETED_TRADING: string = gql`
-    mutation RemoveTrading ($tradingId: string) {
+    mutation RemoveTrading ($tradingId: String) {
         removeTrading (tradingId: $tradingId) {
             tradingId
             symbol
@@ -274,8 +280,8 @@ const REMOVE_COMPLETED_TRADING: string = gql`
  * Order History
  */
 const GET_ORDER_BY_SYMBOL: string = gql`
-    query OrderSymbol ($symbol: String) {
-        orderSymbol (symbol: $symbol) {
+    query OrdersBySymbol ($symbol: String) {
+        ordersBySymbol (symbol: $symbol) {
             orderId
             tradingId
             symbol
@@ -297,8 +303,8 @@ const GET_ORDER_BY_SYMBOL: string = gql`
     }
 `
 const GET_ORDER_BY_TRADING: string = gql`
-    query OrderTrading ($tradingId: String) {
-        orderTrading (tradingId: $tradingId) {
+    query OrdersByTrading ($tradingId: String) {
+        ordersByTrading (tradingId: $tradingId) {
             orderId
             tradingId
             symbol
@@ -513,8 +519,8 @@ export const service = {
      * @returns
      */
     async ordersBySymbol(order: IOrder): Promise<IOrder[]> {
-        const { orderSymbol } = await request(GRAPHQL_URL, GET_ORDER_BY_SYMBOL, { order })
-        return orderSymbol
+        const { ordersBySymbol } = await request(GRAPHQL_URL, GET_ORDER_BY_SYMBOL, { order })
+        return ordersBySymbol
     },
     /**
      * TBD
@@ -522,8 +528,8 @@ export const service = {
      * @returns
      */
     async ordersByTrading(tradingId: string): Promise<IOrder[]> {
-        const { orderTrading } = await request(GRAPHQL_URL, GET_ORDER_BY_TRADING, { tradingId })
-        return orderTrading
+        const { ordersByTrading } = await request(GRAPHQL_URL, GET_ORDER_BY_TRADING, { tradingId })
+        return ordersByTrading
     },
     /**
      * TBD

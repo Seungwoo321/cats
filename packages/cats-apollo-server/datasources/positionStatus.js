@@ -20,6 +20,7 @@ class PositionStatus extends DataSource {
                 conditionalEntryPrice: null,
                 direction: 'long',
                 startingCapital: 0,
+                tradingId: null,
                 value: 'None'
             }
         })
@@ -31,7 +32,6 @@ class PositionStatus extends DataSource {
         const res = await this.store.update(values, {
             where: { symbol: values.symbol }
         })
-        console.log(res)
         if (res && res.length && res[0] === 1) {
             return this.positionStatus({ symbol: values.symbol })
         }

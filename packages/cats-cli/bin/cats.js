@@ -71,7 +71,12 @@ program
     .command('run <bot-name>')
     .description('run bot created app')
     .option('-c, --capital <capital>', 'starting capital. currency is XBt (Satoshi)')
+    .option('-f, --force', 'force to apply capital')
     .action((name, options) => {
+        if (options.force && !options.capital) {
+            program.outputHelp()
+            process.exit(1)
+        }
         require('../commands/run')(name, options)
     })
 

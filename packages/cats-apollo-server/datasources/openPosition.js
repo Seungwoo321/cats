@@ -15,13 +15,8 @@ class OpenPosition extends DataSource {
             where: {
                 symbol: position.symbol
             },
-            defaults: position
-        }, {
-            association: [
-                {
-                    association: PositionStatus.symbol
-                }
-            ]
+            defaults: position,
+            include: PositionStatus
         })
         if (res && res.length && res[0] === 1) {
             return this.getPosition({ symbol: position.symbol })
@@ -39,14 +34,20 @@ class OpenPosition extends DataSource {
 
     async getPosition ({ symbol }) {
         const res = await this.store.findAll({
-            where: { symbol }
+            where: {
+                symbol: symbol
+            },
+            include: PositionStatus
         })
         return res && res.length ? res[0].get() : false
     }
 
     async updatePosition ({ values }) {
         const res = await this.store.upsert(values, {
-            where: { symbol: values.symbol }
+            where: {
+                symbol: values.symbol
+            },
+            include: PositionStatus
         })
         if (res && res.length && res[0] === 1) {
             return this.getPosition({ symbol: values.symbol })
@@ -54,7 +55,12 @@ class OpenPosition extends DataSource {
     }
 
     async closePostion ({ symbol }) {
-        const res = await this.store.destroy({ where: { symbol } })
+        const res = await this.store.destroy({
+            where: {
+                symbol
+            },
+            include: PositionStatus
+        })
         if (res > 0) {
             return this.getPosition({ symbol })
         }
