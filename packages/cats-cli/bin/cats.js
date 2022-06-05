@@ -72,6 +72,7 @@ program
     .description('run bot created app')
     .option('-c, --capital <capital>', 'starting capital. currency is XBt (Satoshi)')
     .option('-f, --force', 'force to apply capital')
+    .option('--skip', 'first only skip')
     .action((name, options) => {
         if (options.force && !options.capital) {
             program.outputHelp()

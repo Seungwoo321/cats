@@ -7,7 +7,7 @@ const dataForge = require('data-forge')
 const strategyModule = require('@cats/helper-strategy')
 
 
-module.exports = async ({ symbol, timeframe, strategy }) => {
+module.exports = async ({ symbol, timeframe, strategy }, skip) => {
     const c = config()
     const isTestMode = c.EXCHANGE_MODE === 'test'
     const client = new BitMEXClient({
@@ -22,6 +22,11 @@ module.exports = async ({ symbol, timeframe, strategy }) => {
     }
     client.addStream(target, `tradeBin${timeframe}`, async function (data) {
         console.info(data[0].symbol + ': ' + data[0].timestamp)
+        if (skip) {
+            console.log('first skip...')
+            skip = false
+            return
+        }
         try {
             const items = data.map(item => ({
                 time: new Date(item.timestamp),

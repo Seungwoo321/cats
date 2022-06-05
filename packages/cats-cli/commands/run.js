@@ -8,6 +8,7 @@ const gqlService = require('@cats/helper-gql').service
 process.env.CATS_CLI_MODE = true
 
 async function run (name, options) {
+
     try {
         // Generator
         const generator = new GeneratorAPI()
@@ -41,8 +42,8 @@ async function run (name, options) {
         }
 
         // Service       
-        const projectDir = path.resolve(__dirname, '../../../')
-        const service = new Service(projectDir, process.env.CATS_CLI_MODE)
+        const projectRoot = path.resolve(__dirname, '../../../')
+        const service = new Service(projectRoot, process.env.CATS_CLI_MODE)
 
         process.env.EXCHANGE_ID = config.env.EXCHANGE_ID
         process.env.EXCHANGE_API_KEY = config.env.EXCHANGE_API_KEY
@@ -55,8 +56,7 @@ async function run (name, options) {
             timeframe: argvs.timeframe
         })
         
-        service.run(parmas)
-
+        service.run(parmas, options.skip)
     } catch (error) {
         throw error
     }

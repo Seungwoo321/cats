@@ -8,8 +8,6 @@ module.exports = class Service {
     constructor (context, mode) {
         this.initialized = false
         this.context = context
-        this.serverName = 'apollo-server'
-        this.scriptPath = path.resolve(__dirname, '../../cats-apollo-server')
 
         if (mode) {
             this.init(mode)
@@ -47,12 +45,12 @@ module.exports = class Service {
         load(basePath)
     }
 
-    async run (args) {
+    async run (args, skip) {
         const scriptFile = path.resolve(__dirname, process.env.EXCHANGE_ID + '.js')
         if (!fs.existsSync(scriptFile)) {
             throw new Error('script is not found!')
         }
         const fn = require(scriptFile)
-        await fn(args)
+        await fn(args, skip)
     }
 }
