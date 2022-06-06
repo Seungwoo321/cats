@@ -107,7 +107,7 @@ module.exports = options => {
             type: 'datepicker',
             name: 'startDate',
             message: 'Select a start date: ',
-            format: ['YYYY', '-', 'MM', '-', 'DD', ' ', '00', ':', '00', ':', '00'],
+            format: ['YYYY', '-', 'MM', '-', 'DD', ' ', 'hh', ':', 'mm', ':', '00'],
             default: new Date('2017-01-01 00:00:00'),
         })
     }
@@ -117,7 +117,7 @@ module.exports = options => {
             type: 'datepicker',
             name: 'endDate',
             message: 'Select a end date: ',
-            format: ['YYYY', '-', 'MM', '-', 'DD', ' ', '00', ':', '00', ':', '00'],
+            format: ['YYYY', '-', 'MM', '-', 'DD', ' ', 'hh', ':', 'mm', ':', '00'],
             default: new Date(),
         })
     }
