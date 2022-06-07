@@ -1,0 +1,29 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/cats-config"
+    },
+    {
+      "path": "./packages/cats-types"
+    },
+    {
+      "path": "./packages/cats-helper-exchange"
+    },
+    {
+      "path": "./packages/cats-helper-gql"
+    },
+    {
+      "path": "./packages/cats-helper-influx2"
+    },
+    {
+      "path": "./packages/cats-helper-mariadb"
+    },
+    {
+      "path": "./packages/cats-helper-trading"
+    },
+    {
+      "path": "./packages/cats-shared-utils"
+    }
+  ]
+}

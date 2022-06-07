@@ -1,6 +1,6 @@
-
+tmp
 .DS_Store
-
+.cats
 # Logs
 logs
 *.log
@@ -115,6 +115,4 @@ ecosystem.config.js
 .history
 
 # build js
-lib/*.js
-lib/**/*.js
-config.js
+lib

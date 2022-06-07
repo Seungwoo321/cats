@@ -1,0 +1,32 @@
+{
+  "name": "@cats/helper-trading",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Seungwoo321/cats.git",
+    "directory": "packages/cats-helper-trading"
+  },
+  "author": "Seungwoo321",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Seungwoo321/cats/issues"
+  },
+  "homepage": "https://github.com/Seungwoo321/cats#readme",
+  "devDependencies": {
+    "@types/chai": "^4.3.1",
+    "@types/uuid": "^8.3.4",
+    "chai": "^4.3.6",
+    "uuid": "^8.3.2"
+  },
+  "dependencies": {
+    "@cats/helper-exchange": "^1.0.0",
+    "@cats/helper-gql": "^1.0.0",
+    "@cats/shared-utils": "^1.0.0"
+  }
+}
