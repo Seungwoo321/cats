@@ -3,6 +3,10 @@ const gqlService = require('@cats/helper-gql')
 
 module.exports = class CollectorAPI {
     constructor (options = {}) {
+        if (options.mode === 'test') {
+            console.log('EXCHANGE_MODE', options.mode)
+            exchange.setSandboxMode(true)
+        }
         this.client = {
             gql: gqlService.service,
             exchange
