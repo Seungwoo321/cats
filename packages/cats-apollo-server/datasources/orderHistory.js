@@ -36,7 +36,7 @@ class OrderHistory extends DataSource {
                 orderId
             }
         })
-        return res && res.length ? res.get(0) : false
+        return res || false
     }
 
     async updateOrder ({ values }) {

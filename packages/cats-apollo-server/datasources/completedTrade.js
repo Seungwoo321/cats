@@ -16,7 +16,7 @@ class CompletedTrade extends DataSource {
                 tradingId
             }
         })
-        return res && res.length ? res[0].get() : false
+        return res || false
     }
 
     async findTradingBySymbol ({ symbol }) {

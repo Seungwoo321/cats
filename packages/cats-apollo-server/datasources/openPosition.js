@@ -33,13 +33,13 @@ class OpenPosition extends DataSource {
     }
 
     async getPosition ({ symbol }) {
-        const res = await this.store.findAll({
+        const res = await this.store.findOne({
             where: {
                 symbol: symbol
             },
             include: PositionStatus
         })
-        return res && res.length ? res[0].get() : false
+        return res || false
     }
 
     async updatePosition ({ values }) {
