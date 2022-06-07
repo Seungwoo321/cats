@@ -10,6 +10,11 @@ const strategyModule = require('@cats/helper-strategy')
 module.exports = async ({ symbol, timeframe, strategy }, skip) => {
     const c = config()
     const isTestMode = c.EXCHANGE_MODE === 'test'
+    if (isTestMode) {
+        console.log()
+        console.log('test mode: ' + isTestMode)
+        console.log()
+    }
     const client = new BitMEXClient({
         testnet: isTestMode,
         maxTableLen: 1,
