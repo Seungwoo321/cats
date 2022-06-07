@@ -81,6 +81,7 @@ const GET_OPEN_POSITION: string = gql`
             profit
             profitPct
             holdingPeriod
+            amount
             initialStopPrice
             curStopPrice
             profitTarget
@@ -147,6 +148,7 @@ const CREATE_POSITION: string = gql`
             profit
             profitPct
             holdingPeriod
+            amount
             initialStopPrice
             curStopPrice
             profitTarget
@@ -165,6 +167,7 @@ const UPDATE_POSITION: string = gql`
             profit
             profitPct
             holdingPeriod
+            amount
             initialStopPrice
             curStopPrice
             profitTarget
@@ -183,6 +186,7 @@ const CLOSE_POSITION: string = gql`
             profit
             profitPct
             holdingPeriod
+            amount
             initialStopPrice
             curStopPrice
             profitTarget
