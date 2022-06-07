@@ -2,114 +2,17 @@
 
 Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/Grademark/grademark/blob/master/src/lib/backtest.ts)
 
-> Still in development. **Only BitMEX exchanges are supported.**
-
-## Cats Cli
-
-Manage json configuration file to manage bot application as `pm2` service
-
-### cats create
-
-```bash
-Usage: cats create [options] <bot-name>
-
-Configure variables to run the bot application.
-
-Options:
-  --symbol <symbol>                          currency symbol to apply automatic trading
-  --strategy <strategy>                      trading strategy e.g ...
-  --timeframe <timeframe>                    trading cycle. e.g 30m,1h,4h,1d
-  --exchange-id <exchangeId>                 ccxt for EXCHANGE_ID - https://docs.ccxt.com/en/latest/manual.html#instantiation
-  --exchange-access-key <exchangeAccessKey>  ccxt for EXCHANGE_ACCESS_KEY - https://docs.ccxt.com/en/latest/manual.html#instantiation
-  --exchagne-secret-key <exhcnageSecretKey   ccxt for EXCHANGE_SECRET_KEY - https://docs.ccxt.com/en/latest/manual.html#instantiation
-  --exchange-mode <exchangeMode>             ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments
-  -h, --help                                 display help for command
-
-  Missing required argument <bot-name>.
-```
-
-### cats list
-
-```bash
-Usage: cats list [options] [bot-name]
-
-list configured bot.
-
-Options:
-  -h, --help  display help for command
-```
-
-### Delete
-
-```bash
-Usage: cats delete [options] [bot-name]
-
-delete the bot application configured or all
-
-Options:
-  -h, --help  display help for command
-```
-
-### usage
-
-```bash
-cats create cats-btc \
-    --symbol BTC/USD:BTC \
-    --strategy a \
-    --timeframe 1d \
-    --exchange-id bitmex
-    --exchange-access-key <exchangeAccessKey> \
-    --exchagne-secret-key <exhcnageSecretKey \
-    --exchange-mode production 
-
-cats list cats-btc
-
-cats delete cats-btc
-```
+> Still in __development__.
+>
+> Only BitMEX exchanges are supported.
+>
+> Add new interface @cats/cli
 
 ## Prerequirements
 
 - InfluxDB 2.0 must be installed and [run collecting](https://github.com/Seungwoo321/crypto-automated-trading-system#run-collecting)
 - MySQL must be installed and create database.
-- Following next step:
-
-Step 1. Installation
-
-```bash
-npm install
-```
-
-Step 2. Build ts file
-
-```bash
-npm run build
-```
-
-Step 3. Set environment (if not exist then create .env file)
-
-```bash
-# .env
-
-## GraphQL Info
-GRAPHQL_URL=http://localhost:4000 # use default
-
-## MariaDB Info
-MARIADB_HOST=
-MARIADB_DATABASE=
-MARIADB_USERNAME=
-MARIADB_PASSWORD=
-
-## InfluxData Info
-INFLUX2_URL=
-INFLUX2_TOKEN=
-
-## Exchange info based on `ccxt`
-EXCHANGE_ID=
-EXCHANGE_API_KEY=
-EXCHANGE_SECRET_KEY=
-```
-
-Step 4. Write strategy
+- Write strategy
 
 [See here](https://github.com/Grademark/grademark-first-example/blob/master/index.js#L37-L53)
 
@@ -190,7 +93,17 @@ module.exports = {
 
 ## Getting Started
 
-[run apollo server](https://github.com/Seungwoo321/crypto-automated-trading-system#run-apollo-server) then [run bot](https://github.com/Seungwoo321/crypto-automated-trading-system#run-bot)
+### Installation
+
+```bash
+npm install
+```
+
+### build
+
+```bash
+npm run build 
+```
 
 ### Lint
 
@@ -198,49 +111,140 @@ module.exports = {
 npm run lint:fix
 ```
 
-### Run Test
+### run apollo server
 
 ```bash
-npm run test
+npm run dev:apollo -w @cats/apollo-server
+
 ```
 
-### Run apollo server
+### How to usage @cats/cli
+
+- Usage 1. Run without options:
 
 ```bash
-npm run serve:apollo
+## command
+$ cats create test-bot
+
+? Please select the exchange to be used by ccxt Bitmex
+? exchangeMode: test
+? Enter the exchange API KEY to be used by ccxt <api-key>
+? Enter the exchange SECRET KEY to be used by ccxt <secret-key>
+? Please select an symbol BTC/USD:BTC
+? Please select a time unit 1 day
+? Please select a strategy name a
+
+## ouptut
+Successfully registered. 
+run command: cats list test-bot
+
 ```
 
-### Run collecting
-
-Store candle data in influxDB 2.0
+- Usage 2. Run with options:
 
 ```bash
-npm run collector:bitmex
+## command
+cats create test-bot \
+    --symbol BTC/USD:BTC \
+    --strategy a \
+    --timeframe 1d \
+    --exchange-id bitmex
+    --exchange-access-key <api-key> \
+    --exchagne-secret-key <secret-key> \
+    --exchange-mode test 
+
+## ouptut
+Successfully registered. 
+run command: cats list test-bot
 ```
 
-### Run Bot
+Both methods work the __same__
 
-#### required 3 argumnets
-
-1. **symbol**
-    - e.g `BTC/USD:BTC`, `BCH/USD:BTC`, `ETH/USD:BTC`, `LTC/USD:BTC` in bitmex
-2. **timeframe**
-    - e.g `30m`, `1h`, `4h`, `1d` using in influxData
-3. **strategy name**
-    - create like `a.js` in strategy directory
-
-#### basic format
+#### step 3. run bot-app
 
 ```bash
-npm run bot:bitmex {symbol} {timeframe} {strategy name}
+DEBUG=trading:bitmex,execution-trading:bitmex cats run test-bot
 ```
 
-#### e.g
+### How to use the collector?
 
 ```bash
-npm run bot:bitmex BTC/USD:BTC 4h a
+cats collector
+? Enter a token to access Influx2 (http://localhost:8086) 2QR9pFvw6sNxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+? Please select the exchange to collect Bitmex
+? exchangeMode: test
+? Please select an symbol BTC/USD:BTC
+? Please select a time unit 5 min
+? Select a start date:  2022-06-01 12:00:00
+? Select a end date:  2022-06-07 08:38:00
+Colleting data... |████████████████████████████████████████| 100% || 20/20 Requsts
+```
 
-npm run bot:bitmex ETH/USD:BTC 1d b
+### Help output
+
+cats --help
+
+```bash
+Usage: cats <command> [options]
+
+Options:
+  -V, --version                output the version number
+  -h, --help                   display help for command
+
+Commands:
+  create [options] <bot-name>  Configure variables to run the bot application.
+  list [options] [bot-name]    List the bot application configured. Require --all flags or [bot name].
+  delete [options] [bot-name]  Delete the bot application configured. Require --all flags or [bot name].
+  run [options] <bot-name>     run bot created app
+  serve <bot-name>             pm2 start <bot-name>
+  pm2                          pm2 installed in devDependencies
+  collector [options]          Collect candles from exchanges into influxdb.
+  help [command]               display help for command
+
+  Run cats <command> --help for detailed usage of given command.
+```
+
+cats create --help
+
+```bash
+Usage: cats create [options] <bot-name>
+
+Configure variables to run the bot application.
+
+Options:
+  --symbol <symbol>                          currency symbol to apply automatic trading
+  --strategy <strategy>                      trading strategy e.g ...
+  --timeframe <timeframe>                    trading cycle. e.g 30m,1h,4h,1d
+  --exchange-id <exchangeId>                 ccxt for EXCHANGE_ID - https://docs.ccxt.com/en/latest/manual.html#instantiation
+  --exchange-api-key <exchangeApiKey>        ccxt for EXCHANGE_API_KEY - https://docs.ccxt.com/en/latest/manual.html#instantiation
+  --exchange-secret-key <exchangeSecretKey>  ccxt for EXCHANGE_SECRET_KEY - https://docs.ccxt.com/en/latest/manual.html#instantiation
+  --exchange-mode <exchangeMode>             ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments
+  -h, --help                                 display help for command
+```
+
+cats list --help
+
+```bash
+Usage: cats list [options] [bot-name]
+
+List the bot application configured. Require --all flags or [bot name].
+
+Options:
+  -a, --all   List all settings.
+  -h, --help  display help for command
+
+```
+
+cats delete --help
+
+```bash
+Usage: cats delete [options] [bot-name]
+
+Delete the bot application configured. Require --all flags or [bot name].
+
+Options:
+  -a, --all   Delete all settings.
+  -h, --help  display help for command
 ```
 
 ## License
