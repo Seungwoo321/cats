@@ -5,9 +5,8 @@ import { service as gqlService } from '@cats/helper-gql'
 import { IDataFrame } from 'data-forge'
 import { Market } from 'ccxt'
 import { assert } from 'chai'
-import { v4 as uuidv4 } from 'uuid'
 
-const { debug } = require('@cats/shared-utils')
+const { debug, chalk } = require('@cats/shared-utils')
 const logger = debug('trading:bitmex')
 
 /**
@@ -17,7 +16,12 @@ const logger = debug('trading:bitmex')
  * @param bar The current bar.
  * @returns
  */
-async function updatePosition (position: IPosition, bar: IBar, amount: number, flagNewTrailingStop: boolean): Promise<IPosition> {
+async function updatePosition (
+    position: IPosition,
+    bar: IBar,
+    amount: number,
+    flagNewTrailingStop: boolean
+): Promise<void> {
     position.profit = bar.close - position.entryPrice
     position.profitPct = (position.profit / position.entryPrice) * 100
     position.growth = position.direction === TradeDirection.Long
@@ -27,7 +31,7 @@ async function updatePosition (position: IPosition, bar: IBar, amount: number, f
     position.holdingPeriod += 1
     if (flagNewTrailingStop && typeof position.curStopPrice === 'number') {
         const symbol: string = position.symbol
-        await exchange.createOrder(
+        const order = await exchange.createOrder(
             symbol,
             'stopLimit',
             position.direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -39,9 +43,13 @@ async function updatePosition (position: IPosition, bar: IBar, amount: number, f
                 execInst: 'LastPrice,Close'
             }
         )
+        logger(position.symbol, '[UpdatePosition]', 'trailing-stop', order.datetime, order.id)
     }
-
-    return await gqlService.updatePosition(position)
+    await gqlService.updatePosition(position)
+    logger(position.symbol, '[UpdatePosition]', 'profit', position.profit)
+    logger(position.symbol, '[UpdatePosition]', 'profitPct', position.profitPct)
+    logger(position.symbol, '[UpdatePosition]', 'growth', position.growth)
+    logger(position.symbol, '[UpdatePosition]', 'holdingPeriod', position.holdingPeriod)
 }
 
 /**
@@ -54,7 +62,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     strategy: IStrategy<InputBarT, IndicatorBarT, ParametersT, IndexT>,
     inputSeries: IDataFrame<IndexT, InputBarT>
 ): Promise<void> {
-    logger('trading:start')
+    logger(symbol, '[START]', 'Trading')
     if (inputSeries.none()) {
         throw new Error('Expect input data series to contain at last 1 bar.')
     }
@@ -83,7 +91,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     const entryPrice = bar.close
     const positionDirection = positionStatus.direction
     const positions: Position[] = await exchange.fetchPositions()
-    const currentPosition: Position = positions.find(position => position.symbol === symbol.split(':')[0].replace('/', '')) || {
+    const currentPosition: Position = positions.find(position => position.symbol === (symbol === 'BTC/USD:BTC' ? 'XBTUSD' : symbol.split(':')[0].replace('/', ''))) || {
         isOpen: false,
         currentQty: '0'
     }
@@ -95,8 +103,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      */
     async function createPosition(openPosition: IPosition, symbol: string) {
         const market: Market = markets[symbol]
-        logger('trading:createPosition')
-        logger('capital: ' + capital)
+        logger(symbol, '[CreatePosition]', 'capital', capital)
         // const balance = await exchange.fetchBalance()
         // let availableMargin: number = balance.BTC.total * 100000000 * (1 - +market.info.initMargin - +market.info.maintMargin)
         let availableMargin: number = capital / 100000000 * (1 - +market.info.initMargin - +market.info.maintMargin)
@@ -113,13 +120,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         // cancle all orders
         const cancles = await exchange.cancelAllOrders(symbol) as any[]
         const cancleIds = cancles.map(order => order.id)
-        if (cancleIds.length) {
-            logger('Cancle order: ' + cancleIds.join(', '))
-        } else {
-            logger('No cancle order')
-        }
-        logger('formattedAmount: ' + formattedAmount)
-        logger('formattedPrice: ' + formattedPrice)
+        logger(symbol, '[CreatePosition]', 'cancleOrder', cancleIds.length ? cancleIds.join(', ') : 'no')
+        logger(symbol, '[CreatePosition]', 'formattedAmount', formattedAmount)
+        logger(symbol, '[CreatePosition]', 'formattedPrice', formattedPrice)
         // create new order
         const order = await exchange.createOrder(
             symbol,
@@ -132,7 +135,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 text: 'entry-rule'
             }
         )
-        logger(order.datetime, order.id)
+        logger(symbol, '[CreatePosition]','entry-rule', order.id)
         // if initial stop price then add stop order
         if (openPosition.initialStopPrice) {
             const order = await exchange.createOrder(
@@ -147,7 +150,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                     execInst: 'LastPrice,Close'
                 }
             )
-            logger(order.datetime, order.id)
+            logger(symbol, '[CreatePosition]', 'stop-loss', order.id)
         }
 
         // if trailing stop loss then add trailing stop order
@@ -166,7 +169,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
                 }
             )
-            logger(order.datetime, order.id)
+            logger(symbol, '[CreatePosition]', 'trailing-stop', order.id)
         }
     }
     /**
@@ -184,9 +187,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         amount: number,
         exitPrice: number,
         exitReason: string
-    ) {
-        logger('trading:closePosition')
-        return await exchange.createOrder(
+    ): Promise<void> {
+
+        await exchange.createOrder(
             symbol,
             'limit',
             direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -198,6 +201,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 execInst: 'ReduceOnly'
             }
         )
+        logger(symbol, '[ClosePosition]', exitReason)
     }
     /**
      *
@@ -206,8 +210,10 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     async function enterPosition (options?: IEnterPositionOptions) {
         assert(positionStatus.value === PositionStatus.None, 'Can only enter a position when not already in one.')
         if (options?.symbol && options?.direction && options?.entryPrice) {
-            logger('trading:enterPosition (updatePositionStatusEnter)')
             await gqlService.updatePositionStatusEnter(symbol, options.direction, options.entryPrice)
+            logger(symbol, '[EnterPosition]', 'PositionStatusUpdate', PositionStatus.Enter)
+            logger(symbol, '[EnterPosition]', 'direction', options.direction)
+            logger(symbol, '[EnterPosition]', 'entryPrice', options.entryPrice)
         }
     }
     /**
@@ -217,13 +223,13 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
      */
     async function exitPosition (symbol: string) {
         assert(positionStatus.value === PositionStatus.Position, 'Can only exit a position when we are in a position.')
-        logger('trading:exitPosition (updatePositionStatusExit)')
-        return await gqlService.updatePositionStatusExit(symbol)
+        await gqlService.updatePositionStatusExit(symbol)
+        logger(symbol, '[ExitPosition]', 'PositionStatusUpdate', PositionStatus.Exit)
     }
 
     switch (positionStatus.value) {
     case PositionStatus.None:
-        logger(`trading:${positionStatus.value}~`)
+        logger(symbol, '[PositionStatus]', positionStatus.value)
         await strategy.entryRule(enterPosition, {
             bar,
             parameters: {
@@ -235,27 +241,31 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         break
 
     case PositionStatus.Enter:
-        logger(`trading:${positionStatus.value}~`)
+        logger(symbol, '[PositionStatus]', positionStatus.value)
         assert(openPosition === null, 'Expected there to be no open position initialised yet!')
         if (positionStatus.conditionalEntryPrice !== undefined) {
             if (positionStatus.direction === TradeDirection.Long) {
                 if (bar.high < positionStatus.conditionalEntryPrice) {
+
                     await exchange.cancelAllOrders(symbol)
-                    console.log(positionStatus.tradingId)
                     if (positionStatus.tradingId) {
                         await gqlService.removeTrading(positionStatus.tradingId)
+                        logger(symbol, '[RemoveTrading]', 'Cancle', 'conditionalEntryPrice is greater than high', positionStatus.tradingId)
                     }
                     await gqlService.updatePositionStatusNone(symbol)
+                    logger(symbol, '[PositionStatus]', 'PositionStatusUpdate', PositionStatus.None)
                     break
                 }
             } else {
                 if (bar.low > positionStatus.conditionalEntryPrice) {
+
                     await exchange.cancelAllOrders(symbol)
-                    console.log(positionStatus.tradingId)
                     if (positionStatus.tradingId) {
                         await gqlService.removeTrading(positionStatus.tradingId)
+                        logger(symbol, '[RemoveTrading]', 'Cancle', 'conditionalEntryPrice is less than low', positionStatus.tradingId)
                     }
                     await gqlService.updatePositionStatusNone(symbol)
+                    logger(symbol, '[PositionStatus]', 'PositionStatusUpdate', PositionStatus.None)
                     break
                 }
             }
@@ -325,22 +335,25 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
         break
     case PositionStatus.Position:
-        logger(`trading:${positionStatus.value}~`)
+        logger(symbol, '[PositionStatus]', positionStatus.value)
         assert(openPosition !== null, 'Expected open position to already be initialised!')
 
         if (!currentPosition.isOpen) {
+            logger(symbol,  '[PositionStatus]', 'Position is not open')
             await exchange.cancelAllOrders(symbol)
             if (positionStatus.tradingId) {
                 await gqlService.removeTrading(positionStatus.tradingId)
             }
             await gqlService.updatePositionStatusNone(symbol)
             await gqlService.closePosition(symbol)
+            
             break
         }
 
         if (+currentPosition.currentQty !== 0 && openPosition?.curStopPrice) {
             if (openPosition.direction === TradeDirection.Long) {
                 if (bar.close <= openPosition.curStopPrice) {
+                    logger(symbol, '[PositionStatus]', TradeDirection.Long, 'close is less than or equal to curStopPrice')
                     await exitPosition(symbol)
                     await closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'stop-loss')
 
@@ -348,6 +361,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 }
             } else if (openPosition.direction === TradeDirection.Short) {
                 if (bar.close >= openPosition.curStopPrice) {
+                    logger(symbol, '[PositionStatus]', TradeDirection.Short, 'close is greater than or equal to curStopPrice')
                     await exitPosition(symbol)
                     await closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'stop-loss')
 
@@ -358,12 +372,14 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         if (+currentPosition.currentQty !== 0 && openPosition?.profitTarget) {
             if (openPosition.direction === TradeDirection.Long) {
                 if (bar.high >= openPosition.profitTarget) {
+                    logger(symbol, '[PositionStatus]', TradeDirection.Long, 'high is greater than or equal to profitTarget')
                     await exitPosition(symbol)
                     await closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), openPosition.profitTarget, 'profit-target')
                     break
                 }
             } else {
                 if (bar.low <= openPosition.profitTarget) {
+                    logger(symbol, '[PositionStatus]', TradeDirection.Short, 'low is less than or equal to profitTarget')
                     await exitPosition(symbol)
                     await closePosition(openPosition.direction, symbol, Math.abs(+currentPosition.currentQty), openPosition.profitTarget, 'profit-target')
                     break
@@ -412,20 +428,21 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         break
 
     case PositionStatus.Exit:
-        logger(`trading:${positionStatus.value}~`)
+    logger(symbol, '[PositionStatus]', positionStatus.value)
         assert(openPosition !== null, 'Expected open position to already be initialised!')
         if (+currentPosition.currentQty !== 0) {
             await closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
         } else {
             await gqlService.closePosition(symbol)
             await gqlService.updatePositionStatusNone(symbol)
+            logger(symbol, '[PositionStatus]', 'PositionStatusUpdate', PositionStatus.None)
         }
         break
 
     default:
         throw new Error('Unexpected state! from trading')
     }
-    logger('trading:end ')
+    logger(symbol, '[END]', 'Trading')
     return Promise.resolve()
 }
 
@@ -434,7 +451,8 @@ async function executionTrading(
     data: IOrder,
     execInst: string
 ): Promise<void> {
-    logger('executionTrading:start')
+    const logger = debug('execution-trading:bitmex')
+    logger(symbol, '[START]', 'ExecutionTrading')
     const positionStatus = await gqlService.getPositionStatus(symbol)
     
     if (positionStatus.value === PositionStatus.None) {
@@ -445,7 +463,9 @@ async function executionTrading(
     }
     if (data.ordType === 'Funding' || execInst === 'Funding') {
         console.log('!!!!!')
-        console.log(data.ordType)
+        console.log(chalk.red('Exception handling is required'))
+        console.log('ordType', data.ordType)
+        console.log('execInst', execInst)
         console.log(data)
         console.log('!!!!!')
         return Promise.resolve()
@@ -466,7 +486,7 @@ async function executionTrading(
             profit: 0,
             profitPct: 0,
             holdingPeriod: 0,
-            amount: Number(order.orderQty)
+            amount: Number(order.orderQty) || 0
         } 
     }
     function tradingToInitialize(
@@ -509,63 +529,119 @@ async function executionTrading(
         tradingId
     } as IOrder
     let openPosition = await gqlService.getOpenPosition(symbol) as IPosition
-    let isPosition = true
-
     if (openPosition === null) {
-        isPosition = false
         openPosition = openPositionToInitialize(tradingId, positionStatus, data)
     }
+
     const trading = tradingToInitialize(tradingId, openPosition)
     if (!existTrading.tradingId) {
-        logger('executionTrading:createTrading')
         await gqlService.updateTrading(trading)
+        logger(symbol, '[CreateTrading]', trading.tradingId)
     }
     await gqlService.updateOrder(order)
-
     const completedTrading = tradingToComplete(trading, order, openPosition, positionStatus)
-    if (execInst === 'Close' && data.ordStatus === OrderStatus.Filled) {
-        logger(`executionTrading:${execInst}:${positionStatus.value}~ ${data.ordStatus}~`)
+    logger(symbol, '[PositionStatus]', positionStatus.value)
+    logger(symbol, '[OrdStatus]', data.ordStatus)
 
-        logger(`executionTrading:updateTradingAndClosePosition (updatePositionStatusNone)`)
-        await gqlService.updateTrading(completedTrading)
-        await gqlService.closePosition(symbol)
-        await gqlService.updatePositionStatusNone(symbol)
-        return Promise.resolve()
-    }
-    switch (positionStatus.value) {
-        case PositionStatus.Enter:
-            logger(`executionTrading:${execInst}:${positionStatus.value}~ ${data.ordStatus}~`)
-            if (data.ordStatus === OrderStatus.PartiallyFilled) {
-                logger(`executionTrading:updateTrading`)
-                await gqlService.updatePosition(openPosition)
-            }
-            if (data.ordStatus === OrderStatus.Filled) {
+    switch (data.ordStatus) {
+        case OrderStatus.New:
 
-                logger(`executionTrading:updatePosition (updatePositionStatusPosition)`)
-                await gqlService.updatePosition(openPosition)
+            await gqlService.updateOrder(order)
+
+            break
+        case OrderStatus.PartiallyFilled:
+            await gqlService.updateOrder(order)
+            await gqlService.updatePosition(openPosition)
+
+            break
+        case OrderStatus.Filled:
+
+            await gqlService.updateOrder(order) 
+            await gqlService.updatePosition(openPosition)
+
+            if (positionStatus.value === PositionStatus.Enter) {
+
                 await gqlService.updatePositionStatusPosition(symbol)
-            }
-        break
-        case PositionStatus.Exit:
-            logger(`executionTrading:${execInst}:${positionStatus.value}~ ${data.ordStatus}~`)
-            if (data.ordStatus === OrderStatus.PartiallyFilled) {
-                logger(`executionTrading:updateTrading`)
-                await gqlService.updatePosition(openPosition)
-            }
-            if (data.ordStatus === OrderStatus.Filled) {
+                logger(symbol, '[PositionStatusUpdate]', PositionStatus.Position)
+    
+            } else if (positionStatus.value === PositionStatus.Position) {
 
-                logger(`executionTrading:updateTradingAndClosePosition (updatePositionStatusNone)`)
-                await gqlService.updateTrading(completedTrading)
                 await gqlService.closePosition(symbol)
                 await gqlService.updatePositionStatusNone(symbol)
+                logger(symbol, '[PositionStatusUpdate]', PositionStatus.None)
+
+                await gqlService.updateTrading(completedTrading)
+                logger(symbol, '[CompletedTrading]', 'tradingId', completedTrading.tradingId)
+                logger(symbol, '[CompletedTrading]', 'profit', completedTrading.profit)
+                logger(symbol, '[CompletedTrading]', 'profitPct', completedTrading.profitPct)
+                logger(symbol, '[CompletedTrading]', 'exitReason', completedTrading.exitReason)
+                logger(symbol, '[CompletedTrading]', 'finalCapital', completedTrading.finalCapital)
+
+            } else if (positionStatus.value === PositionStatus.Exit) {
+
+                await gqlService.closePosition(symbol)
+                await gqlService.updatePositionStatusNone(symbol)
+                logger(symbol, '[PositionStatusUpdate]', PositionStatus.None)
+
+                await gqlService.updateTrading(completedTrading)
+                logger(symbol, '[CompletedTrading]', 'tradingId', completedTrading.tradingId)
+                logger(symbol, '[CompletedTrading]', 'profit', completedTrading.profit)
+                logger(symbol, '[CompletedTrading]', 'profitPct', completedTrading.profitPct)
+                logger(symbol, '[CompletedTrading]', 'exitReason', completedTrading.exitReason)
+                logger(symbol, '[CompletedTrading]', 'finalCapital', completedTrading.finalCapital)
+
             }
-        break
+            break
+
+        case OrderStatus.Canceled:
+            await gqlService.updateOrder(order)
+            if (trading.tradingId === order.tradingId) {
+                await gqlService.removeTrading(tradingId)
+                logger(symbol, '[RemoveTrading]', 'Cancle', tradingId)
+            }
+            break
         default:
-            logger(`executionTrading:${positionStatus.value}~ ${data.ordStatus}~`)
-            logger(`Unexpected state`)
-        break
+            logger('Unexpected state from executionTrading', positionStatus.value, data.ordStatus)
+            break
     }
-    logger('executionTrading:end')
+    // switch (positionStatus.value) {
+    //     case PositionStatus.Enter:
+
+    //         if (data.ordStatus === OrderStatus.PartiallyFilled) {
+    //             logger('[PositionStatus]', positionStatus.value, 'PartiallyFilled')
+    //             await gqlService.updatePosition(openPosition)
+    //         }
+    //         if (data.ordStatus === OrderStatus.Filled) {
+    //             logger('[PositionStatus]', positionStatus.value, 'Filled')
+    //             await gqlService.updatePosition(openPosition)
+    //             await gqlService.updatePositionStatusPosition(symbol)
+    //         }
+    //     break
+    //     case PositionStatus.Position:
+    //         if (data.ordStatus === OrderStatus.PartiallyFilled || data.ordStatus === OrderStatus.Filled) {
+    //             logger('[PositionStatus]', positionStatus.value, data.ordStatus)
+    //             await gqlService.updatePosition(openPosition)
+    //         }
+    //     break
+    //     case PositionStatus.Exit:
+
+    //         if (data.ordStatus === OrderStatus.PartiallyFilled) {
+    //             logger('[PositionStatus]', positionStatus.value, 'PartiallyFilled')
+    //             await gqlService.updatePosition(openPosition)
+    //         }
+    //         if (data.ordStatus === OrderStatus.Filled) {
+
+    //             logger('[PositionStatus]', positionStatus.value, 'Filled')
+    //             await gqlService.updateTrading(completedTrading)
+    //             await gqlService.closePosition(symbol)
+    //             await gqlService.updatePositionStatusNone(symbol)
+    //         }
+    //     break
+    //     default:
+    //         logger(`Unexpected state from executionTrading ${positionStatus.value} ${data.ordStatus}`)
+    //     break
+    // }
+    logger(symbol, '[END]', 'ExecutionTrading')
     return Promise.resolve()
 }
 

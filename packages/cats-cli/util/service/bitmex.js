@@ -47,7 +47,7 @@ module.exports = async ({ symbol, timeframe, strategy }, skip) => {
             if (error.response) {
                 const errors = error.response.errors
                 errors.forEach((error) => {
-                    console.error('Error Message: ' + error.message)
+                    console.error(`tradeBin${timeframe}`, 'Error Message: ' + error.message)
                     console.error(error.extensions)
                 })
             } else {
@@ -83,7 +83,7 @@ module.exports = async ({ symbol, timeframe, strategy }, skip) => {
             if (error.response) {
                 const errors = error.response?.errors
                 errors.forEach(error => {
-                    console.error('Error Message: ' + error.message)
+                    console.error('execution', 'Error Message: ' + error.message)
                     console.error(error.extensions)
                 })
             } else {

@@ -28,7 +28,6 @@ class Influx2 {
     }
 
     async updateCandle (org: string, bucket: string, measurement: string, symbol: string, bar: IBar) {
-        console.log(org)
         const writeApi = this.client.getWriteApi(org, bucket, this.timestampsPoint, this.writeOptions)
         const point = new Point(measurement)
             .tag('symbol', symbol)

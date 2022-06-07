@@ -27,7 +27,6 @@ class OrderHistory extends DataSource {
             },
             include: CompletedTrade
         })
-        console.log(res)
         return res && res.length ? res: false
     }
 
