@@ -12,7 +12,8 @@
     "packages/cats-helper-strategy",
     "packages/cats-helper-trading",
     "packages/cats-cli",
-    "packages/cats-shared-utils"
+    "packages/cats-shared-utils",
+    "packages/test"
   ],
   "scripts": {
     "test": "jest",
@@ -40,7 +41,7 @@
   },
   "dependencies": {
     "@cats/helper-trading": "file:packages/cats-helper-trading",
-    "ccxt": "^1.79.63",
+    "ccxt": "^1.85.69",
     "grademark": "^0.2.9"
   }
 }
