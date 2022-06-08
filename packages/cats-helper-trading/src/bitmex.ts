@@ -90,8 +90,14 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     const positionStatus = await gqlService.getPositionStatus(symbol)
     const entryPrice = bar.close
     const positionDirection = positionStatus.direction
-    const positions: Position[] = await exchange.fetchPositions()
-    const currentPosition: Position = positions.find(position => position.symbol === (symbol === 'BTC/USD:BTC' ? 'XBTUSD' : symbol.split(':')[0].replace('/', ''))) || {
+    const positions = await exchange.fetchPositions()
+    const currents: Position[] = positions.map((position: any) => {
+        return {
+            ...position.info,
+            symbol
+        }
+    })
+    const currentPosition: Position = currents.find(position => position.symbol === symbol) || {
         isOpen: false,
         currentQty: '0'
     }
@@ -106,12 +112,12 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         logger(symbol, '[CreatePosition]', 'capital', capital)
         // const balance = await exchange.fetchBalance()
         // let availableMargin: number = balance.BTC.total * 100000000 * (1 - +market.info.initMargin - +market.info.maintMargin)
-        let availableMargin: number = capital / 100000000 * (1 - +market.info.initMargin - +market.info.maintMargin)
+        let availableMargin: number = capital * (1 - +market.info.initMargin - +market.info.maintMargin)
         if (market.maker) {
             availableMargin += market?.maker
         }
         const amount: number = symbol === 'BTC/USD:BTC'
-            ? availableMargin * openPosition.entryPrice
+            ? availableMargin * openPosition.entryPrice / 100000000
             : availableMargin / market.info.multiplier / openPosition.entryPrice * market.info.lotSize
         const formattedAmount: number = parseFloat(exchange.amountToPrecision(symbol, amount))
         openPosition.amount = formattedAmount
@@ -188,7 +194,10 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         exitPrice: number,
         exitReason: string
     ): Promise<void> {
-
+        // cancle all orders
+        const cancles = await exchange.cancelAllOrders(symbol) as any[]
+        const cancleIds = cancles.map(order => order.id)
+        logger(symbol, '[CreatePosition]', 'cancleOrder', cancleIds.length ? cancleIds.join(', ') : 'no')
         await exchange.createOrder(
             symbol,
             'limit',
@@ -337,7 +346,6 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     case PositionStatus.Position:
         logger(symbol, '[PositionStatus]', positionStatus.value)
         assert(openPosition !== null, 'Expected open position to already be initialised!')
-
         if (!currentPosition.isOpen) {
             logger(symbol,  '[PositionStatus]', 'Position is not open')
             await exchange.cancelAllOrders(symbol)
