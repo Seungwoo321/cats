@@ -579,6 +579,9 @@ async function executionTrading(
                 logger(symbol, '[PositionStatusUpdate]', PositionStatus.None)
 
                 await gqlService.updateTrading(completedTrading)
+                if (completedTrading.finalCapital) {
+                    await gqlService.updatePositionCapital(symbol, completedTrading.finalCapital)
+                }
                 logger(symbol, '[CompletedTrading]', 'tradingId', completedTrading.tradingId)
                 logger(symbol, '[CompletedTrading]', 'profit', completedTrading.profit)
                 logger(symbol, '[CompletedTrading]', 'profitPct', completedTrading.profitPct)
@@ -590,8 +593,11 @@ async function executionTrading(
                 await gqlService.closePosition(symbol)
                 await gqlService.updatePositionStatusNone(symbol)
                 logger(symbol, '[PositionStatusUpdate]', PositionStatus.None)
-
+                
                 await gqlService.updateTrading(completedTrading)
+                if (completedTrading.finalCapital) {
+                    await gqlService.updatePositionCapital(symbol, completedTrading.finalCapital)
+                }
                 logger(symbol, '[CompletedTrading]', 'tradingId', completedTrading.tradingId)
                 logger(symbol, '[CompletedTrading]', 'profit', completedTrading.profit)
                 logger(symbol, '[CompletedTrading]', 'profitPct', completedTrading.profitPct)
@@ -612,43 +618,7 @@ async function executionTrading(
             logger('Unexpected state from executionTrading', positionStatus.value, data.ordStatus)
             break
     }
-    // switch (positionStatus.value) {
-    //     case PositionStatus.Enter:
 
-    //         if (data.ordStatus === OrderStatus.PartiallyFilled) {
-    //             logger('[PositionStatus]', positionStatus.value, 'PartiallyFilled')
-    //             await gqlService.updatePosition(openPosition)
-    //         }
-    //         if (data.ordStatus === OrderStatus.Filled) {
-    //             logger('[PositionStatus]', positionStatus.value, 'Filled')
-    //             await gqlService.updatePosition(openPosition)
-    //             await gqlService.updatePositionStatusPosition(symbol)
-    //         }
-    //     break
-    //     case PositionStatus.Position:
-    //         if (data.ordStatus === OrderStatus.PartiallyFilled || data.ordStatus === OrderStatus.Filled) {
-    //             logger('[PositionStatus]', positionStatus.value, data.ordStatus)
-    //             await gqlService.updatePosition(openPosition)
-    //         }
-    //     break
-    //     case PositionStatus.Exit:
-
-    //         if (data.ordStatus === OrderStatus.PartiallyFilled) {
-    //             logger('[PositionStatus]', positionStatus.value, 'PartiallyFilled')
-    //             await gqlService.updatePosition(openPosition)
-    //         }
-    //         if (data.ordStatus === OrderStatus.Filled) {
-
-    //             logger('[PositionStatus]', positionStatus.value, 'Filled')
-    //             await gqlService.updateTrading(completedTrading)
-    //             await gqlService.closePosition(symbol)
-    //             await gqlService.updatePositionStatusNone(symbol)
-    //         }
-    //     break
-    //     default:
-    //         logger(`Unexpected state from executionTrading ${positionStatus.value} ${data.ordStatus}`)
-    //     break
-    // }
     logger(symbol, '[END]', 'ExecutionTrading')
     return Promise.resolve()
 }
