@@ -252,6 +252,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     case PositionStatus.Enter:
         logger(symbol, '[PositionStatus]', positionStatus.value)
         assert(openPosition === null, 'Expected there to be no open position initialised yet!')
+        assert(!!positionStatus.tradingId, 'In positioner state Position, tradingId must exist.')
         if (positionStatus.conditionalEntryPrice !== undefined) {
             if (positionStatus.direction === TradeDirection.Long) {
                 if (bar.high < positionStatus.conditionalEntryPrice) {
@@ -280,6 +281,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             }
         }
         openPosition = {
+            positionId: positionStatus.tradingId,
             symbol,
             direction: positionDirection,
             entryTime: new Date(bar.time),
@@ -340,6 +342,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
             openPosition.profitTarget = parseFloat(exchange.priceToPrecision(symbol, openPosition.profitTarget))
         }
 
+        await gqlService.updatePosition(openPosition)
         await createPosition(openPosition, symbol)
 
         break
@@ -479,23 +482,17 @@ async function executionTrading(
         return Promise.resolve()
     }
 
-    function openPositionToInitialize(
-        tradingId: string,
-        positionStatus: IPositionStatus,
+    function openPositionToComplete(
+        openPosition: IPosition,
         order: IOrder
     ): IPosition {
-        return {
-            positionId: tradingId,
-            symbol,
-            direction: positionStatus.direction,
+        const data = {
+            ...openPosition,
             entryTime: new Date(order.time),
             entryPrice: order.avgPrice,
-            growth: 1,
-            profit: 0,
-            profitPct: 0,
-            holdingPeriod: 0,
             amount: Number(order.orderQty) || 0
-        } 
+        }
+        return data
     }
     function tradingToInitialize(
         tradingId: string,
@@ -537,10 +534,6 @@ async function executionTrading(
         tradingId
     } as IOrder
     let openPosition = await gqlService.getOpenPosition(symbol) as IPosition
-    if (openPosition === null) {
-        openPosition = openPositionToInitialize(tradingId, positionStatus, data)
-    }
-
     const trading = tradingToInitialize(tradingId, openPosition)
     if (!existTrading.tradingId) {
         await gqlService.updateTrading(trading)
@@ -558,14 +551,15 @@ async function executionTrading(
 
             break
         case OrderStatus.PartiallyFilled:
+
             await gqlService.updateOrder(order)
-            await gqlService.updatePosition(openPosition)
+            await gqlService.updatePosition(openPositionToComplete(openPosition, data))
 
             break
         case OrderStatus.Filled:
 
             await gqlService.updateOrder(order) 
-            await gqlService.updatePosition(openPosition)
+            await gqlService.updatePosition(openPositionToComplete(openPosition, data))
 
             if (positionStatus.value === PositionStatus.Enter) {
 
