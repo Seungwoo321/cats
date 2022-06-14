@@ -603,6 +603,7 @@ async function executionTrading(
 
         case OrderStatus.Canceled:
             await gqlService.updateOrder(order)
+            await gqlService.closePosition(symbol)
             if (trading.tradingId === order.tradingId) {
                 await gqlService.removeTrading(tradingId)
                 logger(symbol, '[RemoveTrading]', 'Cancle', tradingId)

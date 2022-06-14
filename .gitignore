@@ -1,6 +1,7 @@
 tmp
 .DS_Store
-.cats
+data/
+
 # Logs
 logs
 *.log

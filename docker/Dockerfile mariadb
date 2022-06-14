@@ -1,0 +1,10 @@
+FROM mariadb:10.5
+
+ENV MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes
+ENV MARIADB_DATABASE=cats
+ENV MARIADB_USER=cats
+ENV MARIADB_PASSWORD=cats
+
+COPY init-mariadb.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 3306

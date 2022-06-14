@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+
+  influxdb:
+    image: influxdb:2.2.0
+    restart: on-failure
+    ports:
+      - "8086:8086"
+    expose:
+      - "8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=cats
+      - DOCKER_INFLUXDB_INIT_PASSWORD=cats@root
+      - DOCKER_INFLUXDB_INIT_ORG=cats
+      - DOCKER_INFLUXDB_INIT_BUCKET=cats
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=cats
+    networks:
+      - internal
+    volumes:
+      - ./docker/init-influxdb2.sh:/docker-entrypoint-initdb.d/init-influxdb2.sh
+      # - ./data/influxdb2:/var/lib/influxdb2
+  mariadb:
+    image: mariadb:10.5
+    restart: on-failure
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment: 
+      - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes
+      - MARIADB_DATABASE=cats
+      - MARIADB_USER=cats
+      - MARIADB_PASSWORD=cats
+    networks:
+      - internal
+    volumes:
+        - ./docker/init-mariadb.sql:/docker-entrypoint-initdb.d/init-mariadb.sql
+    #   - ./data/mariadb10.5:/var/lib/mysql
+
+  # apollo:
+  #   image: node:16.15
+  #   networks:
+  #     - internal
+
+networks:
+  internal:
+    driver: bridge
