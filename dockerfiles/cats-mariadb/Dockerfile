@@ -5,6 +5,6 @@ ENV MARIADB_DATABASE=cats
 ENV MARIADB_USER=cats
 ENV MARIADB_PASSWORD=cats
 
-COPY init-mariadb.sql /docker-entrypoint-initdb.d/
+COPY create-database.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 3306

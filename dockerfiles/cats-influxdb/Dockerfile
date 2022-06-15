@@ -7,6 +7,6 @@ ENV DOCKER_INFLUXDB_INIT_ORG=cats
 ENV DOCKER_INFLUXDB_INIT_BUCKET=cats
 ENV DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=cats
 
-COPY init-influxdb2.sh /docker-entrypoint-initdb.d/
+COPY create-bucket.sh /docker-entrypoint-initdb.d/
 
 EXPOSE 8086
