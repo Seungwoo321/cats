@@ -8,12 +8,18 @@ Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/
 >
 > Added new feature @cats/cli .
 
+## Development environment
+
+- InfluxDB 2.2
+- MariaDB 10.5
+- Node.js 16.15.0
+
 ## Prerequirements
 
 - Infrastructure
-  - InfluxDB 2.0 must be installed and [run collector](#run-collector)
-  - MySQL must be installed and [run apollo-server](#run-apollo-server).
-- Write strategy
+  - InfluxDB 2.2 must be installed and [run collector](#run-collector)
+  - MariaDB 10.5 must be installed and [run apollo-server](#run-apollo-server).
+- Define your trading strategy
 
 ### Infrastructure
 
@@ -23,7 +29,7 @@ mariadb and influxdb setup automatically.
 docker compose up
 ```
 
-### Write strategy
+### Define trading strategy
 
 [See here](https://github.com/Grademark/grademark-first-example/blob/master/index.js#L37-L53)
 
