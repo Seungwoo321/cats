@@ -5,6 +5,7 @@ ENV MARIADB_DATABASE=cats
 ENV MARIADB_USER=cats
 ENV MARIADB_PASSWORD=cats
 
-ADD https://raw.githubusercontent.com/Seungwoo321/cats/master/dockerfiles/entry-mariadb.sql /docker-entrypoint-initdb.d/
+COPY entry-mariadb.sql /docker-entrypoint-initdb.d/
+# ADD https://raw.githubusercontent.com/Seungwoo321/cats/master/dockerfiles/entry-mariadb.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 3306
