@@ -44,8 +44,8 @@ module.exports = async ({ symbol, timeframe, strategy }, skip) => {
             const bar = items[0]
             const start = new Date(moment().subtract(1, 'month').format('YYYY-MM-DD')).getTime() / 1000
             const stop = new Date(moment().format('YYYY-MM-DD')).getTime() / 1000
-            await gqlService.updateCandle(c.EXCHANGE_ID, c.EXCHANGE_MODE, symbol, timeframe, bar)
-            const candles = await gqlService.getCandles(c.EXCHANGE_ID, c.EXCHANGE_MODE, symbol, timeframe, start, stop)
+            await gqlService.updateCandle(c.INFLUX2_TOKEN, c.EXCHANGE_ID, c.EXCHANGE_MODE, symbol, timeframe, bar)
+            const candles = await gqlService.getCandles(c.INFLUX2_TOKEN, c.EXCHANGE_ID, c.EXCHANGE_MODE, symbol, timeframe, start, stop)
             const inputSeries = new dataForge.DataFrame(candles).setIndex('time')
             await bitmex.trading(symbol, strategyModule[strategy], inputSeries)
         } catch (error) {

@@ -21,8 +21,8 @@ class Influx2 {
     private timestampsPoint: string
     private writeOptions: any
 
-    constructor (options: any = {}) {
-        this.client = new InfluxDB({ url: INFLUX2_URL, token: INFLUX2_TOKEN, timeout: 180 * 1000 })
+    constructor (token: any, options: any = {}) {
+        this.client = new InfluxDB({ url: INFLUX2_URL, token: token || INFLUX2_TOKEN, timeout: 180 * 1000 })
         this.timestampsPoint = 'ms'
         this.writeOptions = { ...writeOptions, ...options }
     }
@@ -45,6 +45,7 @@ class Influx2 {
             await writeApi.flush()
         } catch (e) {
             console.error(e)
+            throw e
         }
         await writeApi.close()
         return {
@@ -70,7 +71,8 @@ class Influx2 {
         try {
             await writeApi.flush()
         } catch (e) {
-            console.error(e)
+            await writeApi.close()
+            throw e
         }
         console.log('close writeApi: flush unwritten points, cancel scheduled retries')
         await writeApi.close()

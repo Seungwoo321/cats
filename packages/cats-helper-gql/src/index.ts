@@ -5,8 +5,8 @@ import { gql, request } from 'graphql-request'
 const { GRAPHQL_URL } = config()
 
 const GET_CANDLES: string = gql`
-    query Candles ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $start: Int, $stop: Int) {
-        candles (exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, start: $start, stop: $stop) {
+    query Candles ($token: String, $exchange: String, $mode: String, $symbol: String, $timeframe: String, $start: Int, $stop: Int) {
+        candles (token: $token, exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, start: $start, stop: $stop) {
             time
             open
             high
@@ -18,8 +18,8 @@ const GET_CANDLES: string = gql`
 `
 
 const UPDATE_CANDLE: string = gql`
-    mutation UpdateCandle ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $bar: InputBar) {
-        updateCandle (exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, bar: $bar) {
+    mutation UpdateCandle ($token: String, $exchange: String, $mode: String, $symbol: String, $timeframe: String, $bar: InputBar) {
+        updateCandle (token: $token, exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, bar: $bar) {
             time
             open
             high
@@ -31,8 +31,8 @@ const UPDATE_CANDLE: string = gql`
 `
 
 const IMPORT_CANDLES: string = gql`
-    mutation ImportCandles ($exchange: String, $mode: String, $symbol: String, $timeframe: String, $bars: [InputBar]) {
-        importCandles (exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, bars: $bars) {
+    mutation ImportCandles ($token: String, $exchange: String, $mode: String, $symbol: String, $timeframe: String, $bars: [InputBar]) {
+        importCandles (token: $token, exchange: $exchange, mode: $mode, symbol: $symbol, timeframe: $timeframe, bars: $bars) {
             time
             open
             high
@@ -360,8 +360,8 @@ export const service = {
      * @param timeframe The period of time
      * @returns returns an array of candles.
      */
-    async getCandles(exchange: string, mode: string, symbol: string, timeframe: Timeframe, start: number, stop: number): Promise<IBar[]> {
-        const { candles } = await request(GRAPHQL_URL, GET_CANDLES, { exchange, mode, symbol, timeframe, start, stop })
+    async getCandles(token: string, exchange: string, mode: string, symbol: string, timeframe: Timeframe, start: number, stop: number): Promise<IBar[]> {
+        const { candles } = await request(GRAPHQL_URL, GET_CANDLES, { token, exchange, mode, symbol, timeframe, start, stop })
         return candles
     },
     /**
@@ -369,8 +369,8 @@ export const service = {
      * @param bar
      * @returns
      */
-    async updateCandle(exchange: string, mode: string, symbol: string, timeframe: Timeframe, bar: IBar): Promise<IBar> {
-        const { updateCandle } = await request(GRAPHQL_URL, UPDATE_CANDLE, { exchange, mode, symbol, timeframe, bar })
+    async updateCandle(token: string, exchange: string, mode: string, symbol: string, timeframe: Timeframe, bar: IBar): Promise<IBar> {
+        const { updateCandle } = await request(GRAPHQL_URL, UPDATE_CANDLE, { token, exchange, mode, symbol, timeframe, bar })
         return updateCandle
     },
     /**
@@ -378,8 +378,8 @@ export const service = {
      * @param symbol 
      * @returns 
      */
-    async importCandles(exchange: string, mode: string, symbol: string, timeframe: Timeframe, bars: IBar[]): Promise<IBar> {
-        const { importCandles } = await request(GRAPHQL_URL, IMPORT_CANDLES, { exchange, mode, symbol, timeframe, bars })
+    async importCandles(token: string, exchange: string, mode: string, symbol: string, timeframe: Timeframe, bars: IBar[]): Promise<IBar> {
+        const { importCandles } = await request(GRAPHQL_URL, IMPORT_CANDLES, { token, exchange, mode, symbol, timeframe, bars })
         return importCandles
     },
     /**

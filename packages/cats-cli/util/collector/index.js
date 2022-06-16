@@ -21,8 +21,8 @@ module.exports = class CollectorAPI {
         return await this.client.exchange.fetchOHLCV(symbol, timeframe, since)
     }
 
-    async insertOhlcvToInflux2(symbol, timeframe, data) {
-        return await this.client.gql.importCandles(this.exchangeId, this.mode, symbol, timeframe, data)
+    async insertOhlcvToInflux2(token, symbol, timeframe, data) {
+        return await this.client.gql.importCandles(token, this.exchangeId, this.mode, symbol, timeframe, data)
     }
 
     getExchange () {

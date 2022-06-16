@@ -19,8 +19,7 @@ async function collect (name, options) {
     
         process.env.EXCHANGE_ID = fullOptions.exchangeId
         process.env.INFLUX2_TOKEN = fullOptions.token || 'cats'
-
-
+        
         if (validationPrompt.supportableExchange(fullOptions.exchangeId)) {
 
             const CollectorAPI = require('../util/collector')
@@ -59,7 +58,7 @@ async function collect (name, options) {
                         volume: items[5]
                     }
                 })
-                await api.insertOhlcvToInflux2(fullOptions.symbol, fullOptions.timeframe, candles)
+                await api.insertOhlcvToInflux2(process.env.INFLUX2_TOKEN, fullOptions.symbol, fullOptions.timeframe, candles)
                 b1.increment()
                 b1.update(i)
                 await api.sleep()
@@ -76,7 +75,8 @@ async function collect (name, options) {
 
 module.exports = (...args) => {
     return collect(...args).catch(err => {
-        console.log(err)
+        console.log()
+        console.log(err?.response?.errors || err)
         if (!process.env.CLI_TEST) {
             process.exit(1)
         }

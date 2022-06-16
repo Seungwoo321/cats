@@ -10,7 +10,7 @@ const createStore = () => {
             CompletedTrade,
             OrderHistory
         },
-        influx2: new Influx2()
+        influx2: Influx2
     }
 }
 module.exports = {
