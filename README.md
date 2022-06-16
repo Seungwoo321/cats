@@ -173,7 +173,7 @@ run command: cats list test-bot
 
 Both methods work the __same__
 
-#### run bot
+### run bot
 
 ```bash
 DEBUG=trading:bitmex,execution-trading:bitmex cats run test-bot
