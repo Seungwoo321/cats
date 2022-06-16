@@ -4,15 +4,25 @@ Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/
 
 > Still in __development__.
 >
-> Only BitMEX exchanges are supported.
+> Currently, only BitMEX exchanges are supported.
 >
-> Add new interface @cats/cli
+> Added new feature @cats/cli .
 
 ## Prerequirements
 
-- InfluxDB 2.0 must be installed and [run collecting](https://github.com/Seungwoo321/crypto-automated-trading-system#run-collecting)
-- MySQL must be installed and create database.
+- InfluxDB 2.0 must be installed and [run collector](#run-collector)
+- MySQL must be installed and [run apollo-server](#run-apollo-server).
 - Write strategy
+
+### Infrastructure
+
+mariadb and influxdb setup automatically.
+
+```bash
+docker compose up
+```
+
+### Write strategy
 
 [See here](https://github.com/Grademark/grademark-first-example/blob/master/index.js#L37-L53)
 
@@ -111,6 +121,8 @@ npm run build
 npm run lint:fix
 ```
 
+## Usage
+
 ### run apollo server
 
 ```bash
@@ -118,9 +130,9 @@ npm run dev:apollo -w @cats/apollo-server
 
 ```
 
-### How to usage @cats/cli
+### run create bot
 
-- Usage 1. Run without options:
+- Usage 1. without options:
 
 ```bash
 ## command
@@ -140,7 +152,7 @@ run command: cats list test-bot
 
 ```
 
-- Usage 2. Run with options:
+- Usage 2. with options:
 
 ```bash
 ## command
@@ -160,13 +172,13 @@ run command: cats list test-bot
 
 Both methods work the __same__
 
-#### step 3. run bot-app
+#### run bot
 
 ```bash
 DEBUG=trading:bitmex,execution-trading:bitmex cats run test-bot
 ```
 
-### How to use the collector?
+### run collector
 
 ```bash
 cats collector
@@ -180,11 +192,11 @@ cats collector
 Colleting data... |████████████████████████████████████████| 100% || 20/20 Requsts
 ```
 
-### Help output
-
-cats --help
+### @cats/cli Help output
 
 ```bash
+$ cats --help
+
 Usage: cats <command> [options]
 
 Options:
@@ -204,9 +216,9 @@ Commands:
   Run cats <command> --help for detailed usage of given command.
 ```
 
-cats create --help
-
 ```bash
+$ cats create --help
+
 Usage: cats create [options] <bot-name>
 
 Configure variables to run the bot application.
@@ -222,9 +234,9 @@ Options:
   -h, --help                                 display help for command
 ```
 
-cats list --help
-
 ```bash
+$ cats list --help
+
 Usage: cats list [options] [bot-name]
 
 List the bot application configured. Require --all flags or [bot name].
