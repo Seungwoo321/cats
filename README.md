@@ -10,8 +10,9 @@ Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/
 
 ## Prerequirements
 
-- InfluxDB 2.0 must be installed and [run collector](#run-collector)
-- MySQL must be installed and [run apollo-server](#run-apollo-server).
+- Infrastructure
+  - InfluxDB 2.0 must be installed and [run collector](#run-collector)
+  - MySQL must be installed and [run apollo-server](#run-apollo-server).
 - Write strategy
 
 ### Infrastructure
@@ -192,7 +193,7 @@ cats collector
 Colleting data... |████████████████████████████████████████| 100% || 20/20 Requsts
 ```
 
-### @cats/cli Help output
+## @cats/cli
 
 ```bash
 $ cats --help
@@ -247,9 +248,9 @@ Options:
 
 ```
 
-cats delete --help
-
 ```bash
+$ cats delete --help
+
 Usage: cats delete [options] [bot-name]
 
 Delete the bot application configured. Require --all flags or [bot name].
