@@ -251,7 +251,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
     case PositionStatus.Enter:
         logger(symbol, '[PositionStatus]', positionStatus.value)
-        assert(openPosition === null, 'Expected there to be no open position initialised yet!')
+        assert(!currentPosition.isOpen, 'Expected there to be no open position initialised yet!')
         assert(!!positionStatus.tradingId, 'In positioner state Position, tradingId must exist.')
         if (positionStatus.conditionalEntryPrice !== undefined) {
             if (positionStatus.direction === TradeDirection.Long) {
