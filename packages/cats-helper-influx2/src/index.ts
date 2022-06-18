@@ -74,6 +74,7 @@ class Influx2 {
             await writeApi.close()
             throw e
         }
+        console.log(data.length, data[0].time, data[data.length - 1].time)
         console.log('close writeApi: flush unwritten points, cancel scheduled retries')
         await writeApi.close()
     }
