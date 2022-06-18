@@ -465,9 +465,6 @@ async function executionTrading(
     logger(symbol, '[START]', 'ExecutionTrading')
     const positionStatus = await gqlService.getPositionStatus(symbol)
     
-    if (positionStatus.value === PositionStatus.None) {
-        throw new Error('Expect status is not None')
-    }
     if (!positionStatus.tradingId) {
         throw new Error('Expect status is must exist')
     }
@@ -497,6 +494,7 @@ async function executionTrading(
         tradingId: string,
         openPosition: IPosition
     ): ITrade {
+        console.log(openPosition)
         return {
             tradingId,
             symbol: openPosition.symbol,
