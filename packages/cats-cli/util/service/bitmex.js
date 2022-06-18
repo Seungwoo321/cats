@@ -23,7 +23,8 @@ module.exports = async ({ symbol, timeframe, strategy }, skip) => {
     })
     let target = null
     if (isTestMode) {
-        target = symbol === 'BTC/USD:BTC' ? 'XBTUSD' : symbol.split(':')[0].replace('/', '')
+        const tmp = symbol
+        target = tmp === 'BTC/USD:BTC' ? 'XBTUSD' : tmp.split(':')[0].replace('/', '')
     }
     client.addStream(target, `tradeBin${timeframe}`, async function (data) {
         console.info(data[0].symbol + ': ' + data[0].timestamp)
