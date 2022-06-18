@@ -198,7 +198,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         const cancles = await exchange.cancelAllOrders(symbol) as any[]
         const cancleIds = cancles.map(order => order.id)
         logger(symbol, '[CreatePosition]', 'cancleOrder', cancleIds.length ? cancleIds.join(', ') : 'no')
-        await exchange.createOrder(
+        const order = await exchange.createOrder(
             symbol,
             'limit',
             direction === TradeDirection.Long ? 'sell' : 'buy',
@@ -210,7 +210,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
                 execInst: 'ReduceOnly'
             }
         )
-        logger(symbol, '[ClosePosition]', exitReason)
+        logger(symbol, '[ClosePosition]', exitReason, order.id)
     }
     /**
      *
@@ -440,9 +440,10 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     case PositionStatus.Exit:
     logger(symbol, '[PositionStatus]', positionStatus.value)
         if (currentPosition.isOpen) {
-            logger(symbol, '[PositionStatus]', 'Expected open position to already be initialised!')
-            await closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
+            const direction = +currentPosition.currentQty < 1 ? TradeDirection.Long : TradeDirection.Short
+            await closePosition(direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
         } else {
+            logger(symbol, '[PositionStatus]', 'Expected open position to already be initialised!')
             await gqlService.closePosition(symbol)
             await gqlService.updatePositionStatusNone(symbol)
             logger(symbol, '[PositionStatus]', 'PositionStatusUpdate', PositionStatus.None)
@@ -464,7 +465,6 @@ async function executionTrading(
     const logger = debug('execution-trading:bitmex')
     logger(symbol, '[START]', 'ExecutionTrading')
     const positionStatus = await gqlService.getPositionStatus(symbol)
-    
     if (!positionStatus.tradingId) {
         throw new Error('Expect status is must exist')
     }
@@ -494,7 +494,6 @@ async function executionTrading(
         tradingId: string,
         openPosition: IPosition
     ): ITrade {
-        console.log(openPosition)
         return {
             tradingId,
             symbol: openPosition.symbol,
@@ -531,6 +530,10 @@ async function executionTrading(
         tradingId
     } as IOrder
     let openPosition = await gqlService.getOpenPosition(symbol) as IPosition
+    if (openPosition === null) {
+        logger(symbol, 'Exception' , 'No Position')
+        return Promise.resolve()
+    }
     const trading = tradingToInitialize(tradingId, openPosition)
     if (!existTrading.tradingId) {
         await gqlService.updateTrading(trading)
@@ -600,8 +603,11 @@ async function executionTrading(
 
         case OrderStatus.Canceled:
             await gqlService.updateOrder(order)
-            await gqlService.closePosition(symbol)
-            if (trading.tradingId === order.tradingId) {
+            console.log(order)
+            const positions = await exchange.fetchPositions()
+            const isCurrentPosition: Position[] = positions.filter((position: any) => position.info.isOpen)
+            if (!isCurrentPosition) {
+                await gqlService.closePosition(symbol)
                 await gqlService.removeTrading(tradingId)
                 logger(symbol, '[RemoveTrading]', 'Cancle', tradingId)
             }
