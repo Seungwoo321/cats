@@ -94,7 +94,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
     const currents: Position[] = positions.map((position: any) => {
         return {
             ...position.info,
-            symbol
+            symbol: position.symbol
         }
     })
     const currentPosition: Position = currents.find(position => position.symbol === symbol) || {
@@ -348,9 +348,8 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         break
     case PositionStatus.Position:
         logger(symbol, '[PositionStatus]', positionStatus.value)
-        assert(openPosition !== null, 'Expected open position to already be initialised!')
         if (!currentPosition.isOpen) {
-            logger(symbol,  '[PositionStatus]', 'Position is not open')
+            logger(symbol,  '[PositionStatus]', 'Expected open position to already be initialised!')
             await exchange.cancelAllOrders(symbol)
             if (positionStatus.tradingId) {
                 await gqlService.removeTrading(positionStatus.tradingId)
@@ -440,8 +439,8 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
     case PositionStatus.Exit:
     logger(symbol, '[PositionStatus]', positionStatus.value)
-        assert(openPosition !== null, 'Expected open position to already be initialised!')
-        if (+currentPosition.currentQty !== 0) {
+        if (currentPosition.isOpen) {
+            logger(symbol, '[PositionStatus]', 'Expected open position to already be initialised!')
             await closePosition(openPosition!.direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
         } else {
             await gqlService.closePosition(symbol)
