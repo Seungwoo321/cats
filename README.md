@@ -110,6 +110,16 @@ module.exports = {
 
 ## Getting Started
 
+### Add CLI 'cats'
+
+```bash
+git clone https://github.com/Seungwoo321/cats.git
+cd cats/packages/cats-cli
+npm link 
+
+cats --version
+```
+
 ### Installation
 
 ```bash
