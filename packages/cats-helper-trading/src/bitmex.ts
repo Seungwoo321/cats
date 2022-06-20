@@ -251,6 +251,9 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
 
     case PositionStatus.Enter:
         logger(symbol, '[PositionStatus]', positionStatus.value)
+        if (currentPosition.isOpen) {
+            console.log('PartiallyFilled', currentPosition)
+        }
         assert(!currentPosition.isOpen, 'Expected there to be no open position initialised yet!')
         assert(!!positionStatus.tradingId, 'In positioner state Position, tradingId must exist.')
         if (positionStatus.conditionalEntryPrice !== undefined) {
@@ -468,7 +471,7 @@ async function executionTrading(
     if (!positionStatus.tradingId) {
         throw new Error('Expect status is must exist')
     }
-    if (data.ordType === 'Funding' || execInst === 'Funding') {
+    if (data.text === 'Funding') {
         console.log('!!!!!')
         console.log(chalk.red('Exception handling is required'))
         console.log('ordType', data.ordType)
@@ -523,7 +526,12 @@ async function executionTrading(
         return trade
 
     }
-    const tradingId = positionStatus.tradingId
+    let tradingId = positionStatus.tradingId
+    let isFunding = false
+    if (data.text === 'Funding') {
+        tradingId = data.orderId
+        isFunding = true
+    }
     const existTrading = await gqlService.completedTrading(tradingId)
     const order = {
         ...data,
@@ -539,8 +547,17 @@ async function executionTrading(
         await gqlService.updateTrading(trading)
         logger(symbol, '[CreateTrading]', trading.tradingId)
     }
-    await gqlService.updateOrder(order)
+    
     const completedTrading = tradingToComplete(trading, order, openPosition, positionStatus)
+    if (isFunding) {
+        await gqlService.updateOrder(order)
+        await gqlService.updateTrading(completedTrading)
+        logger(symbol, '[Funding]', 'tradingId', completedTrading.tradingId)
+        logger(symbol, '[Funding]', 'profit', completedTrading.profit)
+        logger(symbol, '[Funding]', 'profitPct', completedTrading.profitPct)
+        logger(symbol, '[Funding]', 'exitReason', completedTrading.exitReason)
+        return Promise.resolve()
+    }
     logger(symbol, '[PositionStatus]', positionStatus.value)
     logger(symbol, '[OrdStatus]', data.ordStatus)
 
@@ -558,7 +575,7 @@ async function executionTrading(
             break
         case OrderStatus.Filled:
 
-            await gqlService.updateOrder(order) 
+            await gqlService.updateOrder(order)
             await gqlService.updatePosition(openPositionToComplete(openPosition, data))
 
             if (positionStatus.value === PositionStatus.Enter) {
@@ -603,7 +620,7 @@ async function executionTrading(
 
         case OrderStatus.Canceled:
             await gqlService.updateOrder(order)
-            console.log(order)
+            console.log('Canceled', order)
             const positions = await exchange.fetchPositions()
             const isCurrentPosition: Position[] = positions.filter((position: any) => position.info.isOpen)
             if (!isCurrentPosition) {
