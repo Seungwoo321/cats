@@ -201,7 +201,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         const order = await exchange.createOrder(
             symbol,
             'limit',
-            direction === TradeDirection.Long ? 'sell' : 'buy',
+            direction === TradeDirection.Long ? 'buy' : 'sell',
             amount,
             exitPrice,
             {
@@ -438,7 +438,7 @@ async function trading<InputBarT extends IBar, IndicatorBarT extends InputBarT, 
         break
 
     case PositionStatus.Exit:
-    logger(symbol, '[PositionStatus]', positionStatus.value)
+        logger(symbol, '[PositionStatus]', positionStatus.value)
         if (currentPosition.isOpen) {
             const direction = +currentPosition.currentQty < 1 ? TradeDirection.Long : TradeDirection.Short
             await closePosition(direction, symbol, Math.abs(+currentPosition.currentQty), bar.close, 'exit-rule')
