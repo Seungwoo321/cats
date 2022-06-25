@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev:apollo": "nodemon apollo-server",
-    "serve:apollo": "pm2 start apollo-server --name apollo-server"
+    "dev:apollo": "nodemon index.js",
+    "serve:apollo": "pm2 start index.js --name apollo-server"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "access": "public"
   },
   "dependencies": {
-    "apollo-server": "^3.6.4",
+    "apollo-server": "^3.9.0",
     "globby": "^11.0.2",
     "graphql": "^16.3.0",
     "sequelize": "^6.17.0"

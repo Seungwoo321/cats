@@ -37,11 +37,11 @@ const server = new ApolloServer({
 // Start our server if we're not in a test env.
 // if we're in a test env, we'll manually start it in a test
 if (process.env.NODE_ENV !== 'test') {
-    server.listen().then(() => {
+    const port = process.env.PORT || 4000
+    server.listen({ port }).then(({ url }) => {
         console.log(`
-      Server is running!
-      Listening on port 4000
-      Query at https://studio.apollographql.com/dev
+        🚀  Server is ready at ${url}
+        📭  Query at https://studio.apollographql.com/dev
     `)
     })
 }
