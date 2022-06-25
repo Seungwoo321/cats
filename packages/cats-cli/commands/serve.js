@@ -20,6 +20,26 @@ async function serve(name, options) {
             process.exit(1)
         }
 
+        const argvs = [config].map(generator.formatter)[0]
+
+        // Capital
+        let positionStatus = await gqlService.getPositionStatus(argvs.symbol)
+        if ((!positionStatus.startingCapital || positionStatus.startingCapital <= 0 || options.force) && Number(options.capital) > 0) {
+            logger('update startingCapital.')
+            positionStatus = await gqlService.updatePositionCapital(argvs.symbol, Number(options.capital))
+        }
+        const startingCapital = positionStatus.startingCapital
+
+        if (startingCapital <= 0) {
+            console.log()
+            console.log(chalk.red('No starting capital.'))
+            console.log()
+            process.exit(0)
+        } else {
+            console.log('startingCapital:' + startingCapital)
+        }
+
+        // Service
         const pm2 = require('./pm2')
         const appConfigPath = generator.getConfigPath()
         pm2(['start', appConfigPath, name])

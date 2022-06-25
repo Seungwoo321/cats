@@ -84,6 +84,8 @@ program
 program
     .command('serve <bot-name>')
     .description('pm2 start <bot-name>')
+    .option('-c, --capital <capital>', 'starting capital. currency is XBt (Satoshi)')
+    .option('-f, --force', 'force to apply capital')
     .action((name, options) => {
         require('../commands/serve')(name, options)
     })
