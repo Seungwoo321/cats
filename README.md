@@ -143,7 +143,11 @@ npm run lint:fix
 ### run apollo server
 
 ```bash
+# dev
 npm run dev:apollo -w @cats/apollo-server
+
+# production
+npm run serve:apollo -w @cats/apollo-server
 
 ```
 
