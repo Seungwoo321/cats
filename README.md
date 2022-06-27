@@ -254,6 +254,7 @@ Options:
   --exchange-secret-key <exchangeSecretKey>  ccxt for EXCHANGE_SECRET_KEY - https://docs.ccxt.com/en/latest/manual.html#instantiation
   --exchange-mode <exchangeMode>             ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments
   -h, --help                                 display help for command
+
 ```
 
 ```bash
@@ -279,8 +280,61 @@ Delete the bot application configured. Require --all flags or [bot name].
 Options:
   -a, --all   Delete all settings.
   -h, --help  display help for command
+
+```
+
+```bash
+$ cats run --help
+
+Usage: cats run [options] <bot-name>
+
+run bot created app
+
+Options:
+  --symbol <symbol>         currency symbol to apply automatic trading
+  --strategy <strategy>     trading strategy e.g ...
+  --timeframe <timeframe>   trading cycle. e.g 30m,1h,4h,1d
+  -c, --capital <capital>   starting capital. currency is XBt (Satoshi)
+  -f, --force               force to apply capital
+  --skip                    first only skip
+  -h, --help                display help for command
+
+```
+
+```bash
+$ cats serve --help
+
+Usage: cats serve [options] <bot-name>
+
+pm2 start <bot-name>
+
+Options:
+  -c, --capital <capital>  starting capital. currency is XBt (Satoshi)
+  -f, --force              force to apply capital
+  -h, --help               display help for command
+
+```
+
+```bash
+Usage: cats backtest [options]
+
+backtesting grademark - https://github.com/Grademark/grademark
+
+Options:
+  --exchange <exchangeId>         exchange Name to collect data. eg. bitmex
+  --exchange-mode <exchangeMode>  ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments
+  --symbol <symbol>               currency symbol
+  --strategy <strategy>           trading strategy e.g ...
+  --timeframe <timeframe>         trading cycle
+  --start <startDate>             backtest start date
+  --end <endDate>                 backtest end date
+  --influxdb-token <token>        Token for access Influxdb (localhost:8086)
+  -c, --capital <capital>         starting capital. currency is XBt (Satoshi)
+  -h, --help                      display help for command
+
 ```
 
 ## License
 
 MIT
+
