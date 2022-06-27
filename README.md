@@ -316,6 +316,8 @@ Options:
 ```
 
 ```bash
+$ cats backtest --help
+
 Usage: cats backtest [options]
 
 backtesting grademark - https://github.com/Grademark/grademark
