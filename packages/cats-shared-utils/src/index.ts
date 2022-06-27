@@ -1,9 +1,5 @@
-// import dataforge from 'data-forge'
-// import grademark from 'grademark'
-// import chalk from 'chalk'
-// import semver from 'semver'
-
+exports.dataForge = require('data-forge')
+exports.grademark = require('grademark')
 exports.chalk = require('chalk')
-// exports.execa = require('execa')
 exports.semver = require('semver')
 exports.debug = require('debug')

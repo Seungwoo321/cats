@@ -105,6 +105,7 @@ program
     .command('collector')
     .description('Collect candles from exchanges into influxdb.')
     .option('--exchange <exchangeId>', 'exchange Name to collect data. eg. bitmex')
+    .option('--exchange-mode <exchangeMode>', 'ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments')
     .option('--symbol <symbol>', 'currency symbol')
     .option('--timeframe <timeframe>', 'trading cycle')
     .option('--start <startDate>', 'data collection start date')
@@ -116,6 +117,25 @@ program
         }
         require('../commands/collector')(name, options)
     }) 
+
+program
+    .command('backtest')
+    .description('backtesting grademark - https://github.com/Grademark/grademark')
+    .option('--exchange <exchangeId>', 'exchange Name to collect data. eg. bitmex')
+    .option('--exchange-mode <exchangeMode>', 'ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments')
+    .option('--symbol <symbol>', 'currency symbol')
+    .option('--strategy <strategy>', 'trading strategy e.g ...')
+    .option('--timeframe <timeframe>', 'trading cycle')
+    .option('--start <startDate>', 'backtest start date')
+    .option('--end <endDate>', 'backtest end date')
+    .option('--influxdb-token <token>', 'Token for access Influxdb (localhost:8086)')
+    .option('-c, --capital <capital>', 'starting capital. currency is XBt (Satoshi)')
+    .action((name, options) => {
+        if (minimist(process.argv.slice(3))._.length < 1) {
+            options = {}
+        }
+        require('../commands/backtest')(name, options)
+    })
 
 // output help information on unknown commands
 program.on('command', ([cmd]) => {
