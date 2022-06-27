@@ -26,86 +26,7 @@ Algorithmic trading bot based on [`grademark's backtest.ts`](https://github.com/
 mariadb and influxdb setup automatically.
 
 ```bash
-docker compose up
-```
-
-### Define trading strategy
-
-[See here](https://github.com/Grademark/grademark-first-example/blob/master/index.js#L37-L53)
-
-For example, write the strategy name a as:
-
-```js
-// strategy/a.js 
-require('data-forge-indicators')
-
-module.exports = {
-    // required
-    entryRule: async (enterPostion, args) => {
-        if (/** If you want to enter a long position */) {
-            await enterPosition({ symbol: args.parameters.symbol, direction: 'long', entryPrice: args.parameters.entryPrice })
-
-        } else if (/** If you want to enter a short position */) {
-            await enterPosition({ symbol: args.parameters.symbol, direction: 'short', entryPrice: args.parameters.entryPrice })
-
-        }
-    },
-    // required
-    exitRule: async (exitPosition, args) => {
-        if (args.position.direction === 'long') {
-            if (/** If you want to exit long position */) {
-                await exitPosition(args.parameters.symbol)
-            }
-
-        } else {
-            if (/** If you want to exit short position */) {
-                await exitPosition(args.parameters.symbol)
-            }
-        }
-    },
-
-    // option
-    stopLoss: args => {
-        return args.entryPrice * (5 / 100)
-    },
-
-    // option
-    trailingStopLoss: args => {
-        return args.entryPrice * (5 / 100)
-    },
-
-    // option
-    prepIndicators: ({ inputSeries }) => {
-        if (!inputSeries.toArray().length) {
-            return inputSeries
-        }
-        // If you want to add "Moving Average"
-        const sma20 = inputSeries
-            .deflate(bar => bar.close)
-            .sma(20)
-        inputSeries = inputSeries.withSeries('sma20', movingAverage)
-            .skip(20)
-        const sma60 = inputSeries
-            .deflate(bar => bar.close)
-            .sma(60)
-        inputSeries = inputSeries.withSeries('sma60', movingAverage)
-            .skip(60)
-        const sma60 = inputSeries
-            .deflate(bar => bar.close)
-            .sma(120)
-        inputSeries = inputSeries.withSeries('sma60', movingAverage)
-            .skip(120)
-        return inputSeries
-    }
-}
-
-// strategy/index.js 
-const a = require('./a')
-
-module.exports = {
-    a
-}
-
+docker compose up -d
 ```
 
 ## Getting Started
@@ -212,6 +133,86 @@ cats collector
 ? Select a end date:  2022-06-07 08:38:00
 Colleting data... |████████████████████████████████████████| 100% || 20/20 Requsts
 ```
+
+## Define trading strategy
+
+[See here](https://github.com/Grademark/grademark-first-example/blob/master/index.js#L37-L53)
+
+For example, write the strategy name a as:
+
+```js
+// strategy/a.js 
+require('data-forge-indicators')
+
+module.exports = {
+    // required
+    entryRule: async (enterPostion, args) => {
+        if (/** If you want to enter a long position */) {
+            await enterPosition({ symbol: args.parameters.symbol, direction: 'long', entryPrice: args.parameters.entryPrice })
+
+        } else if (/** If you want to enter a short position */) {
+            await enterPosition({ symbol: args.parameters.symbol, direction: 'short', entryPrice: args.parameters.entryPrice })
+
+        }
+    },
+    // required
+    exitRule: async (exitPosition, args) => {
+        if (args.position.direction === 'long') {
+            if (/** If you want to exit long position */) {
+                await exitPosition(args.parameters.symbol)
+            }
+
+        } else {
+            if (/** If you want to exit short position */) {
+                await exitPosition(args.parameters.symbol)
+            }
+        }
+    },
+
+    // option
+    stopLoss: args => {
+        return args.entryPrice * (5 / 100)
+    },
+
+    // option
+    trailingStopLoss: args => {
+        return args.entryPrice * (5 / 100)
+    },
+
+    // option
+    prepIndicators: ({ inputSeries }) => {
+        if (!inputSeries.toArray().length) {
+            return inputSeries
+        }
+        // If you want to add "Moving Average"
+        const sma20 = inputSeries
+            .deflate(bar => bar.close)
+            .sma(20)
+        inputSeries = inputSeries.withSeries('sma20', movingAverage)
+            .skip(20)
+        const sma60 = inputSeries
+            .deflate(bar => bar.close)
+            .sma(60)
+        inputSeries = inputSeries.withSeries('sma60', movingAverage)
+            .skip(60)
+        const sma60 = inputSeries
+            .deflate(bar => bar.close)
+            .sma(120)
+        inputSeries = inputSeries.withSeries('sma60', movingAverage)
+            .skip(120)
+        return inputSeries
+    }
+}
+
+// strategy/index.js 
+const a = require('./a')
+
+module.exports = {
+    a
+}
+
+```
+
 
 ## @cats/cli
 
