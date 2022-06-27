@@ -7,7 +7,8 @@ import { Market } from 'ccxt'
 import { assert } from 'chai'
 
 const { debug, chalk } = require('@cats/shared-utils')
-const logger = debug('trading:bitmex')
+// const logger = debug('trading:bitmex')
+const logger = (...args: any[]) => console.log(new Date().toISOString(), 'trading:bitmex', ...args)
 
 /**
  * Update an open position for a new bar.
@@ -465,7 +466,8 @@ async function executionTrading(
     data: IOrder,
     execInst: string
 ): Promise<void> {
-    const logger = debug('execution-trading:bitmex')
+    // const logger = debug('execution-trading:bitmex')
+    const logger = (...args: any[]) => console.log(new Date().toISOString(), 'execution-trading:bitmex', ...args)
     logger(symbol, '[START]', 'ExecutionTrading')
     const positionStatus = await gqlService.getPositionStatus(symbol)
     if (!positionStatus.tradingId) {
