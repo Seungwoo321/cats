@@ -1,9 +1,9 @@
 
 
-const Service = require('../util/service')
 const GeneratorAPI = require('../util/generator')
 const { chalk, debug } = require('@cats/shared-utils')
 const logger = debug('cats:cli')
+const gqlService = require('@cats/helper-gql').service
 
 process.env.CATS_CLI_MODE = true
 
@@ -38,11 +38,10 @@ async function serve(name, options) {
         } else {
             console.log('startingCapital:' + startingCapital)
         }
-
         // Service
         const pm2 = require('./pm2')
         const appConfigPath = generator.getConfigPath()
-        pm2(['start', appConfigPath, name])
+        pm2(['start', appConfigPath, '--name', name])
 
     } catch (error) {
         throw error

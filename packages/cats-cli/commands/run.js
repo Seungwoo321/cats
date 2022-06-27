@@ -50,6 +50,16 @@ async function run (name, options) {
         process.env.EXCHANGE_SECRET_KEY = config.env.EXCHANGE_SECRET_KEY
         process.env.EXCHANGE_MODE = argvs.exchangeMode
 
+        if (options.symbol && options.symbol !== argvs.symbol) {
+            throw(new Error('Invalid parameter value --symbol'))
+        }
+        if (options.strategy && options.strategy !== argvs.strategy) {
+            throw(new Error('Invalid parameter value --strategy'))
+        }
+        if (options.timeframe && options.timeframe !== argvs.timeframe) {
+            throw (new Error('Invalid parameter value --timeframe'))
+        }
+
         const parmas = Object.assign({}, {
             symbol: argvs.symbol,
             strategy: argvs.strategy,

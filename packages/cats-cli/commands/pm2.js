@@ -1,8 +1,3 @@
-const Service = require('../util/service')
-const GeneratorAPI = require('../util/generator')
-const { chalk, debug } = require('@cats/shared-utils')
-const logger = debug('cats:cli')
-const path = require('path')
 const execa = require('execa')
 
 process.env.CATS_CLI_MODE = true

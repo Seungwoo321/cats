@@ -70,6 +70,9 @@ program
 program
     .command('run <bot-name>')
     .description('run bot created app')
+    .option('--symbol <symbol>', 'currency symbol to apply automatic trading')
+    .option('--strategy <strategy>', 'trading strategy e.g ...')
+    .option('--timeframe <timeframe> ', 'trading cycle. e.g 30m,1h,4h,1d')
     .option('-c, --capital <capital>', 'starting capital. currency is XBt (Satoshi)')
     .option('-f, --force', 'force to apply capital')
     .option('--skip', 'first only skip')
