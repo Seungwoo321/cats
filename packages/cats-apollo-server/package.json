@@ -21,9 +21,11 @@
     "access": "public"
   },
   "dependencies": {
+    "@achrinza/node-ipc": "^10.1.6",
     "apollo-server": "^3.9.0",
     "globby": "^11.0.2",
     "graphql": "^16.3.0",
+    "lowdb": "^3.0.0",
     "sequelize": "^6.17.0"
   },
   "bugs": {

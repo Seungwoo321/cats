@@ -13,6 +13,5 @@ const createStore = () => {
         influx2: Influx2
     }
 }
-module.exports = {
-    createStore
-}
+
+exports.createStore = createStore

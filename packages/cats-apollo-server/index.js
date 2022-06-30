@@ -1,7 +1,7 @@
 const { ApolloServer } = require('apollo-server')
 const typeDefs = require('./type-defs')
 const resolvers = require('./resolvers')
-const { createStore } = require('./utils')
+const { createStore } = require('./util/createStore')
 const CandleAPI = require('./datasources/candle')
 const OpenPositionAPI = require('./datasources/openPosition')
 const PositionStatusAPI = require('./datasources/positionStatus')
@@ -20,8 +20,39 @@ const dataSources = () => ({
 })
 
 // the function that sets up the global context for each resolver, using the req
-const context = async ({ req }) => {
-    return req
+const context = async ({ req, connection }) => {
+    let contextData
+    try {
+        if (connection) {
+            contextData = await autoCall(context, { connection })
+        } else {
+            contextData = await autoCall(context, { req })
+        }
+    } catch (e) {
+        console.error(e)
+        throw e
+    }
+    contextData = Object.assign({}, contextData, { pubsub })
+    return contextData
+}
+
+// Resolvers context from WebSocket
+const subscriptions = {
+    path: options.subscriptionsPath,
+    onConnect: async (connection, websocket) => {
+        let contextData = {}
+        try {
+            contextData = await autoCall(context, {
+                connection,
+                websocket
+            })
+            contextData = Object.assign({}, contextData, { pubsub })
+        } catch (e) {
+            console.error(e)
+            throw e
+        }
+        return contextData
+    }
 }
 
 // Set up Apollo Server
