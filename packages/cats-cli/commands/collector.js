@@ -42,7 +42,7 @@ async function collect (name, options) {
             b1.start(total, i, {
                 speed: 'N/A'
             })
-
+            let skip = 0
             while (i < total) {
                 i++
                 const data = await api.fetchOhlcvFromExchange(fullOptions.symbol, fullOptions.timeframe, since)
@@ -58,13 +58,19 @@ async function collect (name, options) {
                         volume: items[5]
                     }
                 })
-                await api.insertOhlcvToInflux2(process.env.INFLUX2_TOKEN, fullOptions.symbol, fullOptions.timeframe, candles)
+                if (candles.length) {
+                    await api.insertOhlcvToInflux2(process.env.INFLUX2_TOKEN, fullOptions.symbol, fullOptions.timeframe, candles)
+                } else {
+                    skip ++
+                }
                 b1.increment()
                 b1.update(i)
                 await api.sleep()
             }
             b1.stop()
-
+            if (skip > 0) {
+                console.log(`skip: ${skip}`)
+            }
             console.log(`${chalk.green(`Completed Collect`)}`)
 
         }
