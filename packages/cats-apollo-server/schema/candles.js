@@ -44,11 +44,12 @@ exports.resolvers = {
     },
 
     Mutation: {
-        updateCandle: async (_, { token, exchange, mode, symbol, timeframe = '1h', bar }, { dataSources }) => {
+        updateCandle: async (_, { token, exchange, mode, symbol, timeframe = '1h', bar }, { dataSources, pubsub }) => {
             logger(`updateCandle - ${exchange} ${mode} ${symbol} ${timeframe} ${JSON.stringify(bar)}`)
+            pubsub.publish(channels.CANDLE_UPDATED, { candle: bar })
             return await dataSources.candleAPI.updateCandle({ token, exchange, mode, symbol, timeframe, bar})
         },
-        importCandles: async (_, { token, exchange, mode, symbol, timeframe = '1h', bars }, { dataSources }) => {
+        importCandles: async (_, { token, exchange, mode, symbol, timeframe = '1h', bars }, { dataSources, pubsub }) => {
             logger(`importCandles - ${exchange} ${mode} ${symbol} ${timeframe} ${bars.length}`)
             return await dataSources.candleAPI.importCandles({ token, exchange, mode, symbol, timeframe, bars })
         },
@@ -56,7 +57,9 @@ exports.resolvers = {
 
     Subscription: {
         candleUpdaated: {
-            subscribe: (_, { }, context) => context.pubsub.asyncIterator(channels.CANDLE_UPDATED)
+            subscribe: (_, { }, { pubsub }) => {
+                pubsub.asyncIterator([channels.CANDLE_UPDATED])
+            }
         }
     }
 }

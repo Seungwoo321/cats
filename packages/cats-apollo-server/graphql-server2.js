@@ -2,8 +2,8 @@ const http = require('http')
 const express = require('express')
 const { ApolloServer } = require('apollo-server-express')
 const { ApolloServerPluginDrainHttpServer } = require('apollo-server-core')
-const { execute, subscribe } = require('graphql')
-const { SubscriptionServer } = require('subscriptions-transport-ws')
+const { WebSocketServer } = require('ws')
+const { useServer } = require('graphql-ws/lib/use/ws')
 const { makeExecutableSchema } = require('@graphql-tools/schema')
 const { chalk } = require('@cats/shared-utils')
 const typeDefs = require('./type-defs')
@@ -40,11 +40,25 @@ module.exports = async () => {
     
     const httpServer = http.createServer(app)
     httpServer.setTimeout(1000000)
+
+    const schema = makeExecutableSchema({ typeDefs, resolvers });
     
-    const schema = makeExecutableSchema({ typeDefs, resolvers })
+    const wsServer = new WebSocketServer({
+        server: httpServer,
+        path: '/graphql'
+    })
+
+    const serverCleanup = useServer({
+        schema,
+        onConnect: async (ctx) => {
+            console.log('Connect')
+        },
+        onDisconnect(ctx, code, reason) {
+            console.log('Disconnected!');
+        },
+    }, wsServer);
 
     // Set up Apollo Server
-    let subscriptionServer;
     const server = new ApolloServer({
         schema,
         csrfPrevention: true,
@@ -77,36 +91,14 @@ module.exports = async () => {
                 async serverWillStart() {
                     return {
                         async drainServer() {
-                            // await serverCleanup.dispose();
-                            subscriptionServer.close()
-                        }
-                    }
-                }
-            }
-        ]
+                            await serverCleanup.dispose()
+                        },
+                    };
+                },
+            },
+        ],
     })
-    subscriptionServer = SubscriptionServer.create({
-        schema,
-        execute,
-        subscribe,
-        onConnect: async (connection, websocket) => {
-            let contextData = {}
-            try {
-                contextData = await autoCall(context, {
-                    connection,
-                    websocket
-                })
-                contextData = Object.assign({}, contextData, { pubsub })
-            } catch (e) {
-                console.error(e)
-                throw e
-            }
-            return contextData
-        }
-    }, {
-        server: httpServer,
-        path: server.graphqlPath,
-    });
+
     await server.start()
     server.applyMiddleware({ app })
     if (process.env.NODE_ENV !== 'test') {
@@ -118,7 +110,6 @@ module.exports = async () => {
             }
         })
     }
-
     return {
         apolloServer: server,
         httpServer

@@ -3,9 +3,11 @@ import VueApollo from 'vue-apollo'
 import { ApolloClient } from 'apollo-client'
 import { split } from '@apollo/client/link/core'
 import { HttpLink } from '@apollo/client/link/http'
-import { WebSocketLink } from '@apollo/client/link/ws'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { createClient } from 'graphql-ws'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { InMemoryCache } from 'apollo-cache-inmemory'
+// import { createApolloClient } from 'vue-cli-plugin-apollo/graphql-client'
 // GraphQL documents
 import LOADING_CHANGE from '@/graphql/loading/loadingChange.gql'
 
@@ -16,12 +18,27 @@ const httpLink = new HttpLink({
   uri: 'http://localhost:4000/graphql'
 })
 
-const wsLink = new WebSocketLink({
-  uri: 'ws://localhost:4000/graphql',
-  options: {
-    reconnect: true
+const wsLink = new GraphQLWsLink(createClient({
+  url: 'ws://localhost:4000',
+  keepAlive: 10_000, // ping server every 10 seconds,
+  shouldRetry: true,
+  on: {
+    connected: (socket) => (console.log(socket))
+    // ping: (received) => {
+    //   if (!received) {
+    //     timedOut = setTimeout(() => {
+    //       if (activeSocket.readyState === WebSocket.OPEN) { activeSocket.close(4408, 'Request Timeout') }
+    //     }, 5_000)
+    //   } // wait 5 seconds for the pong and then close the connection
+    // },
+    // pong: (received) => {
+    //   if (received) {
+    //     // clearTimeout(timedOut)
+    //   }
+    //   console.log(received)
+    // }
   }
-})
+}))
 
 const link = split(
   ({ query }) => {
@@ -40,8 +57,6 @@ export const apolloClient = new ApolloClient({
   websocketsOnly: true,
   connectToDevTools: true
 })
-
-apolloClient.wsClient = wsLink.subscriptionClient
 
 // Create vue apollo provider
 export const apolloProvider = new VueApollo({
@@ -85,30 +100,34 @@ export async function resetApollo () {
 }
 
 /* Connected state */
-function setConnected (value) {
-  console.log(value)
-  // apolloClient.mutate({
-  //   mutation: CONNECTED_SET,
-  //   variables: {
-  //     value
-  //   }
-  // })
-}
-apolloClient.wsClient.on('connected', () => {
-  console.log('connected')
-  setConnected(true)
-})
-apolloClient.wsClient.on('reconnected', async () => {
-  // await resetApollo()
-  console.log('reconnected')
-  setConnected(true)
-})
-// Offline
-apolloClient.wsClient.on('disconnected', () => {
-  console.log('disconnected')
-  setConnected(false)
-})
-apolloClient.wsClient.on('error', (err) => {
-  console.log('error', err)
-  setConnected(false)
-})
+
+// function setConnected (value) {
+//   console.log(value)
+//   // apolloClient.mutate({
+//   //     mutation: CONNECTED_SET,
+//   //     variables: {
+//   //         value
+//   //     }
+//   // })
+// }
+// wsLink.client.on('connected', () => {
+//   console.log('connected')
+// })
+// wsLink.on('connected', () => {
+//   console.log('connected')
+//   setConnected(true)
+// })
+// wsLink.on('reconnected', async () => {
+//   // await resetApollo()
+//   console.log('reconnected')
+//   setConnected(true)
+// })
+// // Offline
+// wsLink.on('disconnected', () => {
+//   console.log('disconnected')
+//   setConnected(false)
+// })
+// wsLink.on('error', (err) => {
+//   console.log('error', err)
+//   setConnected(false)
+// })
