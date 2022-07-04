@@ -12,6 +12,7 @@
     "packages/cats-helper-strategy",
     "packages/cats-helper-trading",
     "packages/cats-cli",
+    "packages/cats-cli-ui",
     "packages/cats-shared-utils",
     "packages/test"
   ],
@@ -37,13 +38,9 @@
   "homepage": "https://github.com/Seungwoo321/cats#readme",
   "devDependencies": {
     "@types/node": "^17.0.24",
-    "cache-loader": "^4.1.0",
-    "typescript": "^4.6.3"
+    "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@achrinza/node-ipc": "^9.2.3",
-    "@cats/helper-trading": "file:packages/cats-helper-trading",
-    "ccxt": "^1.85.69",
-    "grademark": "^0.2.9"
+    "@achrinza/node-ipc": "^9.2.3"
   }
 }
