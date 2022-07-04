@@ -1,6 +1,7 @@
 const gql = require('graphql-tag')
 const { debug } = require('@cats/shared-utils')
 const logger = debug('cats:apollo-server')
+const channels = require('../channels')
 exports.types = gql`
     type Query {
         candles(token: String, exchange: String, mode: String, symbol: String, timeframe: String, start: Int, stop: Int): [IBar]
@@ -11,6 +12,10 @@ exports.types = gql`
         importCandles(token: String, exchange: String, mode: String, symbol: String, timeframe: String, bars: [InputBar]): IBar
     }
 
+    type Subscription {
+        candleUpdaated: IBar
+    }
+    
     input InputBar {
         time: Date!
         open: Float!
@@ -27,6 +32,7 @@ exports.types = gql`
         close: Float!
         volume: Float!
     }
+
 `
 
 exports.resolvers = {
@@ -36,6 +42,7 @@ exports.resolvers = {
             return await dataSources.candleAPI.getCandles({ token, exchange, mode, symbol, timeframe, start, stop })
         }
     },
+
     Mutation: {
         updateCandle: async (_, { token, exchange, mode, symbol, timeframe = '1h', bar }, { dataSources }) => {
             logger(`updateCandle - ${exchange} ${mode} ${symbol} ${timeframe} ${JSON.stringify(bar)}`)
@@ -45,5 +52,11 @@ exports.resolvers = {
             logger(`importCandles - ${exchange} ${mode} ${symbol} ${timeframe} ${bars.length}`)
             return await dataSources.candleAPI.importCandles({ token, exchange, mode, symbol, timeframe, bars })
         },
+    },
+
+    Subscription: {
+        candleUpdaated: {
+            subscribe: (_, { }, context) => context.pubsub.asyncIterator(channels.CANDLE_UPDATED)
+        }
     }
 }

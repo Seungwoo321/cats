@@ -1,9 +1,9 @@
 const { DataSource } = require('apollo-datasource')
-const { PositionStatus } = require('@cats/helper-mariadb')
-class OpenPosition extends DataSource {
-    constructor (store) {
+const { OpenPosition, PositionStatus } = require('@cats/helper-mariadb')
+
+class OpenPositionApi extends DataSource {
+    constructor () {
         super()
-        this.store = store
     }
 
     initialize (config) {
@@ -11,7 +11,7 @@ class OpenPosition extends DataSource {
     }
 
     async createPosition (position) {
-        const res = await this.store.findOrCreate({
+        const res = await OpenPosition.findOrCreate({
             where: {
                 symbol: position.symbol
             },
@@ -33,7 +33,7 @@ class OpenPosition extends DataSource {
     }
 
     async getPosition ({ symbol }) {
-        const res = await this.store.findOne({
+        const res = await OpenPosition.findOne({
             where: {
                 symbol: symbol
             },
@@ -43,7 +43,7 @@ class OpenPosition extends DataSource {
     }
 
     async updatePosition ({ values }) {
-        const res = await this.store.upsert(values, {
+        const res = await OpenPosition.upsert(values, {
             where: {
                 symbol: values.symbol
             },
@@ -55,7 +55,7 @@ class OpenPosition extends DataSource {
     }
 
     async closePostion ({ symbol }) {
-        const res = await this.store.destroy({
+        const res = await OpenPosition.destroy({
             where: {
                 symbol
             },
@@ -67,4 +67,4 @@ class OpenPosition extends DataSource {
     }
 }
 
-module.exports = OpenPosition
+module.exports = OpenPositionApi

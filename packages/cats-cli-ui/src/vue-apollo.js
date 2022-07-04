@@ -1,101 +1,147 @@
 import Vue from 'vue'
 import VueApollo from 'vue-apollo'
-import { createApolloClient, restartWebsockets } from 'vue-cli-plugin-apollo/graphql-client'
+import { ApolloClient } from 'apollo-client'
+import { split } from 'apollo-link'
+import { HttpLink } from 'apollo-link-http'
+// import { WebSocketLink } from 'apollo-link-ws'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { createClient } from 'graphql-ws'
+import { getMainDefinition } from 'apollo-utilities'
+import { InMemoryCache } from 'apollo-cache-inmemory'
+// import { createApolloClient } from 'vue-cli-plugin-apollo/graphql-client'
+// import clientStateDefaults from './state/defaults'
+// import clientStateResolvers from './state/resolvers'
+// import clientStateTypeDefs from './state/typeDefs'
+// GraphQL documents
+import LOADING_CHANGE from '@/graphql/loading/loadingChange.gql'
 
-// Install the vue plugin
+// Install the vue plugi
 Vue.use(VueApollo)
 
-// Name of the localStorage item
-const AUTH_TOKEN = 'apollo-token'
+const httpLink = new HttpLink({
+  // You should use an absolute URL here
+  uri: 'http://localhost:4000/graphql'
+})
 
-// Http endpoint
-const httpEndpoint = process.env.VUE_APP_GRAPHQL_HTTP || 'http://localhost:4000/graphql'
-
-// Config
-const defaultOptions = {
-  // You can use `https` for secure connection (recommended in production)
-  httpEndpoint,
-  // You can use `wss` for secure connection (recommended in production)
-  // Use `null` to disable subscriptions
-  // wsEndpoint: process.env.VUE_APP_GRAPHQL_WS || 'ws://localhost:4000/graphql',
-  // LocalStorage token
-  tokenName: AUTH_TOKEN,
-  // Enable Automatic Query persisting with Apollo Engine
-  persisting: false,
-  // Use websockets for everything (no HTTP)
-  // You need to pass a `wsEndpoint` for this to work
-  websocketsOnly: false,
-  // Is being rendered on the server?
-  ssr: false
-
-  // Override default apollo link
-  // note: don't override httpLink here, specify httpLink options in the
-  // httpLinkOptions property of defaultOptions.
-  // link: myLink
-
-  // Override default cache
-  // cache: myCache
-
-  // Override the way the Authorization header is set
-  // getAuth: (tokenName) => ...
-
-  // Additional ApolloClient options
-  // apollo: { ... }
-
-  // Client local data (see apollo-link-state)
-  // clientState: { resolvers: { ... }, defaults: { ... } }
-}
-
-// Call this in the Vue app file
-export function createProvider (options = {}) {
-  // Create apollo client
-  const { apolloClient, wsClient } = createApolloClient({
-    ...defaultOptions,
-    ...options
+// Create the subscription websocket link
+// const wsLink = new WebSocketLink({
+//   uri: 'ws://localhost:4000/graphql',
+//   options: {
+//     reconnect: true
+//   }
+// })
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: 'ws://localhost:4000/graphql'
+    // options: {
+    //   reconnect: true
+    //   // lazy: true
+    // }
   })
-  apolloClient.wsClient = wsClient
+)
+console.log(wsLink)
+const link = split(
+  // split based on operation type
+  ({ query }) => {
+    const { kind, operation } = getMainDefinition(query)
+    return kind === 'OperationDefinition' &&
+      operation === 'subscription'
+  },
+  wsLink,
+  httpLink
+)
 
-  // Create vue apollo provider
-  const apolloProvider = new VueApollo({
-    defaultClient: apolloClient,
-    defaultOptions: {
-      $query: {
-        fetchPolicy: 'cache-and-network'
-      }
-    },
-    errorHandler (error) {
-      // eslint-disable-next-line no-console
-      console.log('%cError', 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;', error.message)
+// Create the apollo client
+export const apolloClient = new ApolloClient({
+  link,
+  cache: new InMemoryCache(),
+  websocketsOnly: true,
+  connectToDevTools: true
+})
+
+// Create vue apollo provider
+export const apolloProvider = new VueApollo({
+  defaultClient: apolloClient,
+  defaultOptions: {
+    $query: {
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all'
     }
-  })
-
-  return apolloProvider
-}
-
-// Manually call this when user log in
-export async function onLogin (apolloClient, token) {
-  if (typeof localStorage !== 'undefined' && token) {
-    localStorage.setItem(AUTH_TOKEN, token)
+  },
+  watchLoading (state, mod) {
+    apolloClient.mutate({
+      mutation: LOADING_CHANGE,
+      variables: {
+        mod
+      }
+    })
+  },
+  errorHandler (error) {
+    console.log('%cError', 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;')
+    console.log(error.message)
+    if (error.graphQLErrors) {
+      console.log(error.graphQLErrors)
+    }
+    if (error.networkError) {
+      console.log(error.networkError)
+    }
   }
-  if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient)
+})
+
+export async function resetApollo () {
+  console.log('[UI] Apollo store reset')
+
+  // const { data: { projectCurrent } } = await apolloClient.query({
+  //   query: PROJECT_CURRENT,
+  //   fetchPolicy: 'network-only'
+  // })
+  // const projectId = projectCurrent.id
+
+  // if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient)
   try {
-    await apolloClient.resetStore()
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log('%cError on cache reset (login)', 'color: orange;', e.message)
-  }
-}
-
-// Manually call this when user log out
-export async function onLogout (apolloClient) {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.removeItem(AUTH_TOKEN)
-  }
-  if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient)
-  try {
-    await apolloClient.resetStore()
+    // await apolloClient.resetStore()
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log('%cError on cache reset (logout)', 'color: orange;', e.message)
   }
+
+  // await apolloClient.mutate({
+  //   mutation: CURRENT_PROJECT_ID_SET,
+  //   variables: {
+  //     projectId
+  //   }
+  // })
 }
+
+/* Connected state */
+
+// function setConnected (value) {
+//   console.log(value)
+//   // apolloClient.mutate({
+//   //     mutation: CONNECTED_SET,
+//   //     variables: {
+//   //         value
+//   //     }
+//   // })
+// }
+// wsLink.client.on('connected', () => {
+//   console.log('connected')
+// })
+// wsLink.on('connected', () => {
+//   console.log('connected')
+//   setConnected(true)
+// })
+// wsLink.on('reconnected', async () => {
+//   // await resetApollo()
+//   console.log('reconnected')
+//   setConnected(true)
+// })
+// // Offline
+// wsLink.on('disconnected', () => {
+//   console.log('disconnected')
+//   setConnected(false)
+// })
+// wsLink.on('error', (err) => {
+//   console.log('error', err)
+//   setConnected(false)
+// })

@@ -5,13 +5,17 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import { createProvider } from './vue-apollo'
+import { apolloProvider } from './vue-apollo'
+import gql from 'graphql-tag'
+
+window.gql = gql
 
 Vue.config.productionTip = false
+Vue.config.devtools = true
 
 new Vue({
   router,
+  apolloProvider,
   store,
-  apolloProvider: createProvider(),
   render: h => h(App)
 }).$mount('#app')

@@ -2,6 +2,9 @@ const globby = require('globby')
 const merge = require('lodash.merge')
 // const { GraphQLJSON } = require('graphql-type-json')
 
+// Start ipc server
+require('./util/ipc')
+
 const resolvers = [{
     // JSON: GraphQLJSON,
     // Subscription: {}

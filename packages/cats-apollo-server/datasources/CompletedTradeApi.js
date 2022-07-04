@@ -1,9 +1,10 @@
 const { DataSource } = require('apollo-datasource')
-const { PositionStatus } = require('@cats/helper-mariadb')
-class CompletedTrade extends DataSource {
-    constructor (store) {
+const { PositionStatus, CompletedTrade } = require('@cats/helper-mariadb')
+
+class CompletedTradeApi extends DataSource {
+
+    constructor () {
         super()
-        this.store = store
     }
 
     initialize (config) {
@@ -11,7 +12,7 @@ class CompletedTrade extends DataSource {
     }
 
     async findTrading ({ tradingId }) {
-        const res = await this.store.findOne({
+        const res = await CompletedTrade.findOne({
             where: {
                 tradingId
             }
@@ -20,7 +21,7 @@ class CompletedTrade extends DataSource {
     }
 
     async findTradingBySymbol ({ symbol }) {
-        const res = await this.store.findAll({
+        const res = await CompletedTrade.findAll({
             where: {
                 symbol
             },
@@ -33,7 +34,7 @@ class CompletedTrade extends DataSource {
     }
 
     async updateTrading ({ values }) {
-        const res = await this.store.upsert(values, {
+        const res = await CompletedTrade.upsert(values, {
             where: {
                 tradingId: values.tradingId
             }
@@ -45,8 +46,8 @@ class CompletedTrade extends DataSource {
     }
 
     async removeTrading ({ tradingId }) {
-        return await this.store.destroy({ where: { tradingId } })
+        return await CompletedTrade.destroy({ where: { tradingId } })
     }
 }
 
-module.exports = CompletedTrade
+module.exports = CompletedTradeApi

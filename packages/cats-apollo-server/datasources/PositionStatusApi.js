@@ -1,9 +1,9 @@
 const { DataSource } = require('apollo-datasource')
+const { PositionStatus } = require('@cats/helper-mariadb')
 
-class PositionStatus extends DataSource {
-    constructor (store) {
+class PositionStatusApi extends DataSource {
+    constructor () {
         super()
-        this.store = store
     }
 
     initialize (config) {
@@ -11,7 +11,7 @@ class PositionStatus extends DataSource {
     }
 
     async positionStatus ({ symbol }) {
-        const found = await this.store.findOrCreate({
+        const found = await PositionStatus.findOrCreate({
             where: {
                 symbol
             },
@@ -29,7 +29,7 @@ class PositionStatus extends DataSource {
     }
 
     async positionStatusUpdate ({ values }) {
-        const res = await this.store.update(values, {
+        const res = await PositionStatus.update(values, {
             where: { symbol: values.symbol }
         })
         if (res && res.length && res[0] === 1) {
@@ -38,4 +38,4 @@ class PositionStatus extends DataSource {
     }
 }
 
-module.exports = PositionStatus
+module.exports = PositionStatusApi

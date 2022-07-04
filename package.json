@@ -37,9 +37,11 @@
   "homepage": "https://github.com/Seungwoo321/cats#readme",
   "devDependencies": {
     "@types/node": "^17.0.24",
+    "cache-loader": "^4.1.0",
     "typescript": "^4.6.3"
   },
   "dependencies": {
+    "@achrinza/node-ipc": "^9.2.3",
     "@cats/helper-trading": "file:packages/cats-helper-trading",
     "ccxt": "^1.85.69",
     "grademark": "^0.2.9"

@@ -1,4 +1,4 @@
-const ipc = require('@achrinza/node-ipc')
+const ipc = require('@achrinza/node-ipc').default
 // Utils
 const { log, dumpObject } = require('../util/logger')
 

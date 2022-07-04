@@ -1,9 +1,9 @@
 const { DataSource } = require('apollo-datasource')
-const { CompletedTrade } = require('@cats/helper-mariadb')
-class OrderHistory extends DataSource {
+const { OrderHistory, CompletedTrade } = require('@cats/helper-mariadb')
+
+class OrderHistoryApi extends DataSource {
     constructor (store) {
         super()
-        this.store = store
     }
 
     initialize (config) {
@@ -11,7 +11,7 @@ class OrderHistory extends DataSource {
     }
 
     async findOrdersBySymbol ({ symbol }) {
-        const res = await this.store.findAll({
+        const res = await OrderHistory.findAll({
             where: {
                 symbol
             },
@@ -21,7 +21,7 @@ class OrderHistory extends DataSource {
     }
 
     async findOrdersByTrading ({ tradingId }) {
-        const res = await this.store.findAll({
+        const res = await OrderHistory.findAll({
             where: {
                 tradingId
             },
@@ -31,7 +31,7 @@ class OrderHistory extends DataSource {
     }
 
     async findOrder ({ orderId }) {
-        const res = await this.store.findOne({
+        const res = await OrderHistory.findOne({
             where: {
                 orderId
             }
@@ -40,7 +40,7 @@ class OrderHistory extends DataSource {
     }
 
     async updateOrder ({ values }) {
-        const res = await this.store.upsert(values, {
+        const res = await OrderHistory.upsert(values, {
             where: {
                 orderId: values.orderId
             },
@@ -53,4 +53,4 @@ class OrderHistory extends DataSource {
     }
 }
 
-module.exports = OrderHistory
+module.exports = OrderHistoryApi

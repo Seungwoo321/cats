@@ -1,11 +1,10 @@
 const { DataSource } = require('apollo-datasource')
-const { config } = require('@cats/config')
-const { INFLUX2_URL } = config()
-class CandleAPI extends DataSource {
+const { Influx2 } = require('@cats/helper-influx2')
 
-    constructor (store) {
+class CandleApi extends DataSource {
+
+    constructor () {
         super()
-        this.store = store
         this.org = 'cats'
         this.USE_TEST_NET = 'test'
     }
@@ -20,7 +19,7 @@ class CandleAPI extends DataSource {
      * @returns 
      */
     async getCandles ({ token, exchange, mode, symbol, timeframe, start, stop }) {  
-        const client = new this.store(token)
+        const client = new Influx2(token)
         const bucketName = `${exchange}${mode === this.USE_TEST_NET ? `.${this.USE_TEST_NET}`: ''}`
         const measurement = `${symbol}_${timeframe}`
         return client.fetchCandles(this.org, bucketName, measurement, symbol, { start, stop })
@@ -31,7 +30,7 @@ class CandleAPI extends DataSource {
      * @returns 
      */
     async updateCandle ({ token, exchange, mode, symbol, timeframe, bar }) {
-        const client = new this.store(token)
+        const client = new Influx2(token)
         const bucketName = `${exchange}${mode === this.USE_TEST_NET ? `.${this.USE_TEST_NET}` : ''}`
         const measurement = `${symbol}_${timeframe}`
         return client.updateCandle(this.org, bucketName, measurement, symbol, bar)
@@ -42,11 +41,11 @@ class CandleAPI extends DataSource {
      * @returns 
      */
     async importCandles ({ token, exchange, mode, symbol, timeframe, bars }) {
-        const client = new this.store(token)
+        const client = new Influx2(token)
         const bucketName = `${exchange}${mode === this.USE_TEST_NET ? `.${this.USE_TEST_NET}` : ''}`
         const measurement = `${symbol}_${timeframe}`
         return client.importCandles(this.org, bucketName, measurement, symbol, bars)
     }
 }
 
-module.exports = CandleAPI
+module.exports = CandleApi
