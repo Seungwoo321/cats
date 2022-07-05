@@ -7,6 +7,7 @@ import { WebSocketLink } from '@apollo/client/link/ws'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 // GraphQL documents
+import CONNECTED_SET from '@/graphql/connected/connectedSet.gql'
 import LOADING_CHANGE from '@/graphql/loading/loadingChange.gql'
 
 // Install the vue plugin
@@ -37,7 +38,6 @@ const link = split(
 export const apolloClient = new ApolloClient({
   link,
   cache: new InMemoryCache(),
-  websocketsOnly: true,
   connectToDevTools: true
 })
 
@@ -86,20 +86,19 @@ export async function resetApollo () {
 
 /* Connected state */
 function setConnected (value) {
-  console.log(value)
-  // apolloClient.mutate({
-  //   mutation: CONNECTED_SET,
-  //   variables: {
-  //     value
-  //   }
-  // })
+  apolloClient.mutate({
+    mutation: CONNECTED_SET,
+    variables: {
+      value
+    }
+  })
 }
 apolloClient.wsClient.on('connected', () => {
   console.log('connected')
   setConnected(true)
 })
 apolloClient.wsClient.on('reconnected', async () => {
-  // await resetApollo()
+  await resetApollo()
   console.log('reconnected')
   setConnected(true)
 })

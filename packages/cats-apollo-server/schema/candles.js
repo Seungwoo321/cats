@@ -58,7 +58,7 @@ exports.resolvers = {
     Subscription: {
         candleUpdaated: {
             subscribe: (_, { }, { pubsub }) => {
-                pubsub.asyncIterator([channels.CANDLE_UPDATED])
+                return pubsub.asyncIterator([channels.CANDLE_UPDATED])
             }
         }
     }

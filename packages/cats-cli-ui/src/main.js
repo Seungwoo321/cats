@@ -5,10 +5,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import { apolloProvider } from './vue-apollo-v2'
-import gql from 'graphql-tag'
-
-window.gql = gql
+import { apolloProvider } from './vue-apollo-v3'
 
 Vue.config.productionTip = false
 Vue.config.devtools = true

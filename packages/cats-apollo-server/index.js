@@ -1,1 +1,1 @@
-require('./graphql-server-v2')()
+require('./graphql-server-v3')()

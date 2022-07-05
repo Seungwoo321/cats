@@ -25,11 +25,16 @@ module.exports = {
   parallel: !process.env.CIRCLECI,
 
   chainWebpack: config => {
-      config.module
-          .rule('gql')
-          .test(/\.(gql|graphql)$/)
-          .use('gql-loader')
-          .loader(require.resolve('graphql-tag/loader'))
-          .end()
+    // GraphQL Loader
+    config.module
+      .rule('graphql')
+      .test(/\.graphql$/)
+      .use('graphql-tag/loader')
+      .loader('graphql-tag/loader')
+      .end()
+      // Add another loader
+      .use('other-loader')
+      .loader('other-loader')
+      .end()
   }
 }
