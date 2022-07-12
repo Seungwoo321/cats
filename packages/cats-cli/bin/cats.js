@@ -16,7 +16,6 @@ function checkNodeVersion(wanted, id) {
 
 checkNodeVersion(requiredVersion, '@cats/cli')
 
-const execa = require('execa')
 const program = require('commander')
 
 program
@@ -96,7 +95,7 @@ program
 program
     .command('pm2')
     .description('pm2 installed in devDependencies')
-    .action((name, options) => {
+    .action((options) => {
         const argvs = minimist(process.argv.slice(3))._
         require('../commands/pm2')(argvs)
     })
@@ -104,37 +103,31 @@ program
 program
     .command('collector')
     .description('Collect candles from exchanges into influxdb.')
-    .option('--exchange <exchangeId>', 'exchange Name to collect data. eg. bitmex')
+    .option('--exchange-id <exchangeId>', 'exchange Name to collect data. eg. bitmex')
     .option('--exchange-mode <exchangeMode>', 'ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments')
     .option('--symbol <symbol>', 'currency symbol')
     .option('--timeframe <timeframe>', 'trading cycle')
-    .option('--start <startDate>', 'data collection start date')
-    .option('--end <endDate>', 'data collection end date')
-    .option('--influxdb-token <token>', 'Token for access Influxdb (localhost:8086)')
-    .action((name, options) => {
-        if (minimist(process.argv.slice(3))._.length < 1) {
-            options = {}
-        }
-        require('../commands/collector')(name, options)
+    .option('--startDate <startDate>', 'data collection start date')
+    .option('--endDate <endDate>', 'data collection end date')
+    .option('--token <influxdb-token>', 'Token for access Influxdb (localhost:8086)')
+    .action((options) => {
+        require('../commands/collector')(options)
     }) 
 
 program
     .command('backtest')
     .description('backtesting grademark - https://github.com/Grademark/grademark')
-    .option('--exchange <exchangeId>', 'exchange Name to collect data. eg. bitmex')
+    .option('--exchange-id <exchangeId>', 'exchange Name to collect data. eg. bitmex')
     .option('--exchange-mode <exchangeMode>', 'ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments')
     .option('--symbol <symbol>', 'currency symbol')
     .option('--strategy <strategy>', 'trading strategy e.g ...')
     .option('--timeframe <timeframe>', 'trading cycle')
-    .option('--start <startDate>', 'backtest start date')
-    .option('--end <endDate>', 'backtest end date')
-    .option('--influxdb-token <token>', 'Token for access Influxdb (localhost:8086)')
+    .option('--startDate <startDate>', 'backtest start date')
+    .option('--endDate <endDate>', 'backtest end date')
+    .option('--token <token>', 'Token for access Influxdb (localhost:8086)')
     .option('-c, --capital <capital>', 'starting capital. currency is XBt (Satoshi)')
-    .action((name, options) => {
-        if (minimist(process.argv.slice(3))._.length < 1) {
-            options = {}
-        }
-        require('../commands/backtest')(name, options)
+    .action((options) => {
+        require('../commands/backtest')(options)
     })
 
 // output help information on unknown commands

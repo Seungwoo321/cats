@@ -20,7 +20,7 @@ function config () {
         EXCHANGE_API_KEY: process.env.EXCHANGE_API_KEY || '',
         EXCHANGE_SECRET_KEY: process.env.EXCHANGE_SECRET_KEY || '',
         EXCHANGE_MODE: process.env.EXCHANGE_MODE,
-        GRAPHQL_URL: process.env.GRAPHQL_URL || 'http://localhost:4000',
+        GRAPHQL_URL: process.env.GRAPHQL_URL || 'http://localhost:4000/graphql',
         INFLUX2_URL: process.env.INFLUX2_URL || 'http://localhost:8086',
         INFLUX2_TOKEN: process.env.INFLUX2_TOKEN || 'cats',
         MARIADB_HOST: process.env.MARIADB_HOST || 'localhost',

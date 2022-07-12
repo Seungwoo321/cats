@@ -122,6 +122,12 @@ DEBUG=trading:bitmex,execution-trading:bitmex cats run test-bot
 
 ### run collector
 
+ - One line
+```bash
+cats collector --exchange-id bitmex --exchange-mode production --symbol BTC/USD:BTC --timeframe 1h --startDate "2022-01-01 00:00:00" --endDate "2022-07-13 00:00:00" --token cats
+```
+
+- Interactive
 ```bash
 cats collector
 ? Enter a token to access Influx2 (http://localhost:8086) 2QR9pFvw6sNxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

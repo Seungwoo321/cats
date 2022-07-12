@@ -8,7 +8,7 @@ inquirer.registerPrompt('datepicker', require('inquirer-datepicker'))
 
 process.env.CATS_CLI_MODE = true
 
-async function collect (name, options) {
+async function collect (options) {
     try {
         const promptOptions = await inquirer.prompt(collectPrompt(options))
         const fullOptions = Object.assign({}, options, promptOptions)
@@ -27,6 +27,12 @@ async function collect (name, options) {
                 exchangeId: fullOptions.exchangeId,
                 mode: fullOptions.exchangeMode
             })
+            if (typeof fullOptions.startDate === 'string') {
+                fullOptions.startDate = new Date(fullOptions.startDate)
+            }
+            if (typeof fullOptions.endDate === 'string') {
+                fullOptions.endDate = new Date(fullOptions.endDate)
+            }
             const startTime = fullOptions.startDate.getTime()
             const endTime = fullOptions.endDate.getTime()
             const total = api.getRequestCount(endTime - startTime, fullOptions.timeframe)
@@ -81,7 +87,6 @@ async function collect (name, options) {
 
 module.exports = (...args) => {
     return collect(...args).catch(err => {
-        console.log()
         console.log(err?.response?.errors || err)
         if (!process.env.CLI_TEST) {
             process.exit(1)

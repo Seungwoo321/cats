@@ -27,6 +27,7 @@
   "dependencies": {
     "@cats/helper-exchange": "^1.0.0",
     "@cats/helper-gql": "^1.0.0",
-    "@cats/shared-utils": "^1.0.0"
+    "@cats/shared-utils": "^1.0.0",
+    "ccxt": "^1.90.64"
   }
 }

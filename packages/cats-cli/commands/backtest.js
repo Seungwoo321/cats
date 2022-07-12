@@ -8,13 +8,12 @@ const { backtest, analyze } = grademark
 const logger = debug('cats:backtest')
 inquirer.registerPrompt('datepicker', require('inquirer-datepicker'))
 
-async function backtestOfGrademark (name, options) {
+async function backtestOfGrademark (options) {
     try {
         const promptOptions = await inquirer.prompt(backtestPrompt(options))
         const fullOptions = Object.assign({}, options, promptOptions)
         
         logger(JSON.stringify(fullOptions))
-        console.log(fullOptions)
         if (fullOptions.exchangeMode === 'test' && !validationPrompt.enableTestExchange(fullOptions.exchangeId)) {
             throw new Error(`${fullOptions.exchangeId} is not supported test mode`)
         }
