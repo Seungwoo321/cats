@@ -72,9 +72,54 @@ npm run serve:apollo -w @cats/apollo-server
 
 ```
 
+### run collector
+
+ - Usage 1. one line:
+```bash
+cats collector \
+    --exchange-id bitmex \
+    --exchange-mode production \
+    --symbol BTC/USD:BTC \
+    --timeframe 1h \
+    --startDate "2022-01-01 00:00:00" \
+    --endDate "2022-07-13 00:00:00" \
+    --token cats
+```
+
+- Usage 2. interactive:
+```bash
+cats collector
+? Enter a token to access Influx2 (http://localhost:8086) 2QR9pFvw6sNxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+? Please select the exchange to collect Bitmex
+? exchangeMode: test
+? Please select an symbol BTC/USD:BTC
+? Please select a time unit 5 min
+? Select a start date:  2022-06-01 12:00:00
+? Select a end date:  2022-06-07 08:38:00
+Colleting data... |████████████████████████████████████████| 100% || 20/20 Requsts
+```
+
 ### run create bot
 
-- Usage 1. without options:
+- Usage 1. one line:
+
+```bash
+## command
+cats create test-bot \
+    --symbol BTC/USD:BTC \
+    --strategy a \
+    --timeframe 1d \
+    --exchange-id bitmex
+    --exchange-access-key <api-key> \
+    --exchagne-secret-key <secret-key> \
+    --exchange-mode test 
+
+## ouptut
+Successfully registered. 
+run command: cats list test-bot
+```
+
+- Usage 2. interactive:
 
 ```bash
 ## command
@@ -94,50 +139,12 @@ run command: cats list test-bot
 
 ```
 
-- Usage 2. with options:
-
-```bash
-## command
-cats create test-bot \
-    --symbol BTC/USD:BTC \
-    --strategy a \
-    --timeframe 1d \
-    --exchange-id bitmex
-    --exchange-access-key <api-key> \
-    --exchagne-secret-key <secret-key> \
-    --exchange-mode test 
-
-## ouptut
-Successfully registered. 
-run command: cats list test-bot
-```
-
 Both methods work the __same__
 
 ### run bot
 
 ```bash
 DEBUG=trading:bitmex,execution-trading:bitmex cats run test-bot
-```
-
-### run collector
-
- - One line
-```bash
-cats collector --exchange-id bitmex --exchange-mode production --symbol BTC/USD:BTC --timeframe 1h --startDate "2022-01-01 00:00:00" --endDate "2022-07-13 00:00:00" --token cats
-```
-
-- Interactive
-```bash
-cats collector
-? Enter a token to access Influx2 (http://localhost:8086) 2QR9pFvw6sNxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-? Please select the exchange to collect Bitmex
-? exchangeMode: test
-? Please select an symbol BTC/USD:BTC
-? Please select a time unit 5 min
-? Select a start date:  2022-06-01 12:00:00
-? Select a end date:  2022-06-07 08:38:00
-Colleting data... |████████████████████████████████████████| 100% || 20/20 Requsts
 ```
 
 ## Define trading strategy
