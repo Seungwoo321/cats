@@ -322,6 +322,25 @@ Options:
 ```
 
 ```bash
+$ cats collector --help
+
+Usage: cats collector [options]
+
+Collect candles from exchanges into influxdb.
+
+Options:
+  --exchange-id <exchangeId>      exchange Name to collect data. eg. bitmex
+  --exchange-mode <exchangeMode>  ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments
+  --symbol <symbol>               currency symbol
+  --timeframe <timeframe>         trading cycle
+  --startDate <startDate>         data collection start date
+  --endDate <endDate>             data collection end date
+  --token <influxdb-token>        Token for access Influxdb (localhost:8086)
+  -h, --help                      display help for command
+
+```
+
+```bash
 $ cats backtest --help
 
 Usage: cats backtest [options]
@@ -329,18 +348,19 @@ Usage: cats backtest [options]
 backtesting grademark - https://github.com/Grademark/grademark
 
 Options:
-  --exchange <exchangeId>         exchange Name to collect data. eg. bitmex
+  --exchange-id <exchangeId>      exchange Name to collect data. eg. bitmex
   --exchange-mode <exchangeMode>  ccxt for enable exchange’s sandbox - https://docs.ccxt.com/en/latest/manual.html#testnets-and-sandbox-environments
   --symbol <symbol>               currency symbol
   --strategy <strategy>           trading strategy e.g ...
   --timeframe <timeframe>         trading cycle
-  --start <startDate>             backtest start date
-  --end <endDate>                 backtest end date
-  --influxdb-token <token>        Token for access Influxdb (localhost:8086)
+  --startDate <startDate>         backtest start date
+  --endDate <endDate>             backtest end date
+  --token <token>                 Token for access Influxdb (localhost:8086)
   -c, --capital <capital>         starting capital. currency is XBt (Satoshi)
   -h, --help                      display help for command
 
 ```
+
 
 ## License
 
