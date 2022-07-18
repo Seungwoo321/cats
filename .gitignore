@@ -1,6 +1,7 @@
 tmp
 .DS_Store
 data/
+package-lock.json
 
 # Logs
 logs
