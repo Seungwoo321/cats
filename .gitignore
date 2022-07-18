@@ -117,3 +117,5 @@ ecosystem.config.js
 
 # build js
 lib
+!**/src/lib
+
