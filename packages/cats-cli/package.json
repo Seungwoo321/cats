@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/Seungwoo321/cats#readme",
   "dependencies": {
+    "@cats/grademark": "^0.2.9",
     "bitmex-realtime-api": "^0.5.1",
     "cli-progress": "^3.11.1",
     "commander": "^9.2.0",

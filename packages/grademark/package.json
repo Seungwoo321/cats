@@ -1,0 +1,85 @@
+{
+    "name": "@cats/grademark",
+    "version": "0.2.9",
+    "description": "Toolkit for algo trading and backtesting in JavaScript and TypeScript.",
+    "main": "build/index.js",
+    "types": "build/index.d.ts",
+    "scripts": {
+        "setup": "npm install --save=false data-forge",
+        "c": "npm run clean",
+        "clean": "rm -rf build/*",
+        "b": "npm run build",
+        "build": "tsc",
+        "clean-build": "rm -rf build/* && tsc",
+        "bw": "npm run build:watch",
+        "build:watch": "tsc --watch",
+        "clean-build:watch": "rm -rf build/* && tsc --watch",
+        "t": "npm run test",
+        "test": "nyc mocha --opts ./src/test/mocha.opts",
+        "tw": "npm run test:watch",
+        "test:watch": "mocha --watch --watch-extensions ts --opts ./src/test/mocha.opts",
+        "prepublishOnly": "npm run clean && npm run test && npm run build"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/grademark/grademark.git"
+    },
+    "keywords": [
+        "trading",
+        "backtest",
+        "backtesting",
+        "quantitative",
+        "algorithmic",
+        "JavaScript",
+        "TypeScript"
+    ],
+    "author": "ashley@codecapers.com.au",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/grademark/grademark/issues"
+    },
+    "homepage": "https://github.com/grademark/grademark#readme",
+    "dependencies": {
+        "CBuffer": "^2.2.0",
+        "dayjs": "^1.8.36",
+        "mathjs": "^5.10.3",
+        "mersennetwister": "^0.2.3",
+        "moment": "^2.28.0",
+        "typy": "^3.3.0"
+    },
+    "peerDependencies": {
+        "data-forge": "^1.8.11"
+    },
+    "devDependencies": {
+        "@data-forge/serialization": "^1.0.1",
+        "@types/chai": "4.1.6",
+        "@types/mathjs": "^4.4.5",
+        "@types/mocha": "5.2.5",
+        "@types/node": "10.11.4",
+        "chai": "4.2.0",
+        "data-forge-fs": "0.0.8",
+        "data-forge-indicators": "^0.2.5",
+        "mocha": "5.2.0",
+        "nyc": "^15.1.0",
+        "source-map-support": "0.5.9",
+        "sugar": "^2.0.6",
+        "ts-node": "7.0.1",
+        "typescript": "3.1.1"
+    },
+    "nyc": {
+        "extension": [
+            ".ts"
+        ],
+        "exclude": [
+            "**/*.d.ts",
+            "src/test/**/*",
+            "build/**/*",
+            "docs/**/*",
+            "coverage/**/*"
+        ],
+        "reporter": [
+            "text-summary"
+        ],
+        "all": true
+    }
+}

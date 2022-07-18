@@ -14,7 +14,8 @@
     "packages/cats-cli",
     "packages/cats-cli-ui",
     "packages/cats-shared-utils",
-    "packages/test"
+    "packages/test",
+    "packages/grademark"
   ],
   "scripts": {
     "test": "jest",

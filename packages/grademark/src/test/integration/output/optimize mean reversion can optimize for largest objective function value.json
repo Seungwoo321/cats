@@ -1,0 +1,20 @@
+{
+    "bestResult": 0.7335838253712609,
+    "bestParameterValues": {
+        "SMA": 25
+    },
+    "allResults": [
+        {
+            "SMA": 5,
+            "result": 0.654892119305041
+        },
+        {
+            "SMA": 15,
+            "result": 0.391507239285238
+        },
+        {
+            "SMA": 25,
+            "result": 0.7335838253712609
+        }
+    ]
+}

@@ -1,10 +1,10 @@
 const inquirer = require('inquirer')
 const backtestPrompt = require('../util/prompt/backtest')
 const validationPrompt = require('../util/prompt/validationPrompt')
-const { dataForge, grademark, debug } = require('@cats/shared-utils')
+const { dataForge, debug } = require('@cats/shared-utils')
 const gqlService = require('@cats/helper-gql')
 const strategyModule = require('@cats/helper-strategy')
-const { backtest, analyze } = grademark
+const { backtest, analyze } = require('@cats/grademark')
 const logger = debug('cats:backtest')
 inquirer.registerPrompt('datepicker', require('inquirer-datepicker'))
 

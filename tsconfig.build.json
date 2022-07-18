@@ -24,6 +24,9 @@
     },
     {
       "path": "./packages/cats-shared-utils"
+    },
+    {
+      "path": "./packages/grademark"
     }
   ]
 }
