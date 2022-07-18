@@ -13,10 +13,6 @@ export enum TradeDirection {
     Short = "short",
 }
 
-export interface IFeeOpetion {
-    makerFee: number;
-    takerFee: number
-}
 /**
  * Options to the enter position function.
  */
@@ -91,6 +87,12 @@ export interface IOpenPositionRuleArgs<BarT extends IBar, ParametersT> extends I
 }
 
 /**
+ * Computes the fees
+ * Return the fees (maker fee + taker fee).
+ */
+export type FeesFn = () => number;
+
+/**
  * Arguments to a stop loss rule function.
  */
 export interface IStopLossArgs<BarT extends IBar, ParametersT> extends IOpenPositionRuleArgs<BarT, ParametersT> {
@@ -135,11 +137,6 @@ export interface IExitRuleArgs<BarT extends IBar, ParametersT> extends IOpenPosi
  * Type for a function that defines an exit rule.
  */
 export type ExitRuleFn<BarT extends IBar, ParametersT = any> = (exitPosition: ExitPositionFn, args: IExitRuleArgs<BarT, ParametersT>) => void;
-
-/**
- * Type for a function that define an fees.
- */
-export type FeesFn = () => IFeeOpetion
 
 /**
  * A collection of key/value pairs for parameters.
@@ -221,5 +218,5 @@ export interface IStrategy<InputBarT extends IBar = IBar, IndicatorsBarT extends
     /**
      * 
      */
-    fees: FeesFn;
+    fees?: FeesFn;
 }

@@ -2,7 +2,7 @@ import { ITrade } from "./trade";
 import { IDataFrame, DataFrame } from 'data-forge';
 import { IStrategy, IBar, IPosition } from "..";
 import { assert } from "chai";
-import { IEnterPositionOptions, IFeeOpetion, TradeDirection } from "./strategy";
+import { IEnterPositionOptions, TradeDirection } from "./strategy";
 import { isObject } from "./utils";
 const CBuffer = require('CBuffer');
 
@@ -35,7 +35,7 @@ function updatePosition(position: IPosition, bar: IBar): void {
  * @param exitTime The timestamp for the bar when the position was exited.
  * @param exitPrice The price of the instrument when the position was exited.
  */
-function finalizePosition(position: IPosition, exitTime: Date, exitPrice: number, exitReason: string, feeOptions: IFeeOpetion): ITrade {
+function finalizePosition(position: IPosition, exitTime: Date, exitPrice: number, exitReason: string, fees: number): ITrade {
     const entryPrice = position.entryPrice
     const profit = position.direction === TradeDirection.Long 
         ? exitPrice - entryPrice
@@ -43,7 +43,6 @@ function finalizePosition(position: IPosition, exitTime: Date, exitPrice: number
     const growth = position.direction === TradeDirection.Long
         ? exitPrice / entryPrice
         : entryPrice / exitPrice
-    const fee = growth * ((feeOptions.makerFee + feeOptions.takerFee) || 0)
     let rmultiple;
     if (position.initialUnitRisk !== undefined) {
         rmultiple = profit / position.initialUnitRisk; 
@@ -56,7 +55,7 @@ function finalizePosition(position: IPosition, exitTime: Date, exitPrice: number
         exitPrice: exitPrice,
         profit: profit,
         profitPct: (profit / entryPrice) * 100,
-        growth: growth - fee,
+        growth: growth - (growth * fees),
         riskPct: position.initialRiskPct,
         riskSeries: position.riskSeries,
         rmultiple: rmultiple,
@@ -139,9 +138,9 @@ export function backtest<InputBarT extends IBar, IndicatorBarT extends InputBarT
         indicatorsSeries = inputSeries as IDataFrame<IndexT, IndicatorBarT>;
     }
     //
-    // Fee Options
+    // Fees.
     //
-    const feeOptions = strategy.fees()
+    const fees = strategy.fees && strategy.fees() || 0
 
     //
     // Tracks trades that have been closed.
@@ -197,7 +196,7 @@ export function backtest<InputBarT extends IBar, IndicatorBarT extends InputBarT
     // Close the current open position.
     //
     function closePosition(bar: InputBarT, exitPrice: number, exitReason: string) {
-        const trade = finalizePosition(openPosition!, bar.time, exitPrice, exitReason, feeOptions);
+        const trade = finalizePosition(openPosition!, bar.time, exitPrice, exitReason, fees);
         completedTrades.push(trade!);
         // Reset to no open position;
         openPosition = null;
@@ -434,7 +433,7 @@ export function backtest<InputBarT extends IBar, IndicatorBarT extends InputBarT
     if (openPosition) {
         // Finalize open position.
         const lastBar = indicatorsSeries.last();
-        const lastTrade = finalizePosition(openPosition, lastBar.time, lastBar.close, "finalize", feeOptions);
+        const lastTrade = finalizePosition(openPosition, lastBar.time, lastBar.close, "finalize", fees);
         completedTrades.push(lastTrade);
     }
 
